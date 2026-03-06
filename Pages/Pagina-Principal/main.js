@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let introProgress = 0;
   let touchStartY = null;
   const introEndProgress = 1;
+  const INTRO_TITLE_PHASE = 0.30;
+  const INTRO_SUB_PHASE = 0.55;
+  const INTRO_CTA_PHASE = 0.15;
+  const INTRO_CTA_OVERLAP = 0;
 
   const clamp01 = (value) => Math.min(1, Math.max(0, value));
   const smooth = (value) => {
@@ -345,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       word.style.opacity = '1';
     });
 
-    const titlePhase = clamp01(introProgress / 0.34);
+    const titlePhase = clamp01(introProgress / INTRO_TITLE_PHASE);
     words.forEach((word, index) => {
       // Hide each word one after another while translating it upward.
       const segmentStart = index / words.length;
@@ -355,23 +359,28 @@ document.addEventListener('DOMContentLoaded', () => {
       word.style.transform = `translateY(${-30 * eased}px)`;
     });
 
-    const subPhase = (introProgress - 0.34) / 0.33;
+    const subPhase = (introProgress - INTRO_TITLE_PHASE) / INTRO_SUB_PHASE;
     let subOpacity = 0;
     if (subPhase > 0 && subPhase < 1) {
-      if (subPhase <= 0.5) {
-        subOpacity = smooth(subPhase * 2);
+      if (subPhase <= 0.25) {
+        subOpacity = smooth(subPhase / 0.25);
+      } else if (subPhase <= 0.75) {
+        subOpacity = 1;
       } else {
-        subOpacity = 1 - smooth((subPhase - 0.5) * 2);
+        subOpacity = 1 - smooth((subPhase - 0.75) / 0.25);
       }
     }
 
-    const ctaPhase = (introProgress - 0.67) / 0.33;
+    const ctaStart = INTRO_TITLE_PHASE + INTRO_SUB_PHASE - INTRO_CTA_OVERLAP;
+    const ctaPhase = (introProgress - ctaStart) / INTRO_CTA_PHASE;
     let ctaOpacity = 0;
     if (ctaPhase > 0 && ctaPhase < 1) {
-      if (ctaPhase <= 0.5) {
-        ctaOpacity = smooth(ctaPhase * 2);
+      if (ctaPhase <= 0.30) {
+        ctaOpacity = smooth(ctaPhase / 0.30);
+      } else if (ctaPhase <= 0.70) {
+        ctaOpacity = 1;
       } else {
-        ctaOpacity = 1 - smooth((ctaPhase - 0.5) * 2);
+        ctaOpacity = 1 - smooth((ctaPhase - 0.70) / 0.30);
       }
     }
 

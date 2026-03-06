@@ -156,7 +156,7 @@ body {
   margin-top: 0;
   position: absolute;
   left: 50%;
-  top: calc(50% + 74px);
+  top: calc(50% - 5px);
   transform: translateX(-50%);
   width: min(700px, 90vw);
   text-align: center;

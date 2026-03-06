@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Renta de Vehiculos</title>
+	<link rel="stylesheet" href="styles_renta.css?v=20260306-01">
+</head>
+<body>
+	<header class="header">
+		<div class="marca">
+			<img class="logo" src="../Pagina-Principal/img/logo.png" alt="Logo">
+			<span>Renta</span>
+		</div>
+		<nav class="nav">
+			<a href="../Pagina-Principal/index.html">Volver al inicio</a>
+		</nav>
+	</header>
+
+	<main class="renta-main">
+		<section id="step-map" class="step is-active" aria-labelledby="map-title">
+			<div class="container">
+				<p class="kicker">Paso 1</p>
+				<h1 id="map-title">Elige una estacion sede</h1>
+				<p class="lead">Selecciona una estacion del mapa para ver que vehiculos hay disponibles en tiempo real.</p>
+
+				<div class="map-layout">
+					<div class="metro-map" id="metro-map" aria-label="Mapa de estaciones"></div>
+
+					<aside class="station-panel">
+						<h2>Estacion seleccionada</h2>
+						<p id="station-name">Ninguna aun</p>
+						<p id="station-line" class="muted">Toca una estacion para continuar.</p>
+					</aside>
+				</div>
+
+				<section class="vehicles-panel" id="vehicles-panel" hidden>
+					<h2>Vehiculos disponibles</h2>
+					<p class="muted">Costo mostrado por cada 30 minutos.</p>
+					<div id="vehicle-list" class="vehicle-grid"></div>
+				</section>
+			</div>
+		</section>
+
+		<section id="step-summary" class="step" aria-labelledby="summary-title" hidden>
+			<div class="container narrow">
+				<p class="kicker">Paso 2</p>
+				<h2 id="summary-title">Resumen de tu compra</h2>
+
+				<article class="card summary-card">
+					<p><strong>Estacion:</strong> <span id="summary-station">-</span></p>
+					<p><strong>Vehiculo:</strong> <span id="summary-type">-</span></p>
+					<p><strong>Serie:</strong> <span id="summary-serial">-</span></p>
+					<p><strong>Costo (30 min):</strong> <span id="summary-price">-</span></p>
+					<p class="total"><strong>Total a pagar:</strong> <span id="summary-total">-</span></p>
+				</article>
+
+				<div class="actions-row">
+					<button id="summary-back" class="btn ghost" type="button">Cambiar vehiculo</button>
+					<button id="go-payment" class="btn primary" type="button">Continuar al pago</button>
+				</div>
+			</div>
+		</section>
+
+		<section id="step-payment" class="step" aria-labelledby="payment-title" hidden>
+			<div class="container narrow">
+				<p class="kicker">Paso 3</p>
+				<h2 id="payment-title">Pago</h2>
+
+				<form id="payment-form" class="card payment-form">
+					<label>
+						Nombre del titular
+						<input name="holder" required placeholder="Nombre completo">
+					</label>
+					<label>
+						Correo
+						<input name="email" type="email" required placeholder="tucorreo@ejemplo.com">
+					</label>
+					<div class="cols-3">
+						<label>
+							Tarjeta
+							<input name="card" required inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456">
+						</label>
+						<label>
+							Vence
+							<input name="exp" required placeholder="MM/AA" maxlength="5">
+						</label>
+						<label>
+							CVV
+							<input name="cvv" required inputmode="numeric" maxlength="4" placeholder="123">
+						</label>
+					</div>
+					<label class="check">
+						<input type="checkbox" name="terms" required>
+						Acepto terminos y condiciones
+					</label>
+					<button class="btn primary" type="submit">Pagar ahora</button>
+				</form>
+			</div>
+		</section>
+
+		<section id="step-ticket" class="step" aria-labelledby="ticket-title" hidden>
+			<div class="container narrow">
+				<p class="kicker">Paso 4</p>
+				<h2 id="ticket-title">Ticket generado</h2>
+
+				<article class="ticket" id="ticket-card">
+					<p class="ticket-id">Folio: <span id="ticket-id">-</span></p>
+					<p><strong>Estacion:</strong> <span id="ticket-station">-</span></p>
+					<p><strong>Vehiculo:</strong> <span id="ticket-vehicle">-</span></p>
+					<p><strong>Serie:</strong> <span id="ticket-serial">-</span></p>
+					<p><strong>Monto:</strong> <span id="ticket-total">-</span></p>
+					<p><strong>Hora pago:</strong> <span id="ticket-time">-</span></p>
+					<div class="qr-wrap">
+						<img id="ticket-qr" alt="Codigo QR del viaje">
+					</div>
+					<p class="muted">Escanea este QR en el vehiculo para iniciar tu tiempo.</p>
+				</article>
+
+				<button id="start-trip" class="btn primary" type="button">Ya escanee, iniciar viaje</button>
+			</div>
+		</section>
+
+		<section id="step-trip" class="step" aria-labelledby="trip-title" hidden>
+			<div class="container narrow">
+				<p class="kicker">Paso 5</p>
+				<h2 id="trip-title">Viaje activo</h2>
+
+				<article class="card trip-card">
+					<p><strong>Vehiculo:</strong> <span id="trip-vehicle">-</span></p>
+					<p><strong>Serie:</strong> <span id="trip-serial">-</span></p>
+					<p><strong>Estacion origen:</strong> <span id="trip-station">-</span></p>
+					<div class="timer" id="trip-timer" aria-live="polite">00:00</div>
+				</article>
+
+				<div class="trip-actions">
+					<button id="stop-trip" class="btn danger" type="button">Parar viaje</button>
+					<button id="help-trip" class="btn ghost" type="button">Obtener ayuda</button>
+					<button id="support-trip" class="btn ghost" type="button">Soporte</button>
+					<button id="emergency-trip" class="btn emergency" type="button">Emergencias</button>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+	<script src="main.js?v=20260306-01"></script>
+</body>
+</html>

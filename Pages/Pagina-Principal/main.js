@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const t = clamp01(value);
     return t * t * (3 - 2 * t);
   };
-  const MIN_VISIBLE_WHEEL_STEPS = 4;
+  const MIN_VISIBLE_WHEEL_STEPS = 0;
   const WHEEL_STEP_PX = 100;
   const HOWTO_ENTRY_FADE_PX = 120;
   const HOWTO_EXIT_FADE_PX = 120;
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ELIGE_STACK_TRAVEL_PX = WHEEL_STEP_PX;
   const ELIGE_THIRD_START_PX = WHEEL_STEP_PX * 4;
   const ELIGE_THIRD_TRAVEL_PX = WHEEL_STEP_PX;
-  const ELIGE_STATIC_WHEEL_STEPS = 6;
+  const ELIGE_STATIC_WHEEL_STEPS = 2;
   const ELIGE_STATIC_PX = ELIGE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
   const ELIGE_STACK_SPACING_PX = 180;
   const HOWTO_NOTE_IN_WHEEL_STEPS = 4;

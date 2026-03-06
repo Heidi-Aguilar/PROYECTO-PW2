@@ -403,8 +403,8 @@ body {
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px))) rotate(var(--elige-top-rot, -0.6deg));
-  opacity: var(--elige-top-opacity, 0);
+  transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px) - 20px)) rotate(var(--elige-top-rot, -0.6deg));
+  opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
     url('img/pexels-rdne-7335303.jpg') center / cover no-repeat;
@@ -420,8 +420,8 @@ body {
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px))) rotate(var(--elige-bottom-rot, .9deg));
-  opacity: var(--elige-bottom-opacity, 0);
+  transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px) - 20px)) rotate(var(--elige-bottom-rot, .9deg));
+  opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
     url('img/33.jpg') center / cover no-repeat;
@@ -436,11 +436,87 @@ body {
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px))) rotate(var(--elige-third-rot, .3deg));
-  opacity: var(--elige-third-opacity, 0);
+  transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px) - 20px)) rotate(var(--elige-third-rot, .3deg));
+  opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
     url('img/pexels-norma-mortenson-4392872.jpg') center / cover no-repeat;
+  box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-tower-photo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(360px, 54vw);
+  height: min(190px, 26vh);
+  border-radius: 18px;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-top {
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-top-y, 0px) + 30px)) rotate(var(--elige-top-rot, -0.6deg));
+  opacity: calc(var(--elige-top-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/66.png') center / cover no-repeat;
+  box-shadow: 0 12px 24px rgba(33, 24, 15, .2);
+  z-index: 2;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-mid {
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-bottom-y, 54px) + 30px)) rotate(var(--elige-bottom-rot, .9deg));
+  opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/44.jpg') center / cover no-repeat;
+  box-shadow: 0 10px 22px rgba(33, 24, 15, .18);
+  z-index: 0;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-bottom {
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-third-y, 36px) + 30px)) rotate(var(--elige-third-rot, .3deg));
+  opacity: calc(var(--elige-third-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/88.png') center / cover no-repeat;
+  box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-top {
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-top-y, 0px) + 16px)) rotate(var(--elige-top-rot, -0.6deg));
+  opacity: calc(var(--elige-top-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/11.jpg') center / cover no-repeat;
+  box-shadow: 0 12px 24px rgba(33, 24, 15, .2);
+  z-index: 2;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-mid {
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-bottom-y, 54px) + 16px)) rotate(var(--elige-bottom-rot, .9deg));
+  opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/55.png') center / cover no-repeat;
+  box-shadow: 0 10px 22px rgba(33, 24, 15, .18);
+  z-index: 0;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-bottom {
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-third-y, 36px) + 16px)) rotate(var(--elige-third-rot, .3deg));
+  opacity: calc(var(--elige-third-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/22.jpg') center / cover no-repeat;
   box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
   z-index: 1;
 }
@@ -611,6 +687,10 @@ body {
     opacity: 1;
     transform: none;
     filter: none;
+  }
+
+  .js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
+    display: none;
   }
 
   .js-howto-sequence .section-howto .container > h2,

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey Vaquero</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="Login.css">
+</head>
+<body>
+
+    <video autoplay muted loop class="video-bg">
+        <source src="img/mty.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="login-card" id="login-card">
+        <img src="img/LOGO1.png" class="logo">
+        <h1>¡Qué Onda!</h1>
+        <div class="input-box">
+            <input type="text" placeholder="Correo">
+            <i class='bx bxs-user'></i>
+        </div>
+        <div class="input-box">
+            <input type="password" placeholder="Contraseña">
+            <i class='bx bxs-lock-alt'></i>
+        </div>
+        <button class="login-btn">Entrar <i class='bx bx-right-arrow-alt'></i></button>
+        
+        <div class="register-link">
+            <p>¿No tienes cuenta? <a href="#" onclick="toggleCards()">Regístrate aquí</a></p>
+        </div>
+
+        <p class="social-text">o entra con</p>
+        <div class="social-icons">
+            <i class='bx bxl-google'></i>
+            <i class='bx bxl-apple'></i>
+            <i class='bx bxl-facebook'></i>
+        </div>
+    </div>
+
+    <div class="login-card" id="register-card" style="display: none;">
+        <img src="img/LOGO1.png" class="logo">
+        <h1>Crea tu cuenta</h1>
+        
+        <div class="input-box">
+            <input type="text" placeholder="Nombre Completo">
+            <i class='bx bxs-id-card'></i>
+        </div>
+        <div class="input-box">
+            <input type="email" placeholder="Correo Electrónico">
+            <i class='bx bxs-envelope'></i>
+        </div>
+        <div class="input-box">
+            <input type="password" placeholder="Contraseña">
+            <i class='bx bxs-lock-alt'></i>
+        </div>
+        
+        <button class="login-btn">Registrarse <i class='bx bx-check-circle'></i></button>
+        
+        <div class="register-link">
+            <p>¿Ya tienes cuenta? <a href="#" onclick="toggleCards()">Inicia sesión</a></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

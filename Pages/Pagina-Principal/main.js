@@ -471,7 +471,17 @@ document.addEventListener('DOMContentLoaded', () => {
     heroCta.style.filter = 'blur(2px)';
     heroSub.style.pointerEvents = 'none';
     heroCta.style.pointerEvents = 'none';
-    renderLockedIntro();
+
+    if (introProgress === 0) {
+      // Keep CSS keyframes active on first load so hero-title entry is visible.
+      words.forEach((word) => {
+        word.style.animation = '';
+        word.style.opacity = '';
+        word.style.transform = '';
+      });
+    } else {
+      renderLockedIntro();
+    }
 
     window.addEventListener('wheel', onLockedWheel, { passive: false });
     window.addEventListener('touchstart', onLockedTouchStart, { passive: true });

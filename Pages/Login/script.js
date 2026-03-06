@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginCard = document.getElementById('login-card');
     const registerCard = document.getElementById('register-card');
 
-    // --- FUNCIÓN PARA LOGIN ---
+    
     const loginBtn = loginCard.querySelector('.login-btn');
     loginBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -22,12 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
             shakeCard(loginCard);
             alert("¡Hey vaquero! Llena tus datos para entrar.");
         } else {
-            // AQUÍ SI REDIRIGE AL INDEX
+            
            window.location.href = "../Pagina-principal/index.html";
         }
     });
 
-    // --- FUNCIÓN PARA REGISTRO ---
+    
     const registerBtn = registerCard.querySelector('.login-btn');
     registerBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
             shakeCard(registerCard);
             alert("Por favor, completa todos los campos para registrarte.");
         } else {
-            // EN REGISTRO NO REDIRIGE, SOLO AVISA Y REGRESA AL LOGIN
+            
             alert("¡Cuenta creada con éxito! Ahora inicia sesión.");
-            toggleCards(); // Regresa visualmente al login
+            toggleCards(); 
         }
     });
 
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.animation = 'shake 0.5s linear';
     }
 
-    // Efecto estético de los iconos
+    
     const allInputs = document.querySelectorAll('.input-box input');
     allInputs.forEach(input => {
         input.addEventListener('focus', () => {

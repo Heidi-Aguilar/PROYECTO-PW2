@@ -16,12 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let introLocked = true;
   let introProgress = 0;
   let touchStartY = null;
+  const introEndProgress = 1;
 
   const clamp01 = (value) => Math.min(1, Math.max(0, value));
   const smooth = (value) => {
     const t = clamp01(value);
     return t * t * (3 - 2 * t);
   };
+
+  const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
   const revealTargets = [
     '.section-howto .container > h2',
@@ -114,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const direction = event.deltaY > 0 ? 1 : -1;
     introProgress = clamp01(introProgress + step * direction);
     renderLockedIntro();
-    if (introProgress >= 1 && direction > 0) {
+    if (isIntroSequenceComplete() && direction > 0) {
       unlockIntro();
     }
   };
@@ -136,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     introProgress = clamp01(introProgress + (isDown ? 0.08 : -0.08));
     renderLockedIntro();
-    if (introProgress >= 1 && isDown) {
+    if (isIntroSequenceComplete() && isDown) {
       unlockIntro();
     }
   };
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     introProgress = clamp01(introProgress + step * direction);
     touchStartY = currentY;
     renderLockedIntro();
-    if (introProgress >= 1 && direction > 0) {
+    if (isIntroSequenceComplete() && direction > 0) {
       unlockIntro();
     }
   };

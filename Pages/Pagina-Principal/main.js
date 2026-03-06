@@ -32,7 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const MIN_VISIBLE_WHEEL_STEPS = 4;
   const WHEEL_STEP_PX = 100;
-  const HOWTO_FADE_PX = 120;
+  const HOWTO_ENTRY_FADE_PX = 120;
+  const HOWTO_EXIT_FADE_PX = 120;
+  const HOWTO_TITLE_STATIC_WHEEL_STEPS = 3;
+  const HOWTO_TITLE_MOVE_WHEEL_STEPS = 4;
+  const HOWTO_TITLE_STATIC_PX = HOWTO_TITLE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_TITLE_SPLIT_PX = HOWTO_TITLE_MOVE_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_TITLE_TOTAL_EXIT_PX = HOWTO_TITLE_STATIC_PX + HOWTO_TITLE_SPLIT_PX;
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
@@ -127,7 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionRect = howtoSection.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
     const minVisiblePx = MIN_VISIBLE_WHEEL_STEPS * WHEEL_STEP_PX;
-    const minTravelPerItem = minVisiblePx + HOWTO_FADE_PX * 2;
+    const maxExitTravelPx = Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_EXIT_PX);
+    const minTravelPerItem = minVisiblePx + HOWTO_ENTRY_FADE_PX + maxExitTravelPx;
     const minSectionHeight = Math.ceil(viewportHeight + minTravelPerItem * howtoSequenceItems.length);
     if (howtoSection.offsetHeight < minSectionHeight) {
       howtoSection.style.minHeight = `${minSectionHeight}px`;
@@ -145,14 +152,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const localPhase = clamp01(localTravelPx / itemTravelPx);
       let opacity = 0;
       let exitSpreadPhase = 0;
+      const isTitleItem = item === howtoTitle;
+      const exitTravelPx = isTitleItem
+        ? Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_EXIT_PX)
+        : HOWTO_EXIT_FADE_PX;
+      const exitStartPx = Math.max(HOWTO_ENTRY_FADE_PX, itemTravelPx - exitTravelPx);
 
       if (localTravelPx > 0 && localTravelPx < itemTravelPx) {
-        if (localTravelPx <= HOWTO_FADE_PX) {
-          opacity = smooth(localTravelPx / HOWTO_FADE_PX);
-        } else if (localTravelPx <= itemTravelPx - HOWTO_FADE_PX) {
+        if (isTitleItem) {
+          if (localTravelPx <= HOWTO_TITLE_STATIC_PX) {
+            opacity = 1;
+          } else {
+            // Title stays static for 3 wheel steps, then splits/fades for 4.
+            exitSpreadPhase = clamp01((localTravelPx - HOWTO_TITLE_STATIC_PX) / Math.max(1, HOWTO_TITLE_SPLIT_PX));
+            opacity = 1 - smooth(exitSpreadPhase);
+          }
+        } else if (localTravelPx <= HOWTO_ENTRY_FADE_PX) {
+          opacity = smooth(localTravelPx / HOWTO_ENTRY_FADE_PX);
+        } else if (localTravelPx <= exitStartPx) {
           opacity = 1;
         } else {
-          exitSpreadPhase = clamp01((localTravelPx - (itemTravelPx - HOWTO_FADE_PX)) / HOWTO_FADE_PX);
+          exitSpreadPhase = clamp01((localTravelPx - exitStartPx) / Math.max(1, exitTravelPx));
           opacity = 1 - smooth(exitSpreadPhase);
         }
       }
@@ -163,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (howtoSteps.includes(item)) {
         item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
-      } else if (item === howtoTitle) {
+      } else if (isTitleItem) {
         item.style.transform = 'translate(-50%, -50%)';
         if (howtoTitleLeft && howtoTitleRight) {
           const spreadPx = 160 * smooth(exitSpreadPhase);

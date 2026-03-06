@@ -266,7 +266,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const lift = (1 - opacity) * 26;
       item.style.opacity = opacity.toFixed(3);
-      item.style.filter = `blur(${((1 - opacity) * 2).toFixed(2)}px)`;
+      if (isEligeItem) {
+        // Keep Elige visually identical enough while avoiding expensive per-frame blur.
+        item.style.filter = 'none';
+      } else {
+        item.style.filter = `blur(${((1 - opacity) * 2).toFixed(2)}px)`;
+      }
 
       if (howtoSteps.includes(item)) {
         let reservaOffset = 0;

@@ -560,6 +560,33 @@ body {
   text-shadow: 0 2px 10px rgba(0, 0, 0, .42);
 }
 
+.js-howto-sequence .section-howto .steps li.step-reserva {
+  --reserva-calendar-reveal: 0;
+  --reserva-calendar-opacity: 0;
+}
+
+.js-howto-sequence .section-howto .steps li.step-reserva::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(420px, calc(100vw - 40px));
+  height: min(280px, 38vh);
+  transform: translate(-50%, calc(-50% + 130px + (1 - var(--reserva-calendar-reveal)) * 10px));
+  border-radius: 16px;
+  background: url('img/calendar.png') center top / cover no-repeat;
+  opacity: calc(var(--reserva-calendar-opacity) * 0.9);
+  clip-path: inset(0 0 calc((1 - var(--reserva-calendar-reveal)) * 72%) 0 round 16px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-reserva > h3,
+.js-howto-sequence .section-howto .steps li.step-reserva > p {
+  position: relative;
+  z-index: 2;
+}
+
 .js-howto-sequence .section-howto .steps li:nth-child(1) { z-index: 3; }
 .js-howto-sequence .section-howto .steps li:nth-child(2) { z-index: 2; }
 .js-howto-sequence .section-howto .steps li:nth-child(3) { z-index: 1; }
@@ -721,6 +748,10 @@ body {
   }
 
   .js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
+    display: none;
+  }
+
+  .js-howto-sequence .section-howto .steps li.step-reserva::after {
     display: none;
   }
 

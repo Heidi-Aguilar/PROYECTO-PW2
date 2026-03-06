@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoSection = document.querySelector('.section-howto');
   const howtoTitle = document.querySelector('.section-howto .container > h2');
   const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
+  const howtoStepSet = new Set(howtoSteps);
   const howtoReservaStep = document.querySelector('.section-howto .steps li.step-reserva');
   const howtoNote = document.querySelector('.section-howto .note');
   const howtoEligeStep = document.querySelector('.section-howto .steps li.step-elige');
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const WHEEL_STEP_PX = 100;
   const HOWTO_ENTRY_FADE_PX = 120;
   const HOWTO_EXIT_FADE_PX = 120;
+  const HOWTO_ACTIVE_MARGIN_PX = 280;
   const HOWTO_TITLE_IN_WHEEL_STEPS = 4;
   const HOWTO_TITLE_STATIC_WHEEL_STEPS = 3;
   const HOWTO_TITLE_OUT_WHEEL_STEPS = 4;
@@ -160,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (window.matchMedia('(max-width: 900px)').matches) {
+    if (window.innerWidth <= 900) {
       howtoSection.style.minHeight = '';
       howtoSequenceItems.forEach((item) => {
         item.style.opacity = '';
@@ -177,6 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
         howtoEligeStep.style.removeProperty('--elige-third-opacity');
         howtoEligeStep.style.removeProperty('--elige-third-y');
         howtoEligeStep.style.removeProperty('--elige-third-rot');
+      }
+      if (howtoReservaStep) {
+        howtoReservaStep.style.removeProperty('--reserva-calendar-reveal');
+        howtoReservaStep.style.removeProperty('--reserva-calendar-opacity');
       }
       if (howtoTitleLeft && howtoTitleRight) {
         howtoTitleLeft.style.transform = '';
@@ -195,6 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sectionRect = howtoSection.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+    // Skip costly per-item updates when section is far from viewport.
+    if (sectionRect.bottom < -HOWTO_ACTIVE_MARGIN_PX || sectionRect.top > viewportHeight + HOWTO_ACTIVE_MARGIN_PX) {
+      return;
+    }
+
     const minVisiblePx = MIN_VISIBLE_WHEEL_STEPS * WHEEL_STEP_PX;
     const maxExitTravelPx = Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_PX, HOWTO_NOTE_TOTAL_PX);
     const minTravelPerItem = minVisiblePx + HOWTO_ENTRY_FADE_PX + maxExitTravelPx;
@@ -273,13 +285,16 @@ document.addEventListener('DOMContentLoaded', () => {
         item.style.filter = `blur(${((1 - opacity) * 2).toFixed(2)}px)`;
       }
 
-      if (howtoSteps.includes(item)) {
+      if (howtoStepSet.has(item)) {
         let reservaOffset = 0;
         if (isReservaItem) {
           const reservaRiseStartPx = HOWTO_ENTRY_FADE_PX + RESERVA_STATIC_PX;
           const reservaRiseTravelPx = Math.max(1, exitStartPx - reservaRiseStartPx);
           const reservaRisePhase = clamp01((localTravelPx - reservaRiseStartPx) / reservaRiseTravelPx);
-          reservaOffset = -RESERVA_UP_PX * smooth(reservaRisePhase);
+          const reservaRiseEase = smooth(reservaRisePhase);
+          reservaOffset = -RESERVA_UP_PX * reservaRiseEase;
+          item.style.setProperty('--reserva-calendar-reveal', reservaRiseEase.toFixed(3));
+          item.style.setProperty('--reserva-calendar-opacity', (reservaRiseEase * opacity).toFixed(3));
         }
 
         item.style.transform = `translateY(${(lift + reservaOffset).toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;

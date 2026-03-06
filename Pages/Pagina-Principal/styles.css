@@ -588,6 +588,43 @@ body {
   z-index: 2;
 }
 
+.js-howto-sequence .section-howto .steps li.step-disfruta::before,
+.js-howto-sequence .section-howto .steps li.step-disfruta::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.js-howto-sequence .section-howto .steps li.step-disfruta::before {
+  right: -10%;
+  width: min(450px, 36vw);
+  height: min(450px, 36vw);
+  top: calc(20% - 156px);
+  background-image: url('img/logo.png');
+  opacity: 0.92;
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-disfruta::after {
+  right: -40%;
+  width: min(660px, 44vw);
+  height: min(560px, 32vw);
+  top: calc(-20% + 24px);
+  background-image: url('img/1111111.png');
+  opacity: 0.88;
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-disfruta > h3,
+.js-howto-sequence .section-howto .steps li.step-disfruta > p {
+  position: relative;
+  z-index: 2;
+}
+
+
 .js-howto-sequence .section-howto .steps li:nth-child(1) { z-index: 3; }
 .js-howto-sequence .section-howto .steps li:nth-child(2) { z-index: 2; }
 .js-howto-sequence .section-howto .steps li:nth-child(3) { z-index: 1; }
@@ -751,6 +788,12 @@ body {
   .js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
     display: none;
   }
+
+  .js-howto-sequence .section-howto .steps li.step-disfruta::before,
+  .js-howto-sequence .section-howto .steps li.step-disfruta::after {
+    display: none;
+  }
+
 
   .js-howto-sequence .section-howto .steps li.step-reserva::after {
     display: none;

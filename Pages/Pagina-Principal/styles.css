@@ -395,38 +395,15 @@ body {
   will-change: opacity, transform, filter;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige::before {
-  content: '';
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-photo {
   position: absolute;
   top: 50%;
   left: 50%;
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px) - 20px)) rotate(var(--elige-top-rot, -0.6deg));
-  opacity: calc(var(--elige-top-opacity, 0) * 0.84);
-  background:
-    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
-    url('img/pexels-rdne-7335303.jpg') center / cover no-repeat;
-  box-shadow: 0 12px 24px rgba(33, 24, 15, .2);
-  z-index: 2;
-}
-
-.js-howto-sequence .section-howto .steps li.step-elige::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(360px, 54vw);
-  height: min(190px, 26vh);
-  border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px) - 20px)) rotate(var(--elige-bottom-rot, .9deg));
-  opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
-  background:
-    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
-    url('img/33.jpg') center / cover no-repeat;
-  box-shadow: 0 10px 22px rgba(33, 24, 15, .18);
-  z-index: 0;
+  pointer-events: auto;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third {
@@ -436,12 +413,14 @@ body {
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
-  transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px) - 20px)) rotate(var(--elige-third-rot, .3deg));
+  transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px) - 20px)) rotate(var(--elige-third-rot, .3deg)) scale(var(--elige-third-scale, 1));
   opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
     url('img/pexels-norma-mortenson-4392872.jpg') center / cover no-repeat;
   box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
+  pointer-events: auto;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
   z-index: 1;
 }
 
@@ -459,10 +438,32 @@ body {
   width: min(360px, 54vw);
   height: min(190px, 26vh);
   border-radius: 18px;
+  pointer-events: auto;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-top {
+  transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px) - 20px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-top-scale, 1));
+  opacity: calc(var(--elige-top-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/pexels-rdne-7335303.jpg') center / cover no-repeat;
+  box-shadow: 0 12px 24px rgba(33, 24, 15, .2);
+  z-index: 2;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-mid {
+  transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px) - 20px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-mid-scale, 1));
+  opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/33.jpg') center / cover no-repeat;
+  box-shadow: 0 10px 22px rgba(33, 24, 15, .18);
+  z-index: 0;
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-left-top {
-  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-top-y, 0px) + 30px)) rotate(var(--elige-top-rot, -0.6deg));
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-top-y, 0px) + 30px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-left-top-scale, 1));
   opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -472,7 +473,7 @@ body {
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-left-mid {
-  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-bottom-y, 54px) + 30px)) rotate(var(--elige-bottom-rot, .9deg));
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-bottom-y, 54px) + 30px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-left-mid-scale, 1));
   opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -482,7 +483,7 @@ body {
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-left-bottom {
-  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-third-y, 36px) + 30px)) rotate(var(--elige-third-rot, .3deg));
+  transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-third-y, 36px) + 30px)) rotate(var(--elige-third-rot, .3deg)) scale(var(--elige-left-bottom-scale, 1));
   opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -492,7 +493,7 @@ body {
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-right-top {
-  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-top-y, 0px) + 16px)) rotate(var(--elige-top-rot, -0.6deg));
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-top-y, 0px) + 16px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-right-top-scale, 1));
   opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -502,7 +503,7 @@ body {
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-right-mid {
-  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-bottom-y, 54px) + 16px)) rotate(var(--elige-bottom-rot, .9deg));
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-bottom-y, 54px) + 16px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-right-mid-scale, 1));
   opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -512,7 +513,7 @@ body {
 }
 
 .js-howto-sequence .section-howto .steps li.step-elige .elige-right-bottom {
-  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-third-y, 36px) + 16px)) rotate(var(--elige-third-rot, .3deg));
+  transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-third-y, 36px) + 16px)) rotate(var(--elige-third-rot, .3deg)) scale(var(--elige-right-bottom-scale, 1));
   opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
     linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
@@ -520,6 +521,23 @@ body {
   box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
   z-index: 1;
 }
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-photo:hover,
+.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third:hover,
+.js-howto-sequence .section-howto .steps li.step-elige .elige-tower-photo:hover {
+  box-shadow: 0 18px 34px rgba(33, 24, 15, .34);
+  filter: brightness(1.08) saturate(1.08);
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-top:hover { --elige-top-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-center-mid:hover { --elige-mid-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third:hover { --elige-third-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-top:hover { --elige-left-top-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-mid:hover { --elige-left-mid-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-left-bottom:hover { --elige-left-bottom-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-top:hover { --elige-right-top-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-mid:hover { --elige-right-mid-scale: 1.05; }
+.js-howto-sequence .section-howto .steps li.step-elige .elige-right-bottom:hover { --elige-right-bottom-scale: 1.05; }
 
 .js-howto-sequence .section-howto .steps li.step-elige > h3,
 .js-howto-sequence .section-howto .steps li.step-elige > p {

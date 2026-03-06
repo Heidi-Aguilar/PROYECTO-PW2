@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoSection = document.querySelector('.section-howto');
   const howtoTitle = document.querySelector('.section-howto .container > h2');
   const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
+  const howtoReservaStep = document.querySelector('.section-howto .steps li.step-reserva');
   const howtoNote = document.querySelector('.section-howto .note');
   const howtoEligeStep = document.querySelector('.section-howto .steps li.step-elige');
   let howtoTitleLeft = null;
@@ -60,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const HOWTO_NOTE_OUT_PX = HOWTO_NOTE_OUT_WHEEL_STEPS * WHEEL_STEP_PX;
   const HOWTO_NOTE_TOTAL_PX = HOWTO_NOTE_IN_PX + HOWTO_NOTE_STATIC_PX + HOWTO_NOTE_OUT_PX;
   const HOWTO_NOTE_MAX_SPREAD_PX = 180;
+  const RESERVA_STATIC_WHEEL_STEPS = 2;
+  const RESERVA_STATIC_PX = RESERVA_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
+  const RESERVA_UP_PX = 96;
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
@@ -204,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let noteSpreadPhase = 0;
       const isTitleItem = item === howtoTitle;
       const isNoteItem = item === howtoNote;
+      const isReservaItem = item === howtoReservaStep;
       const isEligeItem = item === howtoEligeStep;
       const isSplitTextItem = isTitleItem || isNoteItem;
       const exitTravelPx = isSplitTextItem
@@ -255,7 +260,15 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.filter = `blur(${((1 - opacity) * 2).toFixed(2)}px)`;
 
       if (howtoSteps.includes(item)) {
-        item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+        let reservaOffset = 0;
+        if (isReservaItem) {
+          const reservaRiseStartPx = HOWTO_ENTRY_FADE_PX + RESERVA_STATIC_PX;
+          const reservaRiseTravelPx = Math.max(1, exitStartPx - reservaRiseStartPx);
+          const reservaRisePhase = clamp01((localTravelPx - reservaRiseStartPx) / reservaRiseTravelPx);
+          reservaOffset = -RESERVA_UP_PX * smooth(reservaRisePhase);
+        }
+
+        item.style.transform = `translateY(${(lift + reservaOffset).toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
       } else if (isTitleItem) {
         item.style.transform = 'translate(-50%, -50%)';
         const spreadPx = 160 * smooth(exitSpreadPhase);

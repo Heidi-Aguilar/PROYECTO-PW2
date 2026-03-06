@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoNote = document.querySelector('.section-howto .note');
   let howtoTitleLeft = null;
   let howtoTitleRight = null;
+  let howtoNoteLeft = null;
+  let howtoNoteRight = null;
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -99,6 +101,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  if (howtoNote) {
+    const noteText = (howtoNote.textContent || '').trim().replace(/\s+/g, ' ');
+    const noteWords = noteText.split(' ');
+    if (noteWords.length >= 2) {
+      const leftWord = noteWords[0];
+      const rightWord = noteWords.slice(1).join(' ');
+      howtoNote.innerHTML = `<span class="howto-note-word howto-note-word-left">${leftWord}</span> <span class="howto-note-word howto-note-word-right">${rightWord}</span>`;
+      howtoNoteLeft = howtoNote.querySelector('.howto-note-word-left');
+      howtoNoteRight = howtoNote.querySelector('.howto-note-word-right');
+    }
+  }
+
   const updateHowtoSequence = () => {
     if (!howtoSection || !howtoSteps.length) {
       return;
@@ -127,6 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         howtoTitleRight.style.transform = '';
         howtoTitleRight.style.opacity = '';
       }
+      if (howtoNoteLeft && howtoNoteRight) {
+        howtoNoteLeft.style.transform = '';
+        howtoNoteLeft.style.opacity = '';
+        howtoNoteRight.style.transform = '';
+        howtoNoteRight.style.opacity = '';
+      }
       return;
     }
 
@@ -149,17 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const globalTravelPx = sectionProgress * totalTravel;
       const itemStartPx = index * itemTravelPx;
       const localTravelPx = globalTravelPx - itemStartPx;
-      const localPhase = clamp01(localTravelPx / itemTravelPx);
       let opacity = 0;
       let exitSpreadPhase = 0;
       const isTitleItem = item === howtoTitle;
-      const exitTravelPx = isTitleItem
+      const isNoteItem = item === howtoNote;
+      const isSplitTextItem = isTitleItem || isNoteItem;
+      const exitTravelPx = isSplitTextItem
         ? Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_EXIT_PX)
         : HOWTO_EXIT_FADE_PX;
       const exitStartPx = Math.max(HOWTO_ENTRY_FADE_PX, itemTravelPx - exitTravelPx);
 
       if (localTravelPx > 0 && localTravelPx < itemTravelPx) {
-        if (isTitleItem) {
+        if (isSplitTextItem) {
           if (localTravelPx <= HOWTO_TITLE_STATIC_PX) {
             opacity = 1;
           } else {
@@ -183,15 +204,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (howtoSteps.includes(item)) {
         item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
-      } else if (isTitleItem) {
+      } else if (isSplitTextItem) {
         item.style.transform = 'translate(-50%, -50%)';
-        if (howtoTitleLeft && howtoTitleRight) {
-          const spreadPx = 160 * smooth(exitSpreadPhase);
+        const spreadPx = 160 * smooth(exitSpreadPhase);
+        if (isTitleItem && howtoTitleLeft && howtoTitleRight) {
           howtoTitleLeft.style.transform = `translateX(${-spreadPx.toFixed(1)}px)`;
           howtoTitleLeft.style.opacity = opacity.toFixed(3);
           howtoTitleRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
           howtoTitleRight.style.opacity = opacity.toFixed(3);
         }
+        if (isNoteItem && howtoNoteLeft && howtoNoteRight) {
+          howtoNoteLeft.style.transform = `translateX(${-spreadPx.toFixed(1)}px)`;
+          howtoNoteLeft.style.opacity = opacity.toFixed(3);
+          howtoNoteRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
+          howtoNoteRight.style.opacity = opacity.toFixed(3);
+        }
+
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
       }
@@ -420,6 +448,22 @@ document.addEventListener('DOMContentLoaded', () => {
     lastScrollY = currentScrollY;
   };
 
+  let scrollTicking = false;
+  const runScrollAnimations = () => {
+    scrollTicking = false;
+    updateRevealStates();
+    updateHowtoSequence();
+  };
+
+  const onScrollAnimated = () => {
+    if (scrollTicking) {
+      return;
+    }
+
+    scrollTicking = true;
+    requestAnimationFrame(runScrollAnimations);
+  };
+
   if (prefersReduced) {
     body.classList.add('reduced-motion');
     words.forEach((word) => {
@@ -443,8 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRevealStates();
   updateHowtoSequence();
   window.addEventListener('wheel', onTopReverseWheel, { passive: false });
-  window.addEventListener('scroll', updateRevealStates, { passive: true });
-  window.addEventListener('scroll', updateHowtoSequence, { passive: true });
+  window.addEventListener('scroll', onScrollAnimated, { passive: true });
   window.addEventListener('resize', updateRevealStates);
   window.addEventListener('resize', updateHowtoSequence);
   window.addEventListener('load', updateRevealStates);

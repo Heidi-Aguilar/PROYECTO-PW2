@@ -335,7 +335,39 @@ body {
   z-index: 6;
 }
 
+.js-howto-sequence .section-howto .note {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: clamp(2.7rem, 7.6vw, 6rem);
+  line-height: .94;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: .28em;
+  z-index: 6;
+}
+
+.js-howto-sequence .section-howto .note > h3 {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
 .js-howto-sequence .section-howto .container > h2 .howto-title-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.js-howto-sequence .section-howto .note .howto-note-word {
   display: inline-block;
   will-change: transform, opacity;
 }
@@ -351,6 +383,10 @@ body {
 .js-howto-sequence .section-howto .steps li {
   position: absolute;
   inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
   opacity: 0;
   transform: translateY(26px) scale(.98);
   filter: blur(2px);
@@ -362,7 +398,6 @@ body {
 .js-howto-sequence .section-howto .steps li:nth-child(2) { z-index: 2; }
 .js-howto-sequence .section-howto .steps li:nth-child(3) { z-index: 1; }
 
-.steps li,
 .type-card,
 .benefits-list li {
   background: linear-gradient(180deg, rgba(255, 251, 244, .72), rgba(255, 251, 244, .5));
@@ -371,11 +406,9 @@ body {
   box-shadow: var(--shadow);
 }
 
-.steps li { border-top: 2px solid rgba(199, 154, 77, .55); }
 .type-card { border-top: 2px solid rgba(217, 139, 52, .58); }
 .benefits-list li { border-top: 2px solid rgba(63, 127, 120, .55); }
 
-.steps li,
 .benefits-list li {
   padding: 18px;
 }
@@ -385,6 +418,10 @@ body {
 .benefits-list strong {
   margin: 0 0 8px;
   font-size: 1.05rem;
+}
+
+.steps li {
+  text-align: center;
 }
 
 .steps p,
@@ -526,6 +563,7 @@ body {
     transform: none;
     filter: none;
   }
+
 }
 
 @media (max-width: 640px) {

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const body = document.body;
   const root = document.documentElement;
   const header = document.querySelector('.header');
+  const heroSection = document.querySelector('.hero');
   const heroTitle = document.querySelector('.hero-title');
   const heroSub = document.querySelector('.hero-sub');
   const heroCta = document.querySelector('.hero-cta');
@@ -27,11 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let introLocked = true;
   let introProgress = 0;
   let touchStartY = null;
+  let heroCtaRideOutActive = false;
   const introEndProgress = 1;
   const INTRO_TITLE_PHASE = 0.30;
   const INTRO_SUB_PHASE = 0.55;
   const INTRO_CTA_PHASE = 0.15;
   const INTRO_CTA_OVERLAP = 0;
+  const HERO_CTA_BASE_Y = 170;
+  const HERO_CTA_RIDE_Y = 85;
+  const HERO_CTA_FADE_START = 0.82;
 
   const clamp01 = (value) => Math.min(1, Math.max(0, value));
   const smooth = (value) => {
@@ -374,13 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaStart = INTRO_TITLE_PHASE + INTRO_SUB_PHASE - INTRO_CTA_OVERLAP;
     const ctaPhase = (introProgress - ctaStart) / INTRO_CTA_PHASE;
     let ctaOpacity = 0;
-    if (ctaPhase > 0 && ctaPhase < 1) {
-      if (ctaPhase <= 0.30) {
-        ctaOpacity = smooth(ctaPhase / 0.30);
-      } else if (ctaPhase <= 0.70) {
-        ctaOpacity = 1;
+    if (ctaPhase > 0) {
+      if (ctaPhase <= 0.35) {
+        ctaOpacity = smooth(ctaPhase / 0.35);
       } else {
-        ctaOpacity = 1 - smooth((ctaPhase - 0.70) / 0.30);
+        ctaOpacity = 1;
       }
     }
 
@@ -392,6 +395,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     heroCta.style.opacity = String(ctaOpacity);
     heroCta.style.filter = `blur(${(1 - ctaOpacity) * 2}px)`;
+    heroCta.style.pointerEvents = ctaOpacity > 0.3 ? 'auto' : 'none';
+  };
+
+  const updateHeroCtaRideOut = () => {
+    if (!heroSection || introLocked || !heroCtaRideOutActive) {
+      return;
+    }
+
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const totalTravel = Math.max(1, heroSection.offsetHeight - viewportHeight);
+    const sectionRect = heroSection.getBoundingClientRect();
+    const progress = clamp01((-sectionRect.top) / totalTravel);
+
+    if (sectionRect.bottom <= 0 || progress >= 1) {
+      heroCta.style.opacity = '0';
+      heroCta.style.filter = 'blur(2px)';
+      heroCta.style.pointerEvents = 'none';
+      return;
+    }
+
+    const ridePhase = progress;
+    const rideY = HERO_CTA_BASE_Y + HERO_CTA_RIDE_Y * ridePhase;
+    const fadeProgress = clamp01((progress - HERO_CTA_FADE_START) / (1 - HERO_CTA_FADE_START));
+    const ctaOpacity = 1 - smooth(fadeProgress);
+    heroCta.style.transform = `translate(-50%, ${rideY.toFixed(1)}px)`;
+    heroCta.style.opacity = ctaOpacity.toFixed(3);
+    heroCta.style.filter = `blur(${(2 * fadeProgress).toFixed(2)}px)`;
     heroCta.style.pointerEvents = ctaOpacity > 0.3 ? 'auto' : 'none';
   };
 
@@ -468,6 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const lockIntro = (startProgress = 0) => {
     introLocked = true;
+    heroCtaRideOutActive = false;
     introProgress = clamp01(startProgress);
     window.scrollTo(0, 0);
     root.classList.add('scroll-lock');
@@ -480,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroCta.style.filter = 'blur(2px)';
     heroSub.style.pointerEvents = 'none';
     heroCta.style.pointerEvents = 'none';
+    heroCta.style.transform = '';
 
     if (introProgress === 0) {
       // Keep CSS keyframes active on first load so hero-title entry is visible.
@@ -500,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const unlockIntro = () => {
     introLocked = false;
+    heroCtaRideOutActive = true;
     root.classList.remove('scroll-lock');
     body.classList.remove('scroll-lock');
     window.removeEventListener('wheel', onLockedWheel);
@@ -511,9 +544,11 @@ document.addEventListener('DOMContentLoaded', () => {
     heroTitle.style.filter = 'blur(2px)';
     heroSub.style.opacity = '0';
     heroSub.style.filter = 'blur(2px)';
-    heroCta.style.opacity = '0';
-    heroCta.style.filter = 'blur(2px)';
-    heroCta.style.pointerEvents = 'none';
+    heroCta.style.opacity = '1';
+    heroCta.style.filter = 'blur(0px)';
+    heroCta.style.pointerEvents = 'auto';
+
+    updateHeroCtaRideOut();
   };
 
   heroCtaLinks.forEach((link) => {
@@ -556,6 +591,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return;
     }
+
+    updateHeroCtaRideOut();
 
     const currentScrollY = window.scrollY;
 
@@ -605,6 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     heroTitle.style.opacity = '1';
     heroSub.style.opacity = '1';
     heroCta.style.opacity = '1';
+    heroCta.style.transform = '';
     revealItems.forEach((item) => item.classList.add('is-visible'));
     return;
   }

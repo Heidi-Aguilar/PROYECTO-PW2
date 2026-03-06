@@ -329,7 +329,15 @@ body {
   text-align: center;
   white-space: nowrap;
   width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: .28em;
   z-index: 6;
+}
+
+.js-howto-sequence .section-howto .container > h2 .howto-title-word {
+  display: inline-block;
+  will-change: transform, opacity;
 }
 
 .js-howto-sequence .section-howto .steps {

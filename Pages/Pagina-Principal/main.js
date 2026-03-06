@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoTitle = document.querySelector('.section-howto .container > h2');
   const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
   const howtoNote = document.querySelector('.section-howto .note');
+  let howtoTitleLeft = null;
+  let howtoTitleRight = null;
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -79,6 +81,18 @@ document.addEventListener('DOMContentLoaded', () => {
     return rect.top <= viewportHeight * 0.9 && rect.bottom >= 0;
   };
 
+  if (howtoTitle) {
+    const titleText = (howtoTitle.textContent || '').trim().replace(/\s+/g, ' ');
+    const titleWords = titleText.split(' ');
+    if (titleWords.length >= 2) {
+      const leftWord = titleWords[0];
+      const rightWord = titleWords.slice(1).join(' ');
+      howtoTitle.innerHTML = `<span class="howto-title-word howto-title-word-left">${leftWord}</span> <span class="howto-title-word howto-title-word-right">${rightWord}</span>`;
+      howtoTitleLeft = howtoTitle.querySelector('.howto-title-word-left');
+      howtoTitleRight = howtoTitle.querySelector('.howto-title-word-right');
+    }
+  }
+
   const updateHowtoSequence = () => {
     if (!howtoSection || !howtoSteps.length) {
       return;
@@ -101,6 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         item.style.transform = '';
         item.style.filter = '';
       });
+      if (howtoTitleLeft && howtoTitleRight) {
+        howtoTitleLeft.style.transform = '';
+        howtoTitleLeft.style.opacity = '';
+        howtoTitleRight.style.transform = '';
+        howtoTitleRight.style.opacity = '';
+      }
       return;
     }
 
@@ -124,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const localTravelPx = globalTravelPx - itemStartPx;
       const localPhase = clamp01(localTravelPx / itemTravelPx);
       let opacity = 0;
+      let exitSpreadPhase = 0;
 
       if (localTravelPx > 0 && localTravelPx < itemTravelPx) {
         if (localTravelPx <= HOWTO_FADE_PX) {
@@ -131,7 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (localTravelPx <= itemTravelPx - HOWTO_FADE_PX) {
           opacity = 1;
         } else {
-          opacity = 1 - smooth((localTravelPx - (itemTravelPx - HOWTO_FADE_PX)) / HOWTO_FADE_PX);
+          exitSpreadPhase = clamp01((localTravelPx - (itemTravelPx - HOWTO_FADE_PX)) / HOWTO_FADE_PX);
+          opacity = 1 - smooth(exitSpreadPhase);
         }
       }
 
@@ -142,7 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (howtoSteps.includes(item)) {
         item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
       } else if (item === howtoTitle) {
-        item.style.transform = `translate(-50%, calc(-50% + ${(lift * 0.6).toFixed(1)}px))`;
+        item.style.transform = 'translate(-50%, -50%)';
+        if (howtoTitleLeft && howtoTitleRight) {
+          const spreadPx = 160 * smooth(exitSpreadPhase);
+          howtoTitleLeft.style.transform = `translateX(${-spreadPx.toFixed(1)}px)`;
+          howtoTitleLeft.style.opacity = opacity.toFixed(3);
+          howtoTitleRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
+          howtoTitleRight.style.opacity = opacity.toFixed(3);
+        }
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
       }

@@ -387,11 +387,70 @@ body {
   place-items: center;
   align-content: center;
   text-align: center;
+  isolation: isolate;
   opacity: 0;
   transform: translateY(26px) scale(.98);
   filter: blur(2px);
   z-index: 1;
   will-change: opacity, transform, filter;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(380px, 56vw);
+  height: min(220px, 30vh);
+  border-radius: 18px;
+  transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px))) rotate(var(--elige-top-rot, -0.6deg));
+  opacity: var(--elige-top-opacity, 0);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/pexels-rdne-7335303.jpg') center / cover no-repeat;
+  box-shadow: 0 12px 24px rgba(33, 24, 15, .2);
+  z-index: 2;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(380px, 56vw);
+  height: min(220px, 30vh);
+  border-radius: 18px;
+  transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px))) rotate(var(--elige-bottom-rot, .9deg));
+  opacity: var(--elige-bottom-opacity, 0);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/33.jpg') center / cover no-repeat;
+  box-shadow: 0 10px 22px rgba(33, 24, 15, .18);
+  z-index: 0;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(380px, 56vw);
+  height: min(220px, 30vh);
+  border-radius: 18px;
+  transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px))) rotate(var(--elige-third-rot, .3deg));
+  opacity: var(--elige-third-opacity, 0);
+  background:
+    linear-gradient(180deg, rgba(29, 20, 12, .14), rgba(29, 20, 12, .22)),
+    url('img/pexels-norma-mortenson-4392872.jpg') center / cover no-repeat;
+  box-shadow: 0 11px 22px rgba(33, 24, 15, .18);
+  z-index: 1;
+}
+
+.js-howto-sequence .section-howto .steps li.step-elige > h3,
+.js-howto-sequence .section-howto .steps li.step-elige > p {
+  position: relative;
+  z-index: 3;
+  color: #f7ead8;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .42);
 }
 
 .js-howto-sequence .section-howto .steps li:nth-child(1) { z-index: 3; }

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoTitle = document.querySelector('.section-howto .container > h2');
   const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
   const howtoNote = document.querySelector('.section-howto .note');
+  const howtoEligeStep = document.querySelector('.section-howto .steps li.step-elige');
   let howtoTitleLeft = null;
   let howtoTitleRight = null;
   let howtoNoteLeft = null;
@@ -43,6 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const HOWTO_TITLE_STATIC_PX = HOWTO_TITLE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
   const HOWTO_TITLE_SPLIT_PX = HOWTO_TITLE_OUT_WHEEL_STEPS * WHEEL_STEP_PX;
   const HOWTO_TITLE_TOTAL_PX = HOWTO_TITLE_IN_PX + HOWTO_TITLE_STATIC_PX + HOWTO_TITLE_SPLIT_PX;
+  const ELIGE_FIRST_IMAGE_IN_PX = WHEEL_STEP_PX;
+  const ELIGE_STACK_START_PX = WHEEL_STEP_PX * 3;
+  const ELIGE_STACK_TRAVEL_PX = WHEEL_STEP_PX;
+  const ELIGE_THIRD_START_PX = WHEEL_STEP_PX * 4;
+  const ELIGE_THIRD_TRAVEL_PX = WHEEL_STEP_PX;
+  const ELIGE_STACK_SPACING_PX = 250;
   const HOWTO_NOTE_IN_WHEEL_STEPS = 4;
   const HOWTO_NOTE_STATIC_WHEEL_STEPS = 8;
   const HOWTO_NOTE_OUT_WHEEL_STEPS = 4;
@@ -145,6 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
         item.style.transform = '';
         item.style.filter = '';
       });
+      if (howtoEligeStep) {
+        howtoEligeStep.style.removeProperty('--elige-top-opacity');
+        howtoEligeStep.style.removeProperty('--elige-top-y');
+        howtoEligeStep.style.removeProperty('--elige-top-rot');
+        howtoEligeStep.style.removeProperty('--elige-bottom-opacity');
+        howtoEligeStep.style.removeProperty('--elige-bottom-y');
+        howtoEligeStep.style.removeProperty('--elige-bottom-rot');
+        howtoEligeStep.style.removeProperty('--elige-third-opacity');
+        howtoEligeStep.style.removeProperty('--elige-third-y');
+        howtoEligeStep.style.removeProperty('--elige-third-rot');
+      }
       if (howtoTitleLeft && howtoTitleRight) {
         howtoTitleLeft.style.transform = '';
         howtoTitleLeft.style.opacity = '';
@@ -184,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let noteSpreadPhase = 0;
       const isTitleItem = item === howtoTitle;
       const isNoteItem = item === howtoNote;
+      const isEligeItem = item === howtoEligeStep;
       const isSplitTextItem = isTitleItem || isNoteItem;
       const exitTravelPx = isSplitTextItem
         ? Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_PX)
@@ -261,6 +280,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
+      }
+
+      if (isEligeItem) {
+        const firstInPhase = clamp01(localTravelPx / Math.max(1, ELIGE_FIRST_IMAGE_IN_PX));
+        const stackPhase = clamp01((localTravelPx - ELIGE_STACK_START_PX) / Math.max(1, ELIGE_STACK_TRAVEL_PX));
+        const thirdPhase = clamp01((localTravelPx - ELIGE_THIRD_START_PX) / Math.max(1, ELIGE_THIRD_TRAVEL_PX));
+        const topOpacity = smooth(firstInPhase) * opacity;
+        const topLift = -ELIGE_STACK_SPACING_PX * smooth(stackPhase);
+        const topRotate = -0.6 - 0.5 * smooth(stackPhase);
+        const bottomOpacity = smooth(stackPhase) * opacity;
+        const bottomDrop = ELIGE_STACK_SPACING_PX * (1 - smooth(stackPhase));
+        const bottomRotate = 0.9 + 0.25 * smooth(stackPhase);
+        const thirdOpacity = smooth(thirdPhase) * opacity;
+        const thirdY = ELIGE_STACK_SPACING_PX * (2 - smooth(thirdPhase));
+        const thirdRotate = 0.3 - 0.25 * smooth(thirdPhase);
+
+        item.style.setProperty('--elige-top-opacity', topOpacity.toFixed(3));
+        item.style.setProperty('--elige-top-y', `${topLift.toFixed(1)}px`);
+        item.style.setProperty('--elige-top-rot', `${topRotate.toFixed(2)}deg`);
+        item.style.setProperty('--elige-bottom-opacity', bottomOpacity.toFixed(3));
+        item.style.setProperty('--elige-bottom-y', `${bottomDrop.toFixed(1)}px`);
+        item.style.setProperty('--elige-bottom-rot', `${bottomRotate.toFixed(2)}deg`);
+        item.style.setProperty('--elige-third-opacity', thirdOpacity.toFixed(3));
+        item.style.setProperty('--elige-third-y', `${thirdY.toFixed(1)}px`);
+        item.style.setProperty('--elige-third-rot', `${thirdRotate.toFixed(2)}deg`);
       }
 
       if (isNoteItem && localTravelPx <= 0 && howtoNoteLeft && howtoNoteRight) {

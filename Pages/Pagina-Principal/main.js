@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let howtoTitleRight = null;
   let howtoNoteLeft = null;
   let howtoNoteRight = null;
+  let howtoNoteBicici = null;
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -145,9 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (noteWords.length >= 2) {
       const leftWord = noteWords[0];
       const rightWord = noteWords.slice(1).join(' ');
-      howtoNote.innerHTML = `<span class="howto-note-word howto-note-word-left">${leftWord}</span> <span class="howto-note-word howto-note-word-right">${rightWord}</span>`;
+      howtoNote.innerHTML = `<span class="howto-note-word howto-note-word-left">${leftWord}</span><span class="howto-note-bicici" aria-hidden="true"></span><span class="howto-note-word howto-note-word-right">${rightWord}</span>`;
       howtoNoteLeft = howtoNote.querySelector('.howto-note-word-left');
       howtoNoteRight = howtoNote.querySelector('.howto-note-word-right');
+      howtoNoteBicici = howtoNote.querySelector('.howto-note-bicici');
     }
   }
 
@@ -200,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
         howtoNoteRight.style.transform = '';
         howtoNoteRight.style.opacity = '';
       }
+      if (howtoNoteBicici) {
+        howtoNoteBicici.style.transform = '';
+        howtoNoteBicici.style.opacity = '';
+      }
       return;
     }
 
@@ -232,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let opacity = 0;
       let exitSpreadPhase = 0;
       let noteSpreadPhase = 0;
+      let noteBiciciPhase = 0;
       const isTitleItem = item === howtoTitle;
       const isNoteItem = item === howtoNote;
       const isReservaItem = item === howtoReservaStep;
@@ -271,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const easedOut = smooth(outPhase);
             opacity = 1 - easedOut;
             noteSpreadPhase = easedOut;
+            noteBiciciPhase = easedOut;
           }
         } else if (localTravelPx <= HOWTO_ENTRY_FADE_PX) {
           opacity = smooth(localTravelPx / HOWTO_ENTRY_FADE_PX);
@@ -351,6 +359,12 @@ document.addEventListener('DOMContentLoaded', () => {
           howtoNoteRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
           howtoNoteRight.style.opacity = opacity.toFixed(3);
         }
+        if (howtoNoteBicici) {
+          const zoom = 0.08 + 1.38 * smooth(noteBiciciPhase);
+          const biciciOpacity = Math.min(1, noteBiciciPhase * 1.25);
+          howtoNoteBicici.style.transform = `translate(-50%, -50%) scale(${zoom.toFixed(3)})`;
+          howtoNoteBicici.style.opacity = biciciOpacity.toFixed(3);
+        }
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
       }
@@ -393,6 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
         howtoNoteLeft.style.opacity = '0';
         howtoNoteRight.style.transform = `translateX(${HOWTO_NOTE_MAX_SPREAD_PX}px)`;
         howtoNoteRight.style.opacity = '0';
+        if (howtoNoteBicici) {
+          howtoNoteBicici.style.transform = 'translate(-50%, -50%) scale(0.08)';
+          howtoNoteBicici.style.opacity = '0';
+        }
       }
     });
   };

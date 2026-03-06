@@ -370,6 +370,22 @@ body {
 .js-howto-sequence .section-howto .note .howto-note-word {
   display: inline-block;
   will-change: transform, opacity;
+  position: relative;
+  z-index: 2;
+}
+
+.js-howto-sequence .section-howto .note .howto-note-bicici {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(300px, 30vw);
+  height: min(300px, 30vw);
+  transform: translate(-50%, -50%) scale(0.08);
+  opacity: 0;
+  background: url('img/bicici.png') center / contain no-repeat;
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
 }
 
 .js-howto-sequence .section-howto .steps {

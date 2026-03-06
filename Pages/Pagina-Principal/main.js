@@ -36,11 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const WHEEL_STEP_PX = 100;
   const HOWTO_ENTRY_FADE_PX = 120;
   const HOWTO_EXIT_FADE_PX = 120;
+  const HOWTO_TITLE_IN_WHEEL_STEPS = 4;
   const HOWTO_TITLE_STATIC_WHEEL_STEPS = 3;
-  const HOWTO_TITLE_MOVE_WHEEL_STEPS = 4;
+  const HOWTO_TITLE_OUT_WHEEL_STEPS = 4;
+  const HOWTO_TITLE_IN_PX = HOWTO_TITLE_IN_WHEEL_STEPS * WHEEL_STEP_PX;
   const HOWTO_TITLE_STATIC_PX = HOWTO_TITLE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
-  const HOWTO_TITLE_SPLIT_PX = HOWTO_TITLE_MOVE_WHEEL_STEPS * WHEEL_STEP_PX;
-  const HOWTO_TITLE_TOTAL_EXIT_PX = HOWTO_TITLE_STATIC_PX + HOWTO_TITLE_SPLIT_PX;
+  const HOWTO_TITLE_SPLIT_PX = HOWTO_TITLE_OUT_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_TITLE_TOTAL_PX = HOWTO_TITLE_IN_PX + HOWTO_TITLE_STATIC_PX + HOWTO_TITLE_SPLIT_PX;
+  const HOWTO_NOTE_IN_WHEEL_STEPS = 4;
+  const HOWTO_NOTE_STATIC_WHEEL_STEPS = 8;
+  const HOWTO_NOTE_OUT_WHEEL_STEPS = 4;
+  const HOWTO_NOTE_IN_PX = HOWTO_NOTE_IN_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_NOTE_STATIC_PX = HOWTO_NOTE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_NOTE_OUT_PX = HOWTO_NOTE_OUT_WHEEL_STEPS * WHEEL_STEP_PX;
+  const HOWTO_NOTE_TOTAL_PX = HOWTO_NOTE_IN_PX + HOWTO_NOTE_STATIC_PX + HOWTO_NOTE_OUT_PX;
+  const HOWTO_NOTE_MAX_SPREAD_PX = 180;
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
@@ -153,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionRect = howtoSection.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
     const minVisiblePx = MIN_VISIBLE_WHEEL_STEPS * WHEEL_STEP_PX;
-    const maxExitTravelPx = Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_EXIT_PX);
+    const maxExitTravelPx = Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_PX, HOWTO_NOTE_TOTAL_PX);
     const minTravelPerItem = minVisiblePx + HOWTO_ENTRY_FADE_PX + maxExitTravelPx;
     const minSectionHeight = Math.ceil(viewportHeight + minTravelPerItem * howtoSequenceItems.length);
     if (howtoSection.offsetHeight < minSectionHeight) {
@@ -171,22 +181,43 @@ document.addEventListener('DOMContentLoaded', () => {
       const localTravelPx = globalTravelPx - itemStartPx;
       let opacity = 0;
       let exitSpreadPhase = 0;
+      let noteSpreadPhase = 0;
       const isTitleItem = item === howtoTitle;
       const isNoteItem = item === howtoNote;
       const isSplitTextItem = isTitleItem || isNoteItem;
       const exitTravelPx = isSplitTextItem
-        ? Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_EXIT_PX)
+        ? Math.max(HOWTO_EXIT_FADE_PX, HOWTO_TITLE_TOTAL_PX)
         : HOWTO_EXIT_FADE_PX;
       const exitStartPx = Math.max(HOWTO_ENTRY_FADE_PX, itemTravelPx - exitTravelPx);
 
       if (localTravelPx > 0 && localTravelPx < itemTravelPx) {
-        if (isSplitTextItem) {
-          if (localTravelPx <= HOWTO_TITLE_STATIC_PX) {
+        if (isTitleItem) {
+          if (localTravelPx <= HOWTO_TITLE_IN_PX) {
+            const inPhase = clamp01(localTravelPx / Math.max(1, HOWTO_TITLE_IN_PX));
+            const easedIn = smooth(inPhase);
+            opacity = easedIn;
+            exitSpreadPhase = 1 - easedIn;
+          } else if (localTravelPx <= HOWTO_TITLE_IN_PX + HOWTO_TITLE_STATIC_PX) {
             opacity = 1;
           } else {
-            // Title stays static for 3 wheel steps, then splits/fades for 4.
-            exitSpreadPhase = clamp01((localTravelPx - HOWTO_TITLE_STATIC_PX) / Math.max(1, HOWTO_TITLE_SPLIT_PX));
+            // Title enters in 4 wheel steps, stays static in 3, then splits/fades in 4.
+            exitSpreadPhase = clamp01((localTravelPx - HOWTO_TITLE_IN_PX - HOWTO_TITLE_STATIC_PX) / Math.max(1, HOWTO_TITLE_SPLIT_PX));
             opacity = 1 - smooth(exitSpreadPhase);
+          }
+        } else if (isNoteItem) {
+          if (localTravelPx <= HOWTO_NOTE_IN_PX) {
+            const inPhase = clamp01(localTravelPx / Math.max(1, HOWTO_NOTE_IN_PX));
+            const easedIn = smooth(inPhase);
+            opacity = easedIn;
+            noteSpreadPhase = 1 - easedIn;
+          } else if (localTravelPx <= HOWTO_NOTE_IN_PX + HOWTO_NOTE_STATIC_PX) {
+            opacity = 1;
+            noteSpreadPhase = 0;
+          } else if (localTravelPx <= HOWTO_NOTE_TOTAL_PX) {
+            const outPhase = clamp01((localTravelPx - HOWTO_NOTE_IN_PX - HOWTO_NOTE_STATIC_PX) / Math.max(1, HOWTO_NOTE_OUT_PX));
+            const easedOut = smooth(outPhase);
+            opacity = 1 - easedOut;
+            noteSpreadPhase = easedOut;
           }
         } else if (localTravelPx <= HOWTO_ENTRY_FADE_PX) {
           opacity = smooth(localTravelPx / HOWTO_ENTRY_FADE_PX);
@@ -204,24 +235,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (howtoSteps.includes(item)) {
         item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
-      } else if (isSplitTextItem) {
+      } else if (isTitleItem) {
         item.style.transform = 'translate(-50%, -50%)';
         const spreadPx = 160 * smooth(exitSpreadPhase);
-        if (isTitleItem && howtoTitleLeft && howtoTitleRight) {
+        if (howtoTitleLeft && howtoTitleRight) {
           howtoTitleLeft.style.transform = `translateX(${-spreadPx.toFixed(1)}px)`;
           howtoTitleLeft.style.opacity = opacity.toFixed(3);
           howtoTitleRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
           howtoTitleRight.style.opacity = opacity.toFixed(3);
         }
-        if (isNoteItem && howtoNoteLeft && howtoNoteRight) {
+        if (localTravelPx <= 0 && howtoTitleLeft && howtoTitleRight) {
+          howtoTitleLeft.style.transform = 'translateX(-160px)';
+          howtoTitleLeft.style.opacity = '0';
+          howtoTitleRight.style.transform = 'translateX(160px)';
+          howtoTitleRight.style.opacity = '0';
+        }
+      } else if (isNoteItem) {
+        item.style.transform = 'translate(-50%, -50%)';
+        const spreadPx = HOWTO_NOTE_MAX_SPREAD_PX * noteSpreadPhase;
+        if (howtoNoteLeft && howtoNoteRight) {
           howtoNoteLeft.style.transform = `translateX(${-spreadPx.toFixed(1)}px)`;
           howtoNoteLeft.style.opacity = opacity.toFixed(3);
           howtoNoteRight.style.transform = `translateX(${spreadPx.toFixed(1)}px)`;
           howtoNoteRight.style.opacity = opacity.toFixed(3);
         }
-
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
+      }
+
+      if (isNoteItem && localTravelPx <= 0 && howtoNoteLeft && howtoNoteRight) {
+        // Keep words outside before the note starts entering.
+        howtoNoteLeft.style.transform = `translateX(${-HOWTO_NOTE_MAX_SPREAD_PX}px)`;
+        howtoNoteLeft.style.opacity = '0';
+        howtoNoteRight.style.transform = `translateX(${HOWTO_NOTE_MAX_SPREAD_PX}px)`;
+        howtoNoteRight.style.opacity = '0';
       }
     });
   };

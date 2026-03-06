@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
   let lastScrollY = window.scrollY;
 
   if (prefersReduced) {
@@ -94,12 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const heroHeight = hero.offsetHeight || window.innerHeight;
-    const heroProgressRaw = clamp(currentScrollY / (heroHeight * 0.45), 0, 1);
-    const heroProgress = easeOutCubic(heroProgressRaw);
-
-    heroTitle.style.transform = `scale(${1 + heroProgress * 0.55})`;
+    const heroProgress = Math.min(1, Math.max(0, currentScrollY / (heroHeight * 0.45)));
     heroTitle.style.opacity = String(1 - heroProgress);
-    heroTitle.style.filter = `blur(${heroProgress * 2.2}px)`;
+    heroTitle.style.filter = `blur(${heroProgress * 2}px)`;
 
     revealItems.forEach((item) => {
       if (isElementInView(item)) {

@@ -400,8 +400,8 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(380px, 56vw);
-  height: min(220px, 30vh);
+  width: min(360px, 54vw);
+  height: min(190px, 26vh);
   border-radius: 18px;
   transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px))) rotate(var(--elige-top-rot, -0.6deg));
   opacity: var(--elige-top-opacity, 0);
@@ -417,8 +417,8 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(380px, 56vw);
-  height: min(220px, 30vh);
+  width: min(360px, 54vw);
+  height: min(190px, 26vh);
   border-radius: 18px;
   transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px))) rotate(var(--elige-bottom-rot, .9deg));
   opacity: var(--elige-bottom-opacity, 0);
@@ -433,8 +433,8 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(380px, 56vw);
-  height: min(220px, 30vh);
+  width: min(360px, 54vw);
+  height: min(190px, 26vh);
   border-radius: 18px;
   transform: translate(-50%, calc(-50% + var(--elige-third-y, 36px))) rotate(var(--elige-third-rot, .3deg));
   opacity: var(--elige-third-opacity, 0);

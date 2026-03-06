@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const ELIGE_STACK_TRAVEL_PX = WHEEL_STEP_PX;
   const ELIGE_THIRD_START_PX = WHEEL_STEP_PX * 4;
   const ELIGE_THIRD_TRAVEL_PX = WHEEL_STEP_PX;
-  const ELIGE_STACK_SPACING_PX = 250;
+  const ELIGE_STATIC_WHEEL_STEPS = 6;
+  const ELIGE_STATIC_PX = ELIGE_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
+  const ELIGE_STACK_SPACING_PX = 180;
   const HOWTO_NOTE_IN_WHEEL_STEPS = 4;
   const HOWTO_NOTE_STATIC_WHEEL_STEPS = 8;
   const HOWTO_NOTE_OUT_WHEEL_STEPS = 4;
@@ -286,15 +288,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstInPhase = clamp01(localTravelPx / Math.max(1, ELIGE_FIRST_IMAGE_IN_PX));
         const stackPhase = clamp01((localTravelPx - ELIGE_STACK_START_PX) / Math.max(1, ELIGE_STACK_TRAVEL_PX));
         const thirdPhase = clamp01((localTravelPx - ELIGE_THIRD_START_PX) / Math.max(1, ELIGE_THIRD_TRAVEL_PX));
-        const topOpacity = smooth(firstInPhase) * opacity;
-        const topLift = -ELIGE_STACK_SPACING_PX * smooth(stackPhase);
-        const topRotate = -0.6 - 0.5 * smooth(stackPhase);
-        const bottomOpacity = smooth(stackPhase) * opacity;
-        const bottomDrop = ELIGE_STACK_SPACING_PX * (1 - smooth(stackPhase));
-        const bottomRotate = 0.9 + 0.25 * smooth(stackPhase);
-        const thirdOpacity = smooth(thirdPhase) * opacity;
-        const thirdY = ELIGE_STACK_SPACING_PX * (2 - smooth(thirdPhase));
-        const thirdRotate = 0.3 - 0.25 * smooth(thirdPhase);
+        const stackReadyPx = ELIGE_THIRD_START_PX + ELIGE_THIRD_TRAVEL_PX;
+        const towerExitStartPx = stackReadyPx + ELIGE_STATIC_PX;
+        const towerExitTravelPx = Math.max(1, itemTravelPx - towerExitStartPx);
+        const towerExitPhase = clamp01((localTravelPx - towerExitStartPx) / towerExitTravelPx);
+        const towerExitEase = smooth(towerExitPhase);
+        const towerVisibility = 1 - towerExitEase;
+
+        const topOpacity = smooth(firstInPhase) * opacity * towerVisibility;
+        const topLift = -ELIGE_STACK_SPACING_PX * smooth(stackPhase) - 120 * towerExitEase;
+        const topRotate = -0.6 - 0.5 * smooth(stackPhase) - 0.4 * towerExitEase;
+        const bottomOpacity = smooth(stackPhase) * opacity * towerVisibility;
+        const bottomDrop = ELIGE_STACK_SPACING_PX * (1 - smooth(stackPhase)) + 20 * towerExitEase;
+        const bottomRotate = 0.9 + 0.25 * smooth(stackPhase) + 0.2 * towerExitEase;
+        const thirdOpacity = smooth(thirdPhase) * opacity * towerVisibility;
+        const thirdY = ELIGE_STACK_SPACING_PX * (2 - smooth(thirdPhase)) + 120 * towerExitEase;
+        const thirdRotate = 0.3 - 0.25 * smooth(thirdPhase) + 0.4 * towerExitEase;
 
         item.style.setProperty('--elige-top-opacity', topOpacity.toFixed(3));
         item.style.setProperty('--elige-top-y', `${topLift.toFixed(1)}px`);

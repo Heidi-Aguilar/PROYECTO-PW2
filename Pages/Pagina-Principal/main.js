@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroTitle = document.querySelector('.hero-title');
   const heroSub = document.querySelector('.hero-sub');
   const heroCta = document.querySelector('.hero-cta');
+  const heroCtaLinks = [...document.querySelectorAll('.hero-cta a[href^="#"]')];
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -25,6 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
+
+  const scrollToHashTarget = (hash) => {
+    const targetId = hash.replace('#', '');
+    if (!targetId) {
+      return;
+    }
+
+    const target = document.getElementById(targetId);
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.location.hash !== hash) {
+      window.history.pushState(null, '', hash);
+    }
+  };
 
   const revealTargets = [
     '.section-howto .container > h2',
@@ -101,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     heroCta.style.opacity = String(ctaOpacity);
     heroCta.style.filter = `blur(${(1 - ctaOpacity) * 2}px)`;
+    heroCta.style.pointerEvents = ctaOpacity > 0.3 ? 'auto' : 'none';
   };
 
   const onLockedWheel = (event) => {
@@ -213,6 +232,26 @@ document.addEventListener('DOMContentLoaded', () => {
     heroCta.style.filter = 'blur(2px)';
     heroCta.style.pointerEvents = 'none';
   };
+
+  heroCtaLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const hash = link.getAttribute('href');
+      if (!hash || hash === '#') {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (introLocked) {
+        introProgress = 1;
+        unlockIntro();
+      }
+
+      requestAnimationFrame(() => {
+        scrollToHashTarget(hash);
+      });
+    });
+  });
 
   const onTopReverseWheel = (event) => {
     if (introLocked) {

@@ -737,12 +737,14 @@ body {
   place-items: center;
   border: 1px solid rgba(109, 87, 61, .3);
   background: rgba(255, 251, 244, .55);
+  color: var(--ink);
 }
 
-.section-contact .redes-sociales img {
+.section-contact .redes-sociales .social-icon {
   width: 18px;
   height: 18px;
-  object-fit: contain;
+  display: block;
+  fill: currentColor;
 }
 
 @media (max-width: 900px) {

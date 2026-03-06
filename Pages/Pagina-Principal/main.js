@@ -57,10 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderLockedIntro = () => {
     words.forEach((word) => {
       word.style.animation = 'none';
-      word.style.opacity = 1;
+      word.style.opacity = '1';
     });
 
-    const titleOpacity = 1 - smooth(clamp01(introProgress / 0.34));
+    const titlePhase = clamp01(introProgress / 0.34);
+    words.forEach((word, index) => {
+      // Hide each word one after another while translating it upward.
+      const segmentStart = index / words.length;
+      const localPhase = clamp01((titlePhase - segmentStart) * words.length);
+      const eased = smooth(localPhase);
+      word.style.opacity = String(1 - eased);
+      word.style.transform = `translateY(${-30 * eased}px)`;
+    });
 
     const subPhase = (introProgress - 0.34) / 0.33;
     let subOpacity = 0;
@@ -82,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    heroTitle.style.opacity = String(titleOpacity);
-    heroTitle.style.filter = `blur(${(1 - titleOpacity) * 2}px)`;
+    heroTitle.style.opacity = '1';
+    heroTitle.style.filter = `blur(${titlePhase * 1.4}px)`;
 
     heroSub.style.opacity = String(subOpacity);
     heroSub.style.filter = `blur(${(1 - subOpacity) * 2}px)`;

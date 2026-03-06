@@ -569,14 +569,15 @@ body {
   content: '';
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: min(420px, calc(100vw - 40px));
-  height: min(280px, 38vh);
-  transform: translate(-50%, calc(-50% + 130px + (1 - var(--reserva-calendar-reveal)) * 10px));
+  top: auto;
+  bottom: -430px;
+  width: min(1200px, calc(100vw - 8px));
+  height: min(980px, 88vh);
+  transform: translate(-50%, calc((1 - var(--reserva-calendar-reveal)) * 16px));
   border-radius: 16px;
-  background: url('img/calendar.png') center top / cover no-repeat;
+  background: url('img/calendar.png') center top / contain no-repeat;
   opacity: calc(var(--reserva-calendar-opacity) * 0.9);
-  clip-path: inset(0 0 calc((1 - var(--reserva-calendar-reveal)) * 72%) 0 round 16px);
+  clip-path: inset(0 0 calc((1 - var(--reserva-calendar-reveal)) * 100%) 0 round 16px);
   pointer-events: none;
   z-index: 1;
 }

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
   const howtoStepSet = new Set(howtoSteps);
   const howtoReservaStep = document.querySelector('.section-howto .steps li.step-reserva');
+  const howtoDisfrutaStep = document.querySelector('.section-howto .steps li:nth-child(3)');
   const howtoNote = document.querySelector('.section-howto .note');
   const howtoEligeStep = document.querySelector('.section-howto .steps li.step-elige');
   let howtoTitleLeft = null;
@@ -75,6 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const RESERVA_STATIC_WHEEL_STEPS = 2;
   const RESERVA_STATIC_PX = RESERVA_STATIC_WHEEL_STEPS * WHEEL_STEP_PX;
   const RESERVA_UP_PX = 96;
+  const RESERVA_EXIT_LEFT_MAX_PX = 460;
+  const DISFRUTA_ENTER_FROM_RIGHT_PX = 460;
+  const DISFRUTA_LEFT_TARGET_MAX_PX = 340;
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
@@ -219,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rawProgress = (-sectionRect.top) / totalTravel;
     const sectionProgress = clamp01(rawProgress);
     const itemTravelPx = totalTravel / howtoSequenceItems.length;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
 
     howtoSequenceItems.forEach((item, index) => {
       const globalTravelPx = sectionProgress * totalTravel;
@@ -230,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isTitleItem = item === howtoTitle;
       const isNoteItem = item === howtoNote;
       const isReservaItem = item === howtoReservaStep;
+      const isDisfrutaItem = item === howtoDisfrutaStep;
       const isEligeItem = item === howtoEligeStep;
       const isSplitTextItem = isTitleItem || isNoteItem;
       const exitTravelPx = isSplitTextItem
@@ -287,17 +293,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (howtoStepSet.has(item)) {
         let reservaOffset = 0;
+        let reservaX = 0;
         if (isReservaItem) {
           const reservaRiseStartPx = HOWTO_ENTRY_FADE_PX + RESERVA_STATIC_PX;
           const reservaRiseTravelPx = Math.max(1, exitStartPx - reservaRiseStartPx);
           const reservaRisePhase = clamp01((localTravelPx - reservaRiseStartPx) / reservaRiseTravelPx);
           const reservaRiseEase = smooth(reservaRisePhase);
           reservaOffset = -RESERVA_UP_PX * reservaRiseEase;
-          item.style.setProperty('--reserva-calendar-reveal', reservaRiseEase.toFixed(3));
+          item.style.setProperty('--reserva-calendar-reveal', (reservaRiseEase * 0.667).toFixed(3));
           item.style.setProperty('--reserva-calendar-opacity', (reservaRiseEase * opacity).toFixed(3));
+
+          if (localTravelPx > exitStartPx) {
+            const reservaExitPhase = clamp01((localTravelPx - exitStartPx) / Math.max(1, exitTravelPx));
+            const reservaExitDistance = Math.min(RESERVA_EXIT_LEFT_MAX_PX, viewportWidth * 0.34);
+            reservaX = -reservaExitDistance * smooth(reservaExitPhase);
+          }
         }
 
-        item.style.transform = `translateY(${(lift + reservaOffset).toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+        if (isDisfrutaItem) {
+          const disfrutaEnterPhase = clamp01(localTravelPx / Math.max(1, HOWTO_ENTRY_FADE_PX));
+          const disfrutaLeftTarget = -Math.min(DISFRUTA_LEFT_TARGET_MAX_PX, viewportWidth * 0.26);
+          let disfrutaX = disfrutaLeftTarget;
+
+          if (localTravelPx <= HOWTO_ENTRY_FADE_PX) {
+            const enterEase = smooth(disfrutaEnterPhase);
+            disfrutaX = DISFRUTA_ENTER_FROM_RIGHT_PX * (1 - enterEase) + disfrutaLeftTarget * enterEase;
+          } else if (localTravelPx > exitStartPx) {
+            const disfrutaExitPhase = clamp01((localTravelPx - exitStartPx) / Math.max(1, exitTravelPx));
+            disfrutaX = disfrutaLeftTarget - 72 * smooth(disfrutaExitPhase);
+          }
+
+          item.style.transform = `translate(${disfrutaX.toFixed(1)}px, ${(lift * 0.35).toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+        } else {
+          item.style.transform = `translate(${reservaX.toFixed(1)}px, ${(lift + reservaOffset).toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+        }
       } else if (isTitleItem) {
         item.style.transform = 'translate(-50%, -50%)';
         const spreadPx = 160 * smooth(exitSpreadPhase);

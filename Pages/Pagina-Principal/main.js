@@ -141,6 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (howtoSteps.includes(item)) {
         item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+      } else if (item === howtoTitle) {
+        item.style.transform = `translate(-50%, calc(-50% + ${(lift * 0.6).toFixed(1)}px))`;
       } else {
         item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
       }

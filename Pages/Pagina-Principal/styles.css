@@ -319,6 +319,19 @@ body {
   will-change: opacity, transform, filter;
 }
 
+.js-howto-sequence .section-howto .container > h2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: clamp(3.2rem, 9vw, 7.2rem);
+  line-height: .94;
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  width: max-content;
+  z-index: 6;
+}
+
 .js-howto-sequence .section-howto .steps {
   position: relative;
   margin-top: 22px;
@@ -499,6 +512,9 @@ body {
   .js-howto-sequence .section-howto .container > h2,
   .js-howto-sequence .section-howto .note {
     opacity: 1;
+    position: static;
+    top: auto;
+    left: auto;
     transform: none;
     filter: none;
   }

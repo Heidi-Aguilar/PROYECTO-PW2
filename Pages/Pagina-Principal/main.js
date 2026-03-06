@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroSub = document.querySelector('.hero-sub');
   const heroCta = document.querySelector('.hero-cta');
   const heroCtaLinks = [...document.querySelectorAll('.hero-cta a[href^="#"]')];
+  const howtoSection = document.querySelector('.section-howto');
+  const howtoTitle = document.querySelector('.section-howto .container > h2');
+  const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
+  const howtoNote = document.querySelector('.section-howto .note');
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -24,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const t = clamp01(value);
     return t * t * (3 - 2 * t);
   };
+  const MIN_VISIBLE_WHEEL_STEPS = 4;
+  const WHEEL_STEP_PX = 100;
+  const HOWTO_FADE_PX = 120;
 
   const isIntroSequenceComplete = () => introProgress >= introEndProgress;
 
@@ -45,9 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const revealTargets = [
-    '.section-howto .container > h2',
-    '.steps li',
-    '.section-howto .note',
     '.section-types .container > h2',
     '.type-card',
     '.section-benefits .container > h3',
@@ -73,6 +77,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const rect = element.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
     return rect.top <= viewportHeight * 0.9 && rect.bottom >= 0;
+  };
+
+  const updateHowtoSequence = () => {
+    if (!howtoSection || !howtoSteps.length) {
+      return;
+    }
+
+    const howtoSequenceItems = [
+      howtoTitle,
+      ...howtoSteps,
+      howtoNote
+    ].filter(Boolean);
+
+    if (!howtoSequenceItems.length) {
+      return;
+    }
+
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      howtoSection.style.minHeight = '';
+      howtoSequenceItems.forEach((item) => {
+        item.style.opacity = '';
+        item.style.transform = '';
+        item.style.filter = '';
+      });
+      return;
+    }
+
+    const sectionRect = howtoSection.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const minVisiblePx = MIN_VISIBLE_WHEEL_STEPS * WHEEL_STEP_PX;
+    const minTravelPerItem = minVisiblePx + HOWTO_FADE_PX * 2;
+    const minSectionHeight = Math.ceil(viewportHeight + minTravelPerItem * howtoSequenceItems.length);
+    if (howtoSection.offsetHeight < minSectionHeight) {
+      howtoSection.style.minHeight = `${minSectionHeight}px`;
+    }
+
+    const totalTravel = Math.max(1, howtoSection.offsetHeight - viewportHeight);
+    const rawProgress = (-sectionRect.top) / totalTravel;
+    const sectionProgress = clamp01(rawProgress);
+    const itemTravelPx = totalTravel / howtoSequenceItems.length;
+
+    howtoSequenceItems.forEach((item, index) => {
+      const globalTravelPx = sectionProgress * totalTravel;
+      const itemStartPx = index * itemTravelPx;
+      const localTravelPx = globalTravelPx - itemStartPx;
+      const localPhase = clamp01(localTravelPx / itemTravelPx);
+      let opacity = 0;
+
+      if (localTravelPx > 0 && localTravelPx < itemTravelPx) {
+        if (localTravelPx <= HOWTO_FADE_PX) {
+          opacity = smooth(localTravelPx / HOWTO_FADE_PX);
+        } else if (localTravelPx <= itemTravelPx - HOWTO_FADE_PX) {
+          opacity = 1;
+        } else {
+          opacity = 1 - smooth((localTravelPx - (itemTravelPx - HOWTO_FADE_PX)) / HOWTO_FADE_PX);
+        }
+      }
+
+      const lift = (1 - opacity) * 26;
+      item.style.opacity = opacity.toFixed(3);
+      item.style.filter = `blur(${((1 - opacity) * 2).toFixed(2)}px)`;
+
+      if (howtoSteps.includes(item)) {
+        item.style.transform = `translateY(${lift.toFixed(1)}px) scale(${(0.98 + opacity * 0.02).toFixed(3)})`;
+      } else {
+        item.style.transform = `translateY(${(lift * 0.6).toFixed(1)}px)`;
+      }
+    });
   };
 
   const renderLockedIntro = () => {
@@ -311,12 +383,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   body.classList.add('js-scroll-reveal');
+  if (howtoSection && howtoSteps.length) {
+    body.classList.add('js-howto-sequence');
+  }
 
   lockIntro(0);
 
   updateRevealStates();
+  updateHowtoSequence();
   window.addEventListener('wheel', onTopReverseWheel, { passive: false });
   window.addEventListener('scroll', updateRevealStates, { passive: true });
+  window.addEventListener('scroll', updateHowtoSequence, { passive: true });
   window.addEventListener('resize', updateRevealStates);
+  window.addEventListener('resize', updateHowtoSequence);
   window.addEventListener('load', updateRevealStates);
+  window.addEventListener('load', updateHowtoSequence);
 });

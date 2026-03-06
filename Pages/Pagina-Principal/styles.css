@@ -307,6 +307,40 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
+.js-howto-sequence .section-howto {
+  min-height: 185vh;
+}
+
+.js-howto-sequence .section-howto .container > h2,
+.js-howto-sequence .section-howto .note {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(2px);
+  will-change: opacity, transform, filter;
+}
+
+.js-howto-sequence .section-howto .steps {
+  position: relative;
+  margin-top: 22px;
+  min-height: 220px;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.js-howto-sequence .section-howto .steps li {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(26px) scale(.98);
+  filter: blur(2px);
+  z-index: 1;
+  will-change: opacity, transform, filter;
+}
+
+.js-howto-sequence .section-howto .steps li:nth-child(1) { z-index: 3; }
+.js-howto-sequence .section-howto .steps li:nth-child(2) { z-index: 2; }
+.js-howto-sequence .section-howto .steps li:nth-child(3) { z-index: 1; }
+
 .steps li,
 .type-card,
 .benefits-list li {
@@ -440,6 +474,33 @@ body {
   .section-contact {
     min-height: auto;
     padding: 64px 0;
+  }
+
+  .js-howto-sequence .section-howto {
+    min-height: auto;
+  }
+
+  .js-howto-sequence .section-howto .steps {
+    position: static;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .js-howto-sequence .section-howto .steps li {
+    position: static;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .js-howto-sequence .section-howto .container > h2,
+  .js-howto-sequence .section-howto .note {
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }
 

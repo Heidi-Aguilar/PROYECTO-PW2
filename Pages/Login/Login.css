@@ -183,21 +183,21 @@ h1 {
     flex: 1;
 }
 
-/* Ajuste para el alto de la tarjeta de registro */
+
 #register-card {
-    width: 500px; /* Un poco más ancha */
+    width: 500px; 
     max-height: 90vh;
     overflow-y: auto;
     padding: 30px;
 }
 
-/* Estilo para el select de sexo */
+
 select option {
     background: #222;
     color: white;
 }
 
-/* Ocultar el scrollbar pero mantener la funcionalidad */
+
 #register-card::-webkit-scrollbar {
     width: 5px;
 }
@@ -206,7 +206,7 @@ select option {
     border-radius: 10px;
 }
 
-/* ... (al final de tu archivo Login.css) */
+
 
 .profile-upload-container {
     display: flex;
@@ -226,12 +226,12 @@ select option {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    overflow: hidden; /* Importante para que la imagen de previsualización sea circular */
+    overflow: hidden; 
     transition: 0.3s;
 }
 
 .profile-upload:hover {
-    border-color: #b88642; /* Color dorado al pasar el cursor */
+    border-color: #b88642;
     background: rgba(184, 134, 66, 0.05);
 }
 
@@ -256,12 +256,12 @@ select option {
     color: #b88642;
 }
 
-/* Estilos para la imagen de previsualización */
+
 #profile-preview {
     position: absolute;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Asegura que la imagen cubra todo el círculo sin deformarse */
+    object-fit: cover; 
     border-radius: 50%;
 }
 

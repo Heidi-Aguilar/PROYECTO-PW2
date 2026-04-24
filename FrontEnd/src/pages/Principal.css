@@ -409,6 +409,10 @@ h6 {
   text-align: center;
 }
 
+.catalogo-intro h2{
+  color: #5e3321 !important;
+}
+
 .catalogo-kicker {
   margin: 0;
   text-transform: uppercase;

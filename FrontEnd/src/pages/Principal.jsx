@@ -1,6 +1,7 @@
 ﻿import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import "./Principal.css"
+import userpng from '../assets/images/user1.png';
 
 function Principal(){
     useEffect(() => {

@@ -1,0 +1,397 @@
+.renta-page * { box-sizing: border-box; }
+.renta-page {
+  color: #2f2419;
+  background:
+    radial-gradient(980px 500px at 82% -120px, rgba(168, 75, 60, .14), transparent 62%),
+    radial-gradient(880px 460px at 10% -90px, rgba(90, 106, 70, .16), transparent 60%),
+    repeating-linear-gradient(25deg, rgba(88, 67, 44, .03) 0, rgba(88, 67, 44, .03) 2px, transparent 2px, transparent 11px),
+    #e8ddca;
+  min-height: 100vh;
+  line-height: 1.45;
+}
+
+.renta-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: grid;
+  grid-template-rows: auto auto;
+  padding: 0;
+  background: rgba(20, 11, 8, .78);
+  border-bottom: none;
+  font-family: "Roboto Slab", serif;
+}
+
+.renta-header-top {
+  min-height: 90px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 6px 18px;
+  background: linear-gradient(180deg, rgba(36, 18, 13, .94), rgba(24, 12, 10, .96));
+  border-bottom: 1px solid rgba(248, 198, 172, .18);
+  overflow: hidden;
+}
+
+.renta-header-top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/img/logo.png');
+  background-repeat: repeat-x;
+  background-size: 64px auto;
+  background-position: center;
+  filter: invert(1) grayscale(1) brightness(1.35) contrast(1.08);
+  opacity: .12;
+  pointer-events: none;
+}
+
+.renta-brand-logo {
+  position: relative;
+  z-index: 1;
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+  filter: invert(1) grayscale(1) brightness(1.95) contrast(1.2) drop-shadow(0 2px 6px rgba(0, 0, 0, .4));
+}
+
+.renta-header-nav-row {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 26px;
+  gap: 14px;
+  background: linear-gradient(180deg, #dd8f74, #d98266);
+  border-top: 1px solid rgba(255, 231, 210, .35);
+  border-bottom: 1px solid rgba(80, 34, 22, .44);
+}
+
+.renta-nav-social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.renta-nav-social a {
+  width: 31px;
+  height: 31px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  color: #ffe9da;
+  font-size: .98rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 238, 224, .72);
+  background: rgba(187, 91, 64, .32);
+}
+
+.renta-nav-social a:hover {
+  background: rgba(122, 45, 24, .36);
+}
+
+.renta-nav a {
+  color: #fff3e8;
+  text-decoration: none;
+  font-size: 1.16rem;
+  letter-spacing: .35px;
+  font-weight: 500;
+  text-transform: uppercase;
+  opacity: .96;
+  transition: opacity .2s ease, color .2s ease, transform .2s ease;
+}
+
+.renta-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  gap: 38px;
+}
+
+.renta-nav a:hover {
+  opacity: 1;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.renta-nav-search {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  color: #fff5ec;
+  border: 1px solid rgba(255, 235, 221, .72);
+  background: rgba(180, 82, 55, .26);
+}
+
+.renta-nav-search svg {
+  width: 23px;
+  height: 23px;
+  fill: currentColor;
+}
+
+.renta-nav-search:hover {
+  background: rgba(118, 44, 25, .35);
+}
+
+.renta-container {
+  width: min(1120px, 92vw);
+  margin: 0 auto;
+}
+
+.renta-container-narrow {
+  width: min(780px, 92vw);
+}
+
+.renta-main {
+  padding: 22px 0 52px;
+}
+
+.renta-step { display: block; }
+.renta-kicker {
+  margin: 0;
+  color: #9b723a;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.renta-page h1,
+.renta-page h2 {
+  margin: 8px 0 10px;
+  line-height: 1.06;
+  letter-spacing: -.4px;
+}
+
+.renta-page h1 { font-size: clamp(1.6rem, 3.8vw, 2.5rem); }
+.renta-page h2 { font-size: clamp(1.35rem, 3vw, 2rem); }
+
+.renta-lead,
+.renta-muted { color: #6f604f; }
+
+.renta-map-layout {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.renta-metro-map,
+.renta-station-panel,
+.renta-vehicles-panel,
+.renta-card,
+.renta-ticket {
+  border: 1px solid rgba(109, 87, 61, .24);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 251, 244, .84), rgba(255, 251, 244, .66));
+  box-shadow: 0 12px 28px rgba(52, 35, 19, .15);
+}
+
+.renta-metro-map {
+  position: relative;
+  min-height: 380px;
+  overflow: hidden;
+}
+
+.renta-metro-map::before,
+.renta-metro-map::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  opacity: .55;
+}
+
+.renta-metro-map::before {
+  left: 8%;
+  top: 26%;
+  width: 78%;
+  height: 8px;
+  background: linear-gradient(90deg, #b88642, #3f7069);
+}
+
+.renta-metro-map::after {
+  left: 22%;
+  top: 18%;
+  width: 8px;
+  height: 62%;
+  background: linear-gradient(180deg, #3f7069, #b88642);
+}
+
+.renta-station-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(47, 36, 25, .3);
+  background: rgba(255, 248, 237, .95);
+  color: #2f2419;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.renta-station-pin:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 8px 20px rgba(52, 35, 19, .18);
+  background: #fff;
+}
+
+.renta-station-pin.active {
+  background: #b88642;
+  color: #211a14;
+  border-color: transparent;
+}
+
+.renta-station-panel { padding: 16px; }
+.renta-station-panel h2 { margin-top: 2px; font-size: 1.2rem; }
+.renta-station-name { margin: 8px 0; font-size: 1.15rem; font-weight: 700; }
+.renta-vehicles-panel { margin-top: 16px; padding: 16px; }
+
+.renta-vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.renta-vehicle-card {
+  border: 1px solid rgba(109, 87, 61, .24);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 251, 244, .72);
+}
+
+.renta-vehicle-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.renta-vehicle-card p { margin: 3px 0; color: #6f604f; font-size: .92rem; }
+
+.renta-actions-row {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.renta-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.renta-btn-primary { background: #b88642; color: #211a14; }
+.renta-btn-primary:hover { background: #9b723a; color: #fff8eb; }
+
+.renta-btn-ghost {
+  border: 1px solid rgba(109, 87, 61, .35);
+  background: rgba(255, 251, 244, .65);
+  color: #2f2419;
+}
+.renta-btn-ghost:hover { background: #fff; }
+
+.renta-btn-danger { background: #a84b3c; color: #fff3ee; }
+.renta-btn-emergency { background: #6b1111; color: #fff; }
+
+.renta-card,
+.renta-ticket { padding: 16px; }
+
+.renta-summary-card p { margin: 8px 0; }
+.renta-total { font-size: 1.12rem; }
+
+.renta-payment-form { display: grid; gap: 12px; }
+.renta-payment-form label { display: grid; gap: 6px; font-weight: 600; }
+
+.renta-payment-form input {
+  border: 1px solid rgba(109, 87, 61, .35);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 251, 244, .92);
+  color: #2f2419;
+}
+
+.renta-cols-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 10px;
+}
+
+.renta-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.renta-ticket {
+  position: relative;
+  border-style: dashed;
+}
+
+.renta-ticket-id { margin-top: 0; font-weight: 800; }
+
+.renta-qr-wrap {
+  margin: 12px 0 6px;
+  display: grid;
+  place-items: center;
+}
+
+.renta-qr-wrap img {
+  width: 220px;
+  height: 220px;
+  border: 10px solid #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(52, 35, 19, .16);
+  background: #fff;
+}
+
+.renta-trip-card p { margin: 8px 0; }
+
+.renta-timer {
+  margin-top: 8px;
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #3f7069;
+}
+
+.renta-trip-actions {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.renta-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(33, 26, 20, .95);
+  color: #fff8ed;
+  border-radius: 12px;
+  padding: 10px 12px;
+  max-width: min(360px, 90vw);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.renta-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+  .renta-map-layout { grid-template-columns: 1fr; }
+  .renta-metro-map { min-height: 320px; }
+  .renta-actions-row { justify-content: stretch; }
+  .renta-actions-row .renta-btn { flex: 1; }
+  .renta-cols-3 { grid-template-columns: 1fr; }
+}

@@ -41,7 +41,6 @@ function Principal(){
                     <nav className="nav">
                         <a href="#catalogo">Catalogo</a>
                         <a href="../Renta/renta.html">Renta</a>
-                        <a href="#contacto">Contacto</a>
                     </nav>
 
                     <a className="nav-search" href="#" aria-label="Buscar">
@@ -108,28 +107,6 @@ function Principal(){
                 </div>
             </section>
 
-            <section id="contacto" className="section-contact">
-                <div className="container">
-                    <h2>Contáctanos</h2>
-                    <div className="redes-sociales">
-                        <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">
-                            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M13.5 21v-7h2.3l.4-3h-2.7V9.2c0-.9.3-1.5 1.6-1.5h1.2V5.1c-.2 0-.9-.1-1.8-.1-2.2 0-3.7 1.3-3.7 3.8V11H8v3h2.6v7h2.9z"/>
-                            </svg>
-                        </a>
-                        <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">
-                            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M18.9 3h2.8l-6.2 7.1L23 21h-6l-4.7-6.1L7 21H4.2l6.7-7.6L2 3h6.2l4.2 5.6L18.9 3zm-1 16h1.6L7.2 4.9H5.5L17.9 19z"/>
-                            </svg>
-                        </a>
-                        <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">
-                            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8zm9.1 1.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </section>
         </>
     )
 }

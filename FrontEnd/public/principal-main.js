@@ -103,9 +103,7 @@ if (window.__principalEffectsInitialized) {
 
   const revealTargets = [
     '.catalogo-intro > *',
-    '.catalogo-card',
-    '.section-contact .container > h2',
-    '.section-contact .redes-sociales a'
+    '.catalogo-card'
   ];
 
   revealTargets.forEach((selector) => {

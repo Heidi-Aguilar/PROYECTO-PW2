@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
 if (window.__principalEffectsInitialized) {
   // already initialized
   return;
@@ -11,16 +11,14 @@ if (window.__principalEffectsInitialized) {
   const heroInner = document.querySelector('.hero-inner');
   const heroTitle = document.querySelector('.hero-title');
   const heroSub = document.querySelector('.hero-sub');
-  const heroCta = document.querySelector('.hero-cta');
-  const heroCtaLinks = [...document.querySelectorAll('.hero-cta a[href^="#"]')];
-  const howtoSection = document.querySelector('.section-howto');
-  const howtoTitle = document.querySelector('.section-howto .container > h2');
-  const howtoSteps = [...document.querySelectorAll('.section-howto .steps li')];
+  const howtoSection = document.querySelector('.section-catalogo');
+  const howtoTitle = document.querySelector('.section-catalogo .container > h2');
+  const howtoSteps = [...document.querySelectorAll('.section-catalogo .steps li')];
   const howtoStepSet = new Set(howtoSteps);
-  const howtoReservaStep = document.querySelector('.section-howto .steps li.step-reserva');
-  const howtoDisfrutaStep = document.querySelector('.section-howto .steps li:nth-child(3)');
-  const howtoNote = document.querySelector('.section-howto .note');
-  const howtoEligeStep = document.querySelector('.section-howto .steps li.step-elige');
+  const howtoReservaStep = document.querySelector('.section-catalogo .steps li.step-reserva');
+  const howtoDisfrutaStep = document.querySelector('.section-catalogo .steps li:nth-child(3)');
+  const howtoNote = document.querySelector('.section-catalogo .note');
+  const howtoEligeStep = document.querySelector('.section-catalogo .steps li.step-elige');
   let howtoTitleLeft = null;
   let howtoTitleRight = null;
   let howtoNoteLeft = null;
@@ -29,7 +27,7 @@ if (window.__principalEffectsInitialized) {
   const words = document.querySelectorAll('.hero-title .word');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (!words.length || !heroTitle || !heroSub || !heroCta) {
+  if (!words.length || !heroTitle || !heroSub) {
     return;
   }
 
@@ -37,15 +35,10 @@ if (window.__principalEffectsInitialized) {
   let introLocked = true;
   let introProgress = 0;
   let touchStartY = null;
-  let heroCtaRideOutActive = false;
+  let heroRideOutActive = false;
   const introEndProgress = 1;
   const INTRO_TITLE_PHASE = 0.30;
   const INTRO_SUB_PHASE = 0.55;
-  const INTRO_CTA_PHASE = 0.15;
-  const INTRO_CTA_OVERLAP = 0;
-  const HERO_CTA_BASE_Y = 170;
-  const HERO_CTA_RIDE_Y = 85;
-  const HERO_CTA_FADE_START = 0.82;
   const HERO_EXIT_START = 0.08;
   const HERO_EXIT_TRAVEL_PX = 170;
 
@@ -109,11 +102,8 @@ if (window.__principalEffectsInitialized) {
   };
 
   const revealTargets = [
-    '.section-types .container > h2',
-    '.type-card',
-    '.section-benefits .container > h3',
-    '.section-benefits .container > h2',
-    '.benefits-list li',
+    '.catalogo-intro > *',
+    '.catalogo-card',
     '.section-contact .container > h2',
     '.section-contact .redes-sociales a'
   ];
@@ -451,30 +441,15 @@ if (window.__principalEffectsInitialized) {
       }
     }
 
-    const ctaStart = INTRO_TITLE_PHASE + INTRO_SUB_PHASE - INTRO_CTA_OVERLAP;
-    const ctaPhase = (introProgress - ctaStart) / INTRO_CTA_PHASE;
-    let ctaOpacity = 0;
-    if (ctaPhase > 0) {
-      if (ctaPhase <= 0.35) {
-        ctaOpacity = smooth(ctaPhase / 0.35);
-      } else {
-        ctaOpacity = 1;
-      }
-    }
-
     heroTitle.style.opacity = '1';
     heroTitle.style.filter = `blur(${titlePhase * 1.4}px)`;
 
     heroSub.style.opacity = String(subOpacity);
     heroSub.style.filter = `blur(${(1 - subOpacity) * 2}px)`;
-
-    heroCta.style.opacity = String(ctaOpacity);
-    heroCta.style.filter = `blur(${(1 - ctaOpacity) * 2}px)`;
-    heroCta.style.pointerEvents = ctaOpacity > 0.3 ? 'auto' : 'none';
   };
 
-  const updateHeroCtaRideOut = () => {
-    if (!heroSection || introLocked || !heroCtaRideOutActive) {
+  const updateHeroRideOut = () => {
+    if (!heroSection || introLocked || !heroRideOutActive) {
       return;
     }
 
@@ -497,20 +472,8 @@ if (window.__principalEffectsInitialized) {
         heroInner.style.transform = `translateY(-26vh) translateY(${-HERO_EXIT_TRAVEL_PX}px)`;
         heroInner.style.opacity = '0';
       }
-      heroCta.style.opacity = '0';
-      heroCta.style.filter = 'blur(2px)';
-      heroCta.style.pointerEvents = 'none';
       return;
     }
-
-    const ridePhase = progress;
-    const rideY = HERO_CTA_BASE_Y + HERO_CTA_RIDE_Y * ridePhase;
-    const fadeProgress = clamp01((progress - HERO_CTA_FADE_START) / (1 - HERO_CTA_FADE_START));
-    const ctaOpacity = 1 - smooth(fadeProgress);
-    heroCta.style.transform = `translate(-50%, ${rideY.toFixed(1)}px)`;
-    heroCta.style.opacity = ctaOpacity.toFixed(3);
-    heroCta.style.filter = `blur(${(2 * fadeProgress).toFixed(2)}px)`;
-    heroCta.style.pointerEvents = ctaOpacity > 0.3 ? 'auto' : 'none';
   };
 
   const onLockedWheel = (event) => {
@@ -586,7 +549,7 @@ if (window.__principalEffectsInitialized) {
 
   const lockIntro = (startProgress = 0) => {
     introLocked = true;
-    heroCtaRideOutActive = false;
+    heroRideOutActive = false;
     introProgress = clamp01(startProgress);
     window.scrollTo(0, 0);
     root.classList.add('scroll-lock');
@@ -595,11 +558,7 @@ if (window.__principalEffectsInitialized) {
     heroTitle.style.filter = 'blur(0px)';
     heroSub.style.opacity = '0';
     heroSub.style.filter = 'blur(2px)';
-    heroCta.style.opacity = '0';
-    heroCta.style.filter = 'blur(2px)';
     heroSub.style.pointerEvents = 'none';
-    heroCta.style.pointerEvents = 'none';
-    heroCta.style.transform = '';
     if (heroInner) {
       heroInner.style.transform = '';
       heroInner.style.opacity = '';
@@ -624,7 +583,7 @@ if (window.__principalEffectsInitialized) {
 
   const unlockIntro = () => {
     introLocked = false;
-    heroCtaRideOutActive = true;
+    heroRideOutActive = true;
     root.classList.remove('scroll-lock');
     body.classList.remove('scroll-lock');
     window.removeEventListener('wheel', onLockedWheel);
@@ -636,36 +595,13 @@ if (window.__principalEffectsInitialized) {
     heroTitle.style.filter = 'blur(2px)';
     heroSub.style.opacity = '0';
     heroSub.style.filter = 'blur(2px)';
-    heroCta.style.opacity = '1';
-    heroCta.style.filter = 'blur(0px)';
-    heroCta.style.pointerEvents = 'auto';
     if (heroInner) {
       heroInner.style.transform = 'translateY(-26vh)';
       heroInner.style.opacity = '1';
     }
 
-    updateHeroCtaRideOut();
+    updateHeroRideOut();
   };
-
-  heroCtaLinks.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const hash = link.getAttribute('href');
-      if (!hash || hash === '#') {
-        return;
-      }
-
-      event.preventDefault();
-
-      if (introLocked) {
-        introProgress = 1;
-        unlockIntro();
-      }
-
-      requestAnimationFrame(() => {
-        scrollToHashTarget(hash);
-      });
-    });
-  });
 
   const onTopReverseWheel = (event) => {
     if (introLocked) {
@@ -688,7 +624,7 @@ if (window.__principalEffectsInitialized) {
       return;
     }
 
-    updateHeroCtaRideOut();
+    updateHeroRideOut();
 
     const currentScrollY = window.scrollY;
 
@@ -717,7 +653,9 @@ if (window.__principalEffectsInitialized) {
   const runScrollAnimations = () => {
     scrollTicking = false;
     updateRevealStates();
-    updateHowtoSequence();
+    if (hasCatalogSequence) {
+      updateHowtoSequence();
+    }
   };
 
   const onScrollAnimated = () => {
@@ -737,26 +675,32 @@ if (window.__principalEffectsInitialized) {
     });
     heroTitle.style.opacity = '1';
     heroSub.style.opacity = '1';
-    heroCta.style.opacity = '1';
-    heroCta.style.transform = '';
     revealItems.forEach((item) => item.classList.add('is-visible'));
     return;
   }
 
   body.classList.add('js-scroll-reveal');
-  if (howtoSection && howtoSteps.length) {
-    body.classList.add('js-howto-sequence');
+  const hasCatalogSequence = Boolean(howtoSection && howtoSteps.length);
+  if (hasCatalogSequence) {
+    body.classList.add('js-catalogo-sequence');
   }
 
   lockIntro(0);
 
   updateRevealStates();
-  updateHowtoSequence();
+  if (hasCatalogSequence) {
+    updateHowtoSequence();
+  }
   window.addEventListener('wheel', onTopReverseWheel, { passive: false });
   window.addEventListener('scroll', onScrollAnimated, { passive: true });
   window.addEventListener('resize', updateRevealStates);
-  window.addEventListener('resize', updateHowtoSequence);
+  if (hasCatalogSequence) {
+    window.addEventListener('resize', updateHowtoSequence);
+  }
   window.addEventListener('load', updateRevealStates);
-  window.addEventListener('load', updateHowtoSequence);
+  if (hasCatalogSequence) {
+    window.addEventListener('load', updateHowtoSequence);
+  }
 }
 })();
+

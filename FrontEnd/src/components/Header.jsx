@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import logo from "../assets/images/logo.png";
 import './Header.css';
 
@@ -41,7 +41,7 @@ function Header(){
             </div>
 
             <nav className="nav">
-                <a href="#como-funciona">Cómo funciona</a>
+                <a href="#catalogo">Catalogo</a>
                 <a aria-disabled="true">Renta</a>
                 <a href="#ventajas">Nosotros</a>
                 <a href="#contacto">Cuenta</a>
@@ -52,3 +52,4 @@ function Header(){
 }
 
 export default Header;
+

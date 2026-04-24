@@ -1,4 +1,4 @@
-* { box-sizing: border-box; }
+﻿* { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 img { max-width: 100%; display: block; }
 
@@ -39,7 +39,7 @@ body.scroll-lock {
 }
 
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: "Roboto Slab", serif;
   color: var(--ink);
   background:
     radial-gradient(980px 500px at 82% -120px, rgba(168, 75, 60, .17), transparent 62%),
@@ -47,6 +47,16 @@ body {
     repeating-linear-gradient(25deg, rgba(88, 67, 44, .035) 0, rgba(88, 67, 44, .035) 2px, transparent 2px, transparent 11px),
     var(--bg);
   line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Rye", serif;
+  font-weight: 400;
 }
 
 .container,
@@ -311,43 +321,6 @@ body {
   opacity: 0;
 }
 
-.hero-cta {
-  margin-top: 0;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, 170px);
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  opacity: 0;
-}
-
-.hero-cta a {
-  text-decoration: none;
-  font-weight: 700;
-  font-size: .95rem;
-  border-radius: 999px;
-  padding: 10px 16px;
-  transition: transform .06s ease, border-color .2s ease, background .2s ease;
-}
-
-.hero-cta a:first-child {
-  color: #211a14;
-  background: var(--accent-gold);
-}
-
-.hero-cta a:last-child {
-  color: var(--ink-on-hero);
-  border: 1px solid rgba(233, 221, 201, .52);
-  background: rgba(233, 221, 201, .14);
-}
-
-.hero-cta a:hover {
-  transform: translateY(-1px);
-}
-
 .js-scroll-reveal .reveal-on-scroll {
   opacity: 0;
 }
@@ -372,7 +345,7 @@ body {
   transition: none !important;
 }
 
-.section-howto,
+.section-catalogo,
 .section-types,
 .section-benefits,
 .section-contact {
@@ -380,7 +353,7 @@ body {
   padding: 0;
 }
 
-.section-howto .container,
+.section-catalogo .container,
 .section-types .container,
 .section-benefits .container,
 .section-contact .container {
@@ -389,7 +362,7 @@ body {
   transform: translateY(-50%);
 }
 
-.section-howto h2,
+.section-catalogo h2,
 .section-types h2,
 .section-benefits h2,
 .section-contact h2 {
@@ -398,10 +371,124 @@ body {
   letter-spacing: -.4px;
 }
 
-.section-howto h2 { color: var(--accent-gold); }
+.section-catalogo h2 { color: var(--accent-gold); }
 .section-types h2 { color: var(--accent-amber); }
 .section-benefits h2 { color: var(--accent-teal); }
 .section-contact h2 { color: var(--accent-olive); }
+
+.section-catalogo {
+  min-height: auto;
+  padding: 88px 0 96px;
+}
+
+.section-catalogo .container {
+  position: static;
+  top: auto;
+  transform: none;
+}
+
+.catalogo-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.catalogo-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  font-size: .74rem;
+  color: #8c6331;
+  font-weight: 700;
+}
+
+.section-catalogo .catalogo-intro h2 {
+  margin: 10px 0 12px;
+  font-size: clamp(2.3rem, 6.4vw, 4.8rem);
+  line-height: .95;
+  color: #553722;
+}
+
+.catalogo-copy {
+  margin: 0;
+  color: #6a5039;
+  font-size: clamp(1rem, 1.9vw, 1.2rem);
+}
+
+.catalogo-grid {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.catalogo-card {
+  background: linear-gradient(180deg, rgba(255, 249, 240, .84), rgba(247, 236, 216, .7));
+  border: 1px solid rgba(143, 101, 53, .25);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 32px rgba(62, 41, 21, .14);
+  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.catalogo-card:hover,
+.catalogo-card:focus-within {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 38px rgba(62, 41, 21, .2);
+  border-color: rgba(143, 101, 53, .42);
+}
+
+.catalogo-card.featured {
+  transform: translateY(-14px);
+  border-color: rgba(175, 118, 60, .52);
+}
+
+.catalogo-card.featured:hover,
+.catalogo-card.featured:focus-within {
+  transform: translateY(-20px);
+}
+
+.catalogo-card-image {
+  height: 210px;
+  background-position: center;
+  background-size: cover;
+}
+
+.catalogo-card-body {
+  padding: 16px;
+}
+
+.catalogo-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.06rem;
+  color: #3f2b1d;
+}
+
+.catalogo-card p {
+  margin: 0;
+  color: #6f5845;
+}
+
+.catalogo-card-link {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #fff9f0;
+  background: linear-gradient(180deg, #bc7a37, #a9652d);
+  font-weight: 600;
+  letter-spacing: .01em;
+  transition: filter .2s ease, transform .2s ease;
+}
+
+.catalogo-card-link:hover,
+.catalogo-card-link:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
 
 .section-benefits h3 {
   margin: 0;
@@ -422,21 +509,21 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
-.js-howto-sequence .section-howto {
+.js-catalogo-sequence .section-catalogo {
   min-height: 185vh;
 }
 
-.js-howto-sequence .section-howto .container > h2,
-.js-howto-sequence .section-howto .note {
+.js-catalogo-sequence .section-catalogo .container > h2,
+.js-catalogo-sequence .section-catalogo .note {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translate(-50%, -50%);
   filter: blur(2px);
   will-change: opacity, transform, filter;
 }
 
-.js-howto-sequence .section-howto .container > h2 {
+.js-catalogo-sequence .section-catalogo .container > h2 {
   position: absolute;
-  top: 50%;
+  top: 38%;
   left: 50%;
   font-size: clamp(3.2rem, 9vw, 7.2rem);
   line-height: .94;
@@ -450,7 +537,7 @@ body {
   z-index: 6;
 }
 
-.js-howto-sequence .section-howto .note {
+.js-catalogo-sequence .section-catalogo .note {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -468,7 +555,7 @@ body {
   z-index: 6;
 }
 
-.js-howto-sequence .section-howto .note > h3 {
+.js-catalogo-sequence .section-catalogo .note > h3 {
   margin: 0;
   font-size: inherit;
   line-height: inherit;
@@ -477,19 +564,19 @@ body {
   color: inherit;
 }
 
-.js-howto-sequence .section-howto .container > h2 .howto-title-word {
+.js-catalogo-sequence .section-catalogo .container > h2 .howto-title-word {
   display: inline-block;
   will-change: transform, opacity;
 }
 
-.js-howto-sequence .section-howto .note .howto-note-word {
+.js-catalogo-sequence .section-catalogo .note .howto-note-word {
   display: inline-block;
   will-change: transform, opacity;
   position: relative;
   z-index: 2;
 }
 
-.js-howto-sequence .section-howto .note .howto-note-bicici {
+.js-catalogo-sequence .section-catalogo .note .howto-note-bicici {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -503,7 +590,7 @@ body {
   will-change: transform, opacity;
 }
 
-.js-howto-sequence .section-howto .steps {
+.js-catalogo-sequence .section-catalogo .steps {
   position: relative;
   margin-top: 22px;
   min-height: 220px;
@@ -511,7 +598,7 @@ body {
   grid-template-columns: 1fr;
 }
 
-.js-howto-sequence .section-howto .steps li {
+.js-catalogo-sequence .section-catalogo .steps li {
   position: absolute;
   inset: 0;
   display: grid;
@@ -526,7 +613,7 @@ body {
   will-change: opacity, transform, filter;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-photo {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-photo {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -539,7 +626,7 @@ body {
   backface-visibility: hidden;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-stack-third {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -559,14 +646,14 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-tower {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-tower-photo {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-tower-photo {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -580,13 +667,13 @@ body {
 }
 
 /* JS updates these elements every frame during scroll; disable CSS interpolation to avoid jank. */
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-photo,
-.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third,
-.js-howto-sequence .section-howto .steps li.step-elige .elige-tower-photo {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-photo,
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-stack-third,
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-tower-photo {
   transition: none;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-top {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-top {
   transform: translate(-50%, calc(-50% + var(--elige-top-y, 0px) - 20px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-top-scale, 1));
   opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
@@ -596,7 +683,7 @@ body {
   z-index: 2;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-mid {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-mid {
   transform: translate(-50%, calc(-50% + var(--elige-bottom-y, 54px) - 20px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-mid-scale, 1));
   opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
@@ -606,7 +693,7 @@ body {
   z-index: 0;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-top {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-top {
   transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-top-y, 0px) + 30px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-left-top-scale, 1));
   opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
@@ -616,7 +703,7 @@ body {
   z-index: 2;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-mid {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-mid {
   transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-bottom-y, 54px) + 30px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-left-mid-scale, 1));
   opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
@@ -626,7 +713,7 @@ body {
   z-index: 0;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-bottom {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-bottom {
   transform: translate(calc(-50% - 355px), calc(-50% + var(--elige-third-y, 36px) + 30px)) rotate(var(--elige-third-rot, .3deg)) scale(var(--elige-left-bottom-scale, 1));
   opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
@@ -636,7 +723,7 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-top {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-top {
   transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-top-y, 0px) + 16px)) rotate(var(--elige-top-rot, -0.6deg)) scale(var(--elige-right-top-scale, 1));
   opacity: calc(var(--elige-top-opacity, 0) * 0.84);
   background:
@@ -646,7 +733,7 @@ body {
   z-index: 2;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-mid {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-mid {
   transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-bottom-y, 54px) + 16px)) rotate(var(--elige-bottom-rot, .9deg)) scale(var(--elige-right-mid-scale, 1));
   opacity: calc(var(--elige-bottom-opacity, 0) * 0.84);
   background:
@@ -656,7 +743,7 @@ body {
   z-index: 0;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-bottom {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-bottom {
   transform: translate(calc(-50% + 355px), calc(-50% + var(--elige-third-y, 36px) + 16px)) rotate(var(--elige-third-rot, .3deg)) scale(var(--elige-right-bottom-scale, 1));
   opacity: calc(var(--elige-third-opacity, 0) * 0.84);
   background:
@@ -666,37 +753,37 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-photo:hover,
-.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third:hover,
-.js-howto-sequence .section-howto .steps li.step-elige .elige-tower-photo:hover {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-photo:hover,
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-stack-third:hover,
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-tower-photo:hover {
   box-shadow: 0 18px 34px rgba(33, 24, 15, .34);
   filter: brightness(1.08) saturate(1.08);
 }
 
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-top:hover { --elige-top-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-center-mid:hover { --elige-mid-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-stack-third:hover { --elige-third-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-top:hover { --elige-left-top-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-mid:hover { --elige-left-mid-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-left-bottom:hover { --elige-left-bottom-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-top:hover { --elige-right-top-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-mid:hover { --elige-right-mid-scale: 1.05; }
-.js-howto-sequence .section-howto .steps li.step-elige .elige-right-bottom:hover { --elige-right-bottom-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-top:hover { --elige-top-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-center-mid:hover { --elige-mid-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-stack-third:hover { --elige-third-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-top:hover { --elige-left-top-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-mid:hover { --elige-left-mid-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-left-bottom:hover { --elige-left-bottom-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-top:hover { --elige-right-top-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-mid:hover { --elige-right-mid-scale: 1.05; }
+.js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-right-bottom:hover { --elige-right-bottom-scale: 1.05; }
 
-.js-howto-sequence .section-howto .steps li.step-elige > h3,
-.js-howto-sequence .section-howto .steps li.step-elige > p {
+.js-catalogo-sequence .section-catalogo .steps li.step-elige > h3,
+.js-catalogo-sequence .section-catalogo .steps li.step-elige > p {
   position: relative;
   z-index: 3;
   color: #f7ead8;
   text-shadow: 0 2px 10px rgba(0, 0, 0, .42);
 }
 
-.js-howto-sequence .section-howto .steps li.step-reserva {
+.js-catalogo-sequence .section-catalogo .steps li.step-reserva {
   --reserva-calendar-reveal: 0;
   --reserva-calendar-opacity: 0;
 }
 
-.js-howto-sequence .section-howto .steps li.step-reserva::after {
+.js-catalogo-sequence .section-catalogo .steps li.step-reserva::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -713,14 +800,14 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-reserva > h3,
-.js-howto-sequence .section-howto .steps li.step-reserva > p {
+.js-catalogo-sequence .section-catalogo .steps li.step-reserva > h3,
+.js-catalogo-sequence .section-catalogo .steps li.step-reserva > p {
   position: relative;
   z-index: 2;
 }
 
-.js-howto-sequence .section-howto .steps li.step-disfruta::before,
-.js-howto-sequence .section-howto .steps li.step-disfruta::after {
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta::before,
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta::after {
   content: '';
   position: absolute;
   pointer-events: none;
@@ -729,7 +816,7 @@ body {
   background-size: contain;
 }
 
-.js-howto-sequence .section-howto .steps li.step-disfruta::before {
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta::before {
   right: -10%;
   width: min(450px, 36vw);
   height: min(450px, 36vw);
@@ -739,7 +826,7 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-disfruta::after {
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta::after {
   right: -40%;
   width: min(660px, 44vw);
   height: min(560px, 32vw);
@@ -749,16 +836,16 @@ body {
   z-index: 1;
 }
 
-.js-howto-sequence .section-howto .steps li.step-disfruta > h3,
-.js-howto-sequence .section-howto .steps li.step-disfruta > p {
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta > h3,
+.js-catalogo-sequence .section-catalogo .steps li.step-disfruta > p {
   position: relative;
   z-index: 2;
 }
 
 
-.js-howto-sequence .section-howto .steps li:nth-child(1) { z-index: 3; }
-.js-howto-sequence .section-howto .steps li:nth-child(2) { z-index: 2; }
-.js-howto-sequence .section-howto .steps li:nth-child(3) { z-index: 1; }
+.js-catalogo-sequence .section-catalogo .steps li:nth-child(1) { z-index: 3; }
+.js-catalogo-sequence .section-catalogo .steps li:nth-child(2) { z-index: 2; }
+.js-catalogo-sequence .section-catalogo .steps li:nth-child(3) { z-index: 1; }
 
 .type-card,
 .benefits-list li {
@@ -904,7 +991,7 @@ body {
   }
 
   .hero-inner,
-  .section-howto .container,
+  .section-catalogo .container,
   .section-types .container,
   .section-benefits .container,
   .section-contact .container {
@@ -918,8 +1005,7 @@ body {
     display: block;
   }
 
-  .hero-sub,
-  .hero-cta {
+  .hero-sub {
     position: static;
     left: auto;
     top: auto;
@@ -928,7 +1014,7 @@ body {
     text-align: left;
   }
 
-  .section-howto,
+  .section-catalogo,
   .section-types,
   .section-benefits,
   .section-contact {
@@ -936,11 +1022,22 @@ body {
     padding: 64px 0;
   }
 
-  .js-howto-sequence .section-howto {
+  .catalogo-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .catalogo-card.featured,
+  .catalogo-card.featured:hover,
+  .catalogo-card.featured:focus-within {
+    transform: none;
+  }
+
+  .js-catalogo-sequence .section-catalogo {
     min-height: auto;
   }
 
-  .js-howto-sequence .section-howto .steps {
+  .js-catalogo-sequence .section-catalogo .steps {
     position: static;
     min-height: 0;
     display: grid;
@@ -948,7 +1045,7 @@ body {
     gap: 14px;
   }
 
-  .js-howto-sequence .section-howto .steps li {
+  .js-catalogo-sequence .section-catalogo .steps li {
     position: static;
     inset: auto;
     opacity: 1;
@@ -956,22 +1053,22 @@ body {
     filter: none;
   }
 
-  .js-howto-sequence .section-howto .steps li.step-elige .elige-tower {
+  .js-catalogo-sequence .section-catalogo .steps li.step-elige .elige-tower {
     display: none;
   }
 
-  .js-howto-sequence .section-howto .steps li.step-disfruta::before,
-  .js-howto-sequence .section-howto .steps li.step-disfruta::after {
+  .js-catalogo-sequence .section-catalogo .steps li.step-disfruta::before,
+  .js-catalogo-sequence .section-catalogo .steps li.step-disfruta::after {
     display: none;
   }
 
 
-  .js-howto-sequence .section-howto .steps li.step-reserva::after {
+  .js-catalogo-sequence .section-catalogo .steps li.step-reserva::after {
     display: none;
   }
 
-  .js-howto-sequence .section-howto .container > h2,
-  .js-howto-sequence .section-howto .note {
+  .js-catalogo-sequence .section-catalogo .container > h2,
+  .js-catalogo-sequence .section-catalogo .note {
     opacity: 1;
     position: static;
     top: auto;
@@ -991,10 +1088,11 @@ body {
     margin-top: 14px;
   }
 
-  .section-howto,
+  .section-catalogo,
   .section-types,
   .section-benefits,
   .section-contact {
     padding: 48px 0;
   }
 }
+

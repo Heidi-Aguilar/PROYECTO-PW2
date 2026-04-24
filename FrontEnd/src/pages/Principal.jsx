@@ -5,14 +5,22 @@ function Principal(){
     useEffect(() => {
         const existingScript = document.getElementById("principal-effects-script")
         if (existingScript) {
-            return
+            existingScript.remove()
         }
+
+        // Reset the singleton guard so the latest script can initialize again.
+        delete window.__principalEffectsInitialized
 
         const script = document.createElement("script")
         script.id = "principal-effects-script"
-        script.src = "/principal-main.js"
+        script.src = `/principal-main.js?v=${Date.now()}`
         script.defer = true
         document.body.appendChild(script)
+
+        return () => {
+            script.remove()
+            delete window.__principalEffectsInitialized
+        }
     }, [])
 
     return(

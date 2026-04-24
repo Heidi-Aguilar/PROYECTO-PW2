@@ -195,7 +195,7 @@ body {
 
 .hero {
   position: relative;
-  min-height: 123vh;
+  min-height: 118vh;
   display: grid;
   place-items: center;
   overflow: clip;
@@ -217,6 +217,8 @@ body {
   width: 100%;
   justify-items: center;
   text-align: center;
+  transition: transform .18s linear, opacity .18s linear;
+  will-change: transform, opacity;
 }
 
 .hero-bg {
@@ -255,9 +257,9 @@ body {
 
 .hero-title {
   margin: 0 auto;
-  transform: translate(10px, 164px);
-  max-width: min(1040px, 96vw);
-  font-size: clamp(2.5rem, 7.9vw, 7.9rem);
+  transform: translate(10px, 198px);
+  max-width: min(900px, 94vw);
+  font-size: clamp(2.42rem, 7.8vw, 7.7rem);
   font-family: "Rye", serif;
   font-weight: 400;
   letter-spacing: -1.5px;
@@ -298,17 +300,18 @@ body {
 }
 
 .hero-sub {
-  max-width: 860px;
+  max-width: 700px;
   margin-top: 0;
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 234px);
-  width: min(860px, 92vw);
+  transform: translate(-50%, 276px);
+  width: min(700px, 90vw);
   text-align: center;
   color: var(--muted-on-hero);
-  font-size: clamp(1.1rem, 2.45vw, 1.4rem);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
   opacity: 0;
+  z-index: 2;
 }
 
 .hero-cta {
@@ -316,10 +319,10 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 244px);
+  transform: translate(-50%, 318px);
   display: flex;
   justify-content: center;
-  gap: 13px;
+  gap: 12px;
   flex-wrap: wrap;
   opacity: 0;
 }
@@ -327,9 +330,9 @@ body {
 .hero-cta a {
   text-decoration: none;
   font-weight: 700;
-  font-size: 1.04rem;
+  font-size: .95rem;
   border-radius: 999px;
-  padding: 10px 17px;
+  padding: 10px 16px;
   transition: transform .06s ease, border-color .2s ease, background .2s ease;
 }
 
@@ -394,7 +397,7 @@ body {
 .section-benefits h2,
 .section-contact h2 {
   margin: 0 0 18px;
-  font-size: clamp(1.95rem, 3.3vw, 2.55rem);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
   letter-spacing: -.4px;
 }
 

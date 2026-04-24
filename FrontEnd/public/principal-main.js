@@ -1,11 +1,14 @@
+(() => {
 if (window.__principalEffectsInitialized) {
   // already initialized
+  return;
 } else {
   window.__principalEffectsInitialized = true;
   const body = document.body;
   const root = document.documentElement;
   const header = document.querySelector('.header');
   const heroSection = document.querySelector('.hero');
+  const heroInner = document.querySelector('.hero-inner');
   const heroTitle = document.querySelector('.hero-title');
   const heroSub = document.querySelector('.hero-sub');
   const heroCta = document.querySelector('.hero-cta');
@@ -43,6 +46,8 @@ if (window.__principalEffectsInitialized) {
   const HERO_CTA_BASE_Y = 170;
   const HERO_CTA_RIDE_Y = 85;
   const HERO_CTA_FADE_START = 0.82;
+  const HERO_EXIT_START = 0.08;
+  const HERO_EXIT_TRAVEL_PX = 170;
 
   const clamp01 = (value) => Math.min(1, Math.max(0, value));
   const smooth = (value) => {
@@ -477,8 +482,21 @@ if (window.__principalEffectsInitialized) {
     const totalTravel = Math.max(1, heroSection.offsetHeight - viewportHeight);
     const sectionRect = heroSection.getBoundingClientRect();
     const progress = clamp01((-sectionRect.top) / totalTravel);
+    const exitProgress = clamp01((progress - HERO_EXIT_START) / (1 - HERO_EXIT_START));
+    const exitEase = smooth(exitProgress);
+
+    if (heroInner) {
+      const heroOffset = -HERO_EXIT_TRAVEL_PX * exitEase;
+      const heroOpacity = 1 - 0.98 * exitEase;
+      heroInner.style.transform = `translateY(-26vh) translateY(${heroOffset.toFixed(1)}px)`;
+      heroInner.style.opacity = heroOpacity.toFixed(3);
+    }
 
     if (sectionRect.bottom <= 0 || progress >= 1) {
+      if (heroInner) {
+        heroInner.style.transform = `translateY(-26vh) translateY(${-HERO_EXIT_TRAVEL_PX}px)`;
+        heroInner.style.opacity = '0';
+      }
       heroCta.style.opacity = '0';
       heroCta.style.filter = 'blur(2px)';
       heroCta.style.pointerEvents = 'none';
@@ -582,6 +600,10 @@ if (window.__principalEffectsInitialized) {
     heroSub.style.pointerEvents = 'none';
     heroCta.style.pointerEvents = 'none';
     heroCta.style.transform = '';
+    if (heroInner) {
+      heroInner.style.transform = '';
+      heroInner.style.opacity = '';
+    }
 
     if (introProgress === 0) {
       // Keep CSS keyframes active on first load so hero-title entry is visible.
@@ -617,6 +639,10 @@ if (window.__principalEffectsInitialized) {
     heroCta.style.opacity = '1';
     heroCta.style.filter = 'blur(0px)';
     heroCta.style.pointerEvents = 'auto';
+    if (heroInner) {
+      heroInner.style.transform = 'translateY(-26vh)';
+      heroInner.style.opacity = '1';
+    }
 
     updateHeroCtaRideOut();
   };
@@ -733,3 +759,4 @@ if (window.__principalEffectsInitialized) {
   window.addEventListener('load', updateRevealStates);
   window.addEventListener('load', updateHowtoSequence);
 }
+})();

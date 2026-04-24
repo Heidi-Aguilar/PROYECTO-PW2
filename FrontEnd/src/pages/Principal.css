@@ -255,7 +255,7 @@ body {
 
 .hero-title {
   margin: 0 auto;
-  transform: translate(10px, 112px);
+  transform: translate(10px, 164px);
   max-width: min(1040px, 96vw);
   font-size: clamp(2.5rem, 7.9vw, 7.9rem);
   font-family: "Rye", serif;
@@ -303,7 +303,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 182px);
+  transform: translate(-50%, 234px);
   width: min(860px, 92vw);
   text-align: center;
   color: var(--muted-on-hero);
@@ -316,7 +316,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 192px);
+  transform: translate(-50%, 244px);
   display: flex;
   justify-content: center;
   gap: 13px;

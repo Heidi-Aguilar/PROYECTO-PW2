@@ -2,3 +2,14 @@
 html, body { margin: 0; padding: 0; }
 img { max-width: 100%; display: block; }
 
+html, body {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+	display: none;
+}
+

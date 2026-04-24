@@ -1,6 +1,17 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
+html, body {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+	display: none;
+}
+
 :root {
 	--bg: #e8ddca;
 	--ink: #2f2419;

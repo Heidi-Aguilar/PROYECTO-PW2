@@ -46,3 +46,10 @@ http://localhost:5173/
 ### Objetivo del proyecto
 
 Promover nuevas alternativas de transporte urbano en Monterrey mediante una plataforma digital que conecte a los usuarios con opciones de movilidad rápida, económica y sustentable como bicicletas, scooters y patines.
+
+### Integrantes del equipo:
+- Heidi Abigail Aguilar Hortiales
+- Fernanda Elizabeth Guerrero Canizalez
+- Cristina Rebollozo Maldonado
+- Omar Isai Ferretiz Sánchez
+- Juan Alberto Varela Amaro

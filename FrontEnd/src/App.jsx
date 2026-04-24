@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Auth from './pages/Auth.jsx'
 import Principal from './pages/Principal.jsx'
 import "./App.css"
 
@@ -6,9 +8,12 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <Principal />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Principal />} />
+        <Route path="/login" element={<Auth />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

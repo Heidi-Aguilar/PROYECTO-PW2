@@ -1,4 +1,6 @@
 ﻿import { useEffect } from "react"
+import { Link } from "react-router-dom";
+import userpng from '../assets/images/user1.png';
 import "./Principal.css"
 
 function Principal(){
@@ -40,14 +42,12 @@ function Principal(){
 
                     <nav className="nav">
                         <a href="#catalogo">Catalogo</a>
-                        <a href="../Renta/renta.html">Renta</a>
+                        <Link to="/login">Renta</Link>
                     </nav>
 
-                    <a className="nav-search" href="#" aria-label="Buscar">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M15.8 14.4h-.74l-.26-.25a6.2 6.2 0 1 0-.66.66l.25.26v.74L19 20.5 20.5 19l-4.7-4.6zm-5.6 0a4.2 4.2 0 1 1 0-8.4 4.2 4.2 0 0 1 0 8.4z"/>
-                        </svg>
-                    </a>
+                    <Link to="/login" className="nav-user">
+                        <img src={userpng} />
+                    </Link>
                 </div>
             </header>
 

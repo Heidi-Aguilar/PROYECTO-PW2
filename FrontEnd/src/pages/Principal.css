@@ -183,7 +183,7 @@ h6 {
   transform: translateY(-1px);
 }
 
-.nav-search {
+.nav-user {
   width: 50px;
   height: 50px;
   border-radius: 999px;
@@ -195,7 +195,7 @@ h6 {
   background: rgba(180, 82, 55, .26);
 }
 
-.nav-search svg {
+.nav-user img {
   width: 23px;
   height: 23px;
   fill: currentColor;

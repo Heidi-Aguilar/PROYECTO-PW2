@@ -22,10 +22,9 @@ function Auth() {
               <input type="password" placeholder="Password" required />
               <i className='bx bxs-lock-alt'></i>
             </div>
-            <button type="submit" className="btn">
-              Entrar
-              <Link to="/"></Link>
-            </button>
+            <Link to="/">
+            <button type="submit" className="btn">Entrar</button>
+            </Link>
           </form>
         </div>
 

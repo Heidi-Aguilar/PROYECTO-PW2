@@ -18,16 +18,32 @@ function Principal(){
     return(
         <>
             <header className="header">
-                <div className="marca">
-                    <img className="logo" src="/img/logo.png" alt="Logo" />
+                <div className="header-top">
+                    <img className="brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
                 </div>
 
-                <nav className="nav">
-                    <a href="#como-funciona">Cómo funciona</a>
-                    <a href="../Renta/renta.html">Renta</a>
-                    <a href="#ventajas">Nosotros</a>
-                    <a href="../Perfil/Perfil.html">Cuenta</a>
-                </nav>
+                <div className="header-nav-row">
+                    <div className="nav-social" aria-label="Redes sociales">
+                        <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
+                        <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
+                        <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
+                        <a href="#contacto" aria-label="Contacto">o</a>
+                    </div>
+
+                    <nav className="nav">
+                        <a href="#como-funciona">Cómo funciona</a>
+                        <a href="../Renta/renta.html">Renta</a>
+                        <a href="#tipos">Catálogo</a>
+                        <a href="#ventajas">Nosotros</a>
+                        <a href="#contacto">Contacto</a>
+                    </nav>
+
+                    <a className="nav-search" href="#" aria-label="Buscar">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M15.8 14.4h-.74l-.26-.25a6.2 6.2 0 1 0-.66.66l.25.26v.74L19 20.5 20.5 19l-4.7-4.6zm-5.6 0a4.2 4.2 0 1 1 0-8.4 4.2 4.2 0 0 1 0 8.4z"/>
+                        </svg>
+                    </a>
+                </div>
             </header>
 
             <section className="hero" aria-labelledby="hero-title">

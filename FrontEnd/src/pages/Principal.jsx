@@ -1,6 +1,5 @@
 ﻿import { useEffect } from "react"
-import { Link } from "react-router-dom";
-import userpng from '../assets/images/user1.png';
+import { Link } from "react-router-dom"
 import "./Principal.css"
 
 function Principal(){
@@ -42,7 +41,7 @@ function Principal(){
 
                     <nav className="nav">
                         <a href="#catalogo">Catalogo</a>
-                        <Link to="/login">Renta</Link>
+                        <Link to="/renta">Renta</Link>
                     </nav>
 
                     <Link to="/login" className="nav-user">
@@ -82,7 +81,7 @@ function Principal(){
                             <div className="catalogo-card-body">
                                 <h3>Scooter Electrico</h3>
                                 <p>Agil, rapido y perfecto para moverte entre avenidas con estilo.</p>
-                                <a href="../Renta/renta.html" className="catalogo-card-link">Reservar</a>
+                                <Link to="/renta" className="catalogo-card-link">Reservar</Link>
                             </div>
                         </article>
 
@@ -91,7 +90,7 @@ function Principal(){
                             <div className="catalogo-card-body">
                                 <h3>Bicicleta Electrica</h3>
                                 <p>Comoda para recorridos largos y paseos con una conduccion suave.</p>
-                                <a href="../Renta/renta.html" className="catalogo-card-link">Reservar</a>
+                                <Link to="/renta" className="catalogo-card-link">Reservar</Link>
                             </div>
                         </article>
 
@@ -100,7 +99,7 @@ function Principal(){
                             <div className="catalogo-card-body">
                                 <h3>Patineta Electrica</h3>
                                 <p>Compacta y divertida para trayectos urbanos cortos y rapidos.</p>
-                                <a href="../Renta/renta.html" className="catalogo-card-link">Reservar</a>
+                                <Link to="/renta" className="catalogo-card-link">Reservar</Link>
                             </div>
                         </article>
                     </div>

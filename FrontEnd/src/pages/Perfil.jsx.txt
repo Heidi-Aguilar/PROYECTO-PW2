@@ -1,0 +1,67 @@
+import React from 'react';
+import './Perfil.css';
+import avatarVaquero from './assets/AVATAR_USER.jpg'; 
+import logo from './assets/LOGO2.png';
+
+function Perfil() {
+  const stats = [
+    { label: "Rutas", value: "24", icon: "bx-map-alt" },
+    { label: "Kms", value: "158", icon: "bx-run" },
+    { label: "Rango", value: "Sheriff", icon: "bx-star" }
+  ];
+
+  return (
+    <div className="perfil-body">
+      <div className="perfil-card-container anim-slide-up">
+        
+        {/* Lado Izquierdo: Identidad */}
+        <div className="profile-sidebar">
+          <div className="avatar-frame">
+            <img src={avatarVaquero} alt="Avatar" className="user-photo" />
+            <div className="badge-rank icon-sway">
+              <i className='bx bxs-star'></i>
+            </div>
+          </div>
+          <h2 className="rye-font user-name">Juan "El Rápido"</h2>
+          <p className="since-text">Desde: Abril 2026</p>
+          <div className="status-pill">
+            <span className="dot pulse-green"></span> EN RUTA
+          </div>
+        </div>
+
+        {/* Lado Derecho: Panel de Control */}
+        <div className="profile-main">
+          <header className="profile-header">
+            <img src={logo} alt="Logo" className="mini-logo anim-float" />
+            <h3 className="card-title-vaquero">Expediente</h3>
+          </header>
+
+          <div className="stats-grid">
+            {stats.map((stat, index) => (
+              <div key={index} className="stat-item anim-pop-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <i className={`bx ${stat.icon} stat-icon`}></i>
+                <span className="stat-value">{stat.value}</span>
+                <span className="stat-label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="actions-column">
+            <button className="leather-btn">
+              <i className='bx bxs-credit-card'></i> MÉTODOS DE PAGO
+            </button>
+            <button className="leather-btn">
+              <i className='bx bxs-map-pin'></i> MIS ESTACIONES
+            </button>
+            <button className="leather-btn danger">
+              <i className='bx bx-log-out'></i> CERRAR SESIÓN
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+export default Perfil;

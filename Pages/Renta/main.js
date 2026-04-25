@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryTotal = document.getElementById('summary-total');
   const goPayment = document.getElementById('go-payment');
   const paymentForm = document.getElementById('payment-form');
+  const backToMapBtn = document.getElementById('back-to-map');
 
   const ticketId = document.getElementById('ticket-id');
   const ticketStation = document.getElementById('ticket-station');
@@ -27,12 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const ticketTime = document.getElementById('ticket-time');
   const ticketQr = document.getElementById('ticket-qr');
   const startTripBtn = document.getElementById('start-trip');
+  const backToPaymentBtn = document.getElementById('back-to-payment');
 
   const tripVehicle = document.getElementById('trip-vehicle');
   const tripSerial = document.getElementById('trip-serial');
   const tripStation = document.getElementById('trip-station');
   const tripTimer = document.getElementById('trip-timer');
   const stopTripBtn = document.getElementById('stop-trip');
+  const backToTicketBtn = document.getElementById('back-to-ticket');
   const helpTripBtn = document.getElementById('help-trip');
   const supportTripBtn = document.getElementById('support-trip');
   const emergencyTripBtn = document.getElementById('emergency-trip');
@@ -251,6 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setStep('payment');
   });
+
+  backToMapBtn.addEventListener('click', () => setStep('map'));
+  backToPaymentBtn.addEventListener('click', () => setStep('payment'));
+  backToTicketBtn.addEventListener('click', () => setStep('ticket'));
 
   paymentForm.addEventListener('submit', (event) => {
     event.preventDefault();

@@ -106,6 +106,10 @@
 					</label>
 					<button class="btn primary" type="submit">Pagar ahora</button>
 				</form>
+
+				<div class="actions-row">
+					<button id="back-to-map" class="btn ghost" type="button">Regresar al paso anterior</button>
+				</div>
 			</div>
 		</section>
 
@@ -127,7 +131,10 @@
 					<p class="muted">Escanea este QR en el vehiculo para iniciar tu tiempo.</p>
 				</article>
 
-				<button id="start-trip" class="btn primary" type="button">Ya escanee, iniciar viaje</button>
+				<div class="actions-row">
+					<button id="back-to-payment" class="btn ghost" type="button">Regresar al paso anterior</button>
+					<button id="start-trip" class="btn primary" type="button">Ya escanee, iniciar viaje</button>
+				</div>
 			</div>
 		</section>
 
@@ -142,6 +149,10 @@
 					<p><strong>Estacion origen:</strong> <span id="trip-station">-</span></p>
 					<div class="timer" id="trip-timer" aria-live="polite">00:00</div>
 				</article>
+
+				<div class="actions-row">
+					<button id="back-to-ticket" class="btn ghost" type="button">Regresar al paso anterior</button>
+				</div>
 
 				<div class="trip-actions">
 					<button id="stop-trip" class="btn danger" type="button">Parar viaje</button>

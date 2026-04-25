@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./Renta.css";
 import userpng from '../assets/images/user1.png';
+
+const RENTA_TRIP_STORAGE_KEY = "renta-active-trip";
 
 const STATIONS = [
   {
@@ -61,6 +63,7 @@ const STATIONS = [
 const money = (value) => `$${value.toFixed(2)} MXN`;
 
 function Renta() {
+  const location = useLocation();
   const [step, setStep] = useState("map");
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -77,6 +80,21 @@ function Renta() {
     terms: false
   });
 
+  const saveTripState = () => {
+    if (!selectedStation || !selectedVehicle || !paidOrder || !tripStartedAt) {
+      return;
+    }
+
+    const payload = {
+      selectedStation,
+      selectedVehicle,
+      paidOrder,
+      tripStartedAt
+    };
+
+    window.sessionStorage.setItem(RENTA_TRIP_STORAGE_KEY, JSON.stringify(payload));
+  };
+
   const showToast = (message) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 2200);
@@ -92,6 +110,34 @@ function Renta() {
     const timerId = window.setInterval(tick, 1000);
     return () => window.clearInterval(timerId);
   }, [tripStartedAt]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const shouldResumeTrip = params.get("resumeTrip") === "1";
+    if (!shouldResumeTrip) {
+      return;
+    }
+
+    const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const saved = JSON.parse(raw);
+      if (!saved?.tripStartedAt || !saved?.paidOrder) {
+        return;
+      }
+
+      setSelectedStation(saved.selectedStation || null);
+      setSelectedVehicle(saved.selectedVehicle || null);
+      setPaidOrder(saved.paidOrder || null);
+      setTripStartedAt(saved.tripStartedAt);
+      goTo("trip");
+    } catch {
+      window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
+    }
+  }, [location.search]);
 
   const qrUrl = useMemo(() => {
     if (!paidOrder) {
@@ -167,6 +213,7 @@ function Renta() {
     setPaidOrder(null);
     setSelectedVehicle(null);
     setSelectedStation(null);
+    window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
     goTo("map");
     showToast(`Viaje finalizado. Tiempo total: ${total}`);
   };
@@ -318,6 +365,10 @@ function Renta() {
                 </label>
                 <button className="renta-btn renta-btn-primary" type="submit">Pagar ahora</button>
               </form>
+
+              <div className="renta-actions-row">
+                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Regresar al paso anterior</button>
+              </div>
             </div>
           </section>
         )}
@@ -341,7 +392,10 @@ function Renta() {
                 <p className="renta-muted">Escanea este QR en el vehiculo para iniciar tu tiempo.</p>
               </article>
 
-              <button className="renta-btn renta-btn-primary" type="button" onClick={onStartTrip}>Ya escanee, iniciar viaje</button>
+              <div className="renta-actions-row">
+                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("payment")}>Regresar al paso anterior</button>
+                <button className="renta-btn renta-btn-primary" type="button" onClick={onStartTrip}>Ya escanee, iniciar viaje</button>
+              </div>
             </div>
           </section>
         )}
@@ -359,9 +413,13 @@ function Renta() {
                 <div className="renta-timer" aria-live="polite">{tripTimeLabel}</div>
               </article>
 
+              <div className="renta-actions-row">
+                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("ticket")}>Regresar al paso anterior</button>
+              </div>
+
               <div className="renta-trip-actions">
                 <button className="renta-btn renta-btn-danger" type="button" onClick={onStopTrip}>Parar viaje</button>
-                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => showToast("Ayuda enviada: operador en camino.")}>Obtener ayuda</button>
+                <Link className="renta-btn renta-btn-ghost" to="/manual" onClick={saveTripState}>Obtener ayuda</Link>
                 <button className="renta-btn renta-btn-ghost" type="button" onClick={() => showToast("Soporte: 55-1234-5678")}>Soporte</button>
                 <button className="renta-btn renta-btn-emergency" type="button" onClick={() => showToast("Emergencia activada: contactando asistencia.")}>Emergencias</button>
               </div>

@@ -141,6 +141,47 @@
   background: rgba(118, 44, 25, .35);
 }
 
+.renta-header-actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 10px;
+}
+
+.renta-help-top {
+  text-decoration: none;
+  color: #fff3e8;
+  border: 1px solid rgba(255, 235, 221, .72);
+  background: rgba(180, 82, 55, .26);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: .92rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+
+.renta-help-top:hover {
+  background: rgba(118, 44, 25, .35);
+}
+
+.nav-user {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 235, 221, .72);
+  background: rgba(180, 82, 55, .26);
+}
+
+.nav-user img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .renta-container {
   width: 100%;
   max-width: none;

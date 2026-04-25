@@ -238,9 +238,12 @@ function Renta() {
             <Link to="/renta">Renta</Link>
           </nav>
 
-          <Link to="/login" className="nav-user">
-              <img src={userpng} />
-          </Link>
+          <div className="renta-header-actions">
+            <Link to="/manual" className="renta-help-top">Ayuda</Link>
+            <Link to="/perfil" className="nav-user" aria-label="Perfil">
+              <img src={userpng} alt="Perfil" />
+            </Link>
+          </div>
         </div>
       </header>
 

@@ -45,8 +45,8 @@ function Principal(){
                         <Link to="/renta">Renta</Link>
                     </nav>
 
-                    <Link to="/login" className="nav-user">
-                        <img src={userpng} />
+                    <Link to="/perfil" className="nav-user" aria-label="Perfil">
+                        <img src={userpng} alt="Perfil" />
                     </Link>
                 </div>
             </header>

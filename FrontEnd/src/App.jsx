@@ -3,6 +3,7 @@ import Auth from './pages/Auth.jsx'
 import Principal from './pages/Principal.jsx'
 import Renta from './pages/Renta.jsx'
 import Manual from './pages/Manual.jsx'
+import Perfil from './pages/Perfil.jsx'
 import "./App.css"
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Principal />} />
         <Route path="/renta" element={<Renta />} />
         <Route path="/manual" element={<Manual />} />
+        <Route path="/perfil" element={<Perfil />} />
         <Route path="/login" element={<Auth />} />
       </Routes>
     </BrowserRouter>

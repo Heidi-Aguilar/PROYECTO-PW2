@@ -413,7 +413,7 @@ h6 {
 }
 
 .catalogo-intro h2{
-  color: #5e3321 !important;
+  color: var(--ink-on-hero) !important;
 }
 
 .catalogo-kicker {
@@ -583,7 +583,7 @@ h6 {
   font-size: .96rem;
   letter-spacing: .03em;
   text-transform: uppercase;
-  color: #4f351f;
+  color: var(--ink-on-hero);
 }
 
 .catalogo-card:hover h3,
@@ -595,7 +595,7 @@ h6 {
   display: block;
   margin: 0;
   min-height: 48px;
-  color: #74553a;
+  color: var(--muted-on-hero);
   font-size: .84rem;
   line-height: 1.35;
 }
@@ -693,7 +693,7 @@ h6 {
   font-size: clamp(2.7rem, 7.6vw, 6rem);
   line-height: .94;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--ink-on-hero);
   margin: 0;
   text-align: center;
   white-space: nowrap;

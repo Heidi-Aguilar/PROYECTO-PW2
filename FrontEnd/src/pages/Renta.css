@@ -142,24 +142,33 @@
 }
 
 .renta-container {
-  width: min(1120px, 92vw);
+  width: 100%;
+  max-width: none;
+  padding: 0 2vw;
   margin: 0 auto;
 }
 
 .renta-container-narrow {
-  width: min(780px, 92vw);
+  width: 100%;
+  max-width: none;
+  padding: 0 2vw;
 }
 
 .renta-main {
-  padding: 22px 0 52px;
+  padding: 24px 0 36px;
+  font-size: 1.18rem;
 }
 
-.renta-step { display: block; }
+.renta-step {
+  display: block;
+  min-height: calc(100vh - 156px);
+}
 .renta-kicker {
   margin: 0;
   color: #9b723a;
   font-weight: 700;
   letter-spacing: .2px;
+  font-size: 1.1rem;
 }
 
 .renta-page h1,
@@ -169,17 +178,34 @@
   letter-spacing: -.4px;
 }
 
-.renta-page h1 { font-size: clamp(1.6rem, 3.8vw, 2.5rem); }
-.renta-page h2 { font-size: clamp(1.35rem, 3vw, 2rem); }
+.renta-page h1 { font-size: clamp(2rem, 4.8vw, 3.4rem); }
+.renta-page h2 { font-size: clamp(1.72rem, 4vw, 2.6rem); }
 
 .renta-lead,
-.renta-muted { color: #6f604f; }
+.renta-muted {
+  color: #6f604f;
+  font-size: 1.06em;
+}
 
 .renta-map-layout {
-  margin-top: 16px;
+  margin-top: 24px;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  gap: 22px;
+}
+
+.renta-dashboard {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 22px;
+  align-items: start;
+  min-height: calc(100vh - 280px);
+}
+
+.renta-left-column {
+  display: grid;
+  gap: 18px;
 }
 
 .renta-metro-map,
@@ -188,14 +214,14 @@
 .renta-card,
 .renta-ticket {
   border: 1px solid rgba(109, 87, 61, .24);
-  border-radius: 16px;
+  border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 251, 244, .84), rgba(255, 251, 244, .66));
   box-shadow: 0 12px 28px rgba(52, 35, 19, .15);
 }
 
 .renta-metro-map {
   position: relative;
-  min-height: 380px;
+  min-height: 500px;
   overflow: hidden;
 }
 
@@ -230,8 +256,8 @@
   background: rgba(255, 248, 237, .95);
   color: #2f2419;
   border-radius: 999px;
-  padding: 8px 12px;
-  font-size: .82rem;
+  padding: 11px 17px;
+  font-size: .98rem;
   font-weight: 700;
   cursor: pointer;
   transition: transform .16s ease, box-shadow .2s ease, background .2s ease;
@@ -249,38 +275,49 @@
   border-color: transparent;
 }
 
-.renta-station-panel { padding: 16px; }
-.renta-station-panel h2 { margin-top: 2px; font-size: 1.2rem; }
-.renta-station-name { margin: 8px 0; font-size: 1.15rem; font-weight: 700; }
-.renta-vehicles-panel { margin-top: 16px; padding: 16px; }
+.renta-station-panel { padding: 24px; }
+.renta-station-panel h2 { margin-top: 2px; font-size: 1.55rem; }
+.renta-station-name { margin: 10px 0; font-size: 1.45rem; font-weight: 700; }
+.renta-vehicles-panel { margin-top: 22px; padding: 24px; }
+
+.renta-vehicles-panel-side {
+  margin-top: 0;
+  min-height: 100%;
+}
 
 .renta-vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
 }
 
 .renta-vehicle-card {
   border: 1px solid rgba(109, 87, 61, .24);
-  border-radius: 14px;
-  padding: 12px;
+  border-radius: 18px;
+  padding: 18px;
   background: rgba(255, 251, 244, .72);
 }
 
-.renta-vehicle-card h3 { margin: 0 0 8px; font-size: 1rem; }
-.renta-vehicle-card p { margin: 3px 0; color: #6f604f; font-size: .92rem; }
+.renta-vehicle-card.selected {
+  border-color: #b88642;
+  box-shadow: 0 0 0 2px rgba(184, 134, 66, .3);
+}
+
+.renta-vehicle-card h3 { margin: 0 0 10px; font-size: 1.28rem; }
+.renta-vehicle-card p { margin: 5px 0; color: #6f604f; font-size: 1.04rem; }
 
 .renta-actions-row {
-  margin-top: 14px;
+  margin-top: 20px;
   display: flex;
-  gap: 10px;
+  gap: 14px;
   justify-content: flex-end;
 }
 
 .renta-btn {
   border: 0;
   border-radius: 999px;
-  padding: 10px 16px;
+  padding: 14px 22px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -298,19 +335,35 @@
 .renta-btn-danger { background: #a84b3c; color: #fff3ee; }
 .renta-btn-emergency { background: #6b1111; color: #fff; }
 
+.renta-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
 .renta-card,
-.renta-ticket { padding: 16px; }
+.renta-ticket { padding: 24px; }
 
-.renta-summary-card p { margin: 8px 0; }
-.renta-total { font-size: 1.12rem; }
+.renta-summary-inline {
+  display: grid;
+  gap: 10px;
+}
 
-.renta-payment-form { display: grid; gap: 12px; }
-.renta-payment-form label { display: grid; gap: 6px; font-weight: 600; }
+.renta-summary-inline .renta-btn {
+  margin-top: 6px;
+  justify-self: start;
+}
+
+.renta-summary-card p { margin: 10px 0; }
+.renta-total { font-size: 1.34rem; }
+
+.renta-payment-form { display: grid; gap: 16px; }
+.renta-payment-form label { display: grid; gap: 8px; font-weight: 600; }
 
 .renta-payment-form input {
   border: 1px solid rgba(109, 87, 61, .35);
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 1.02rem;
   background: rgba(255, 251, 244, .92);
   color: #2f2419;
 }
@@ -318,7 +371,7 @@
 .renta-cols-3 {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 10px;
+  gap: 14px;
 }
 
 .renta-check {
@@ -336,25 +389,25 @@
 .renta-ticket-id { margin-top: 0; font-weight: 800; }
 
 .renta-qr-wrap {
-  margin: 12px 0 6px;
+  margin: 16px 0 10px;
   display: grid;
   place-items: center;
 }
 
 .renta-qr-wrap img {
-  width: 220px;
-  height: 220px;
+  width: 280px;
+  height: 280px;
   border: 10px solid #fff;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 10px 20px rgba(52, 35, 19, .16);
   background: #fff;
 }
 
-.renta-trip-card p { margin: 8px 0; }
+.renta-trip-card p { margin: 10px 0; }
 
 .renta-timer {
-  margin-top: 8px;
-  font-size: clamp(2.2rem, 7vw, 3.8rem);
+  margin-top: 12px;
+  font-size: clamp(3rem, 9vw, 5rem);
   line-height: 1;
   font-weight: 900;
   letter-spacing: -1px;
@@ -362,10 +415,10 @@
 }
 
 .renta-trip-actions {
-  margin-top: 14px;
+  margin-top: 18px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 14px;
 }
 
 .renta-toast {
@@ -389,8 +442,9 @@
 }
 
 @media (max-width: 900px) {
+  .renta-dashboard { grid-template-columns: 1fr; }
   .renta-map-layout { grid-template-columns: 1fr; }
-  .renta-metro-map { min-height: 320px; }
+  .renta-metro-map { min-height: 380px; }
   .renta-actions-row { justify-content: stretch; }
   .renta-actions-row .renta-btn { flex: 1; }
   .renta-cols-3 { grid-template-columns: 1fr; }

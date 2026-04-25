@@ -37,50 +37,44 @@
 		<section id="step-map" class="step is-active" aria-labelledby="map-title">
 			<div class="container">
 				<p class="kicker">Paso 1</p>
-				<h1 id="map-title">Elige una estacion sede</h1>
-				<p class="lead">Selecciona una estacion del mapa para ver que vehiculos hay disponibles en tiempo real.</p>
+				<h1 id="map-title">Selecciona ubicacion y vehiculo</h1>
+				<p class="lead">A la derecha tienes el catalogo. A la izquierda eliges estacion y revisas el resumen antes de pagar.</p>
 
-				<div class="map-layout">
-					<div class="metro-map" id="metro-map" aria-label="Mapa de estaciones"></div>
+				<div class="dashboard">
+					<div class="left-column">
+						<div class="map-layout">
+							<div class="metro-map" id="metro-map" aria-label="Mapa de estaciones"></div>
 
-					<aside class="station-panel">
-						<h2>Estacion seleccionada</h2>
-						<p id="station-name">Ninguna aun</p>
-						<p id="station-line" class="muted">Toca una estacion para continuar.</p>
-					</aside>
-				</div>
+							<aside class="station-panel">
+								<h2>Estacion seleccionada</h2>
+								<p id="station-name">Ninguna aun</p>
+								<p id="station-line" class="muted">Toca una estacion para continuar.</p>
+							</aside>
+						</div>
 
-				<section class="vehicles-panel" id="vehicles-panel" hidden>
-					<h2>Vehiculos disponibles</h2>
-					<p class="muted">Costo mostrado por cada 30 minutos.</p>
-					<div id="vehicle-list" class="vehicle-grid"></div>
-				</section>
-			</div>
-		</section>
+						<article class="card summary-inline">
+							<h2>Resumen de compra</h2>
+							<p><strong>Estacion:</strong> <span id="summary-station">-</span></p>
+							<p><strong>Vehiculo:</strong> <span id="summary-type">-</span></p>
+							<p><strong>Serie:</strong> <span id="summary-serial">-</span></p>
+							<p><strong>Costo (30 min):</strong> <span id="summary-price">-</span></p>
+							<p class="total"><strong>Total a pagar:</strong> <span id="summary-total">-</span></p>
+							<button id="go-payment" class="btn primary" type="button" disabled>Continuar con el pago</button>
+						</article>
+					</div>
 
-		<section id="step-summary" class="step" aria-labelledby="summary-title" hidden>
-			<div class="container narrow">
-				<p class="kicker">Paso 2</p>
-				<h2 id="summary-title">Resumen de tu compra</h2>
-
-				<article class="card summary-card">
-					<p><strong>Estacion:</strong> <span id="summary-station">-</span></p>
-					<p><strong>Vehiculo:</strong> <span id="summary-type">-</span></p>
-					<p><strong>Serie:</strong> <span id="summary-serial">-</span></p>
-					<p><strong>Costo (30 min):</strong> <span id="summary-price">-</span></p>
-					<p class="total"><strong>Total a pagar:</strong> <span id="summary-total">-</span></p>
-				</article>
-
-				<div class="actions-row">
-					<button id="summary-back" class="btn ghost" type="button">Cambiar vehiculo</button>
-					<button id="go-payment" class="btn primary" type="button">Continuar al pago</button>
+					<section class="vehicles-panel side" id="vehicles-panel">
+						<h2>Catalogo de vehiculos</h2>
+						<p class="muted">Elige uno del catalogo para cargar el resumen automaticamente.</p>
+						<div id="vehicle-list" class="vehicle-grid"></div>
+					</section>
 				</div>
 			</div>
 		</section>
 
 		<section id="step-payment" class="step" aria-labelledby="payment-title" hidden>
 			<div class="container narrow">
-				<p class="kicker">Paso 3</p>
+				<p class="kicker">Paso 2</p>
 				<h2 id="payment-title">Pago</h2>
 
 				<form id="payment-form" class="card payment-form">
@@ -117,7 +111,7 @@
 
 		<section id="step-ticket" class="step" aria-labelledby="ticket-title" hidden>
 			<div class="container narrow">
-				<p class="kicker">Paso 4</p>
+				<p class="kicker">Paso 3</p>
 				<h2 id="ticket-title">Ticket generado</h2>
 
 				<article class="ticket" id="ticket-card">
@@ -139,7 +133,7 @@
 
 		<section id="step-trip" class="step" aria-labelledby="trip-title" hidden>
 			<div class="container narrow">
-				<p class="kicker">Paso 5</p>
+				<p class="kicker">Paso 4</p>
 				<h2 id="trip-title">Viaje activo</h2>
 
 				<article class="card trip-card">

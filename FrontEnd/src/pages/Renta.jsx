@@ -114,7 +114,6 @@ function Renta() {
 
   const onChooseVehicle = (vehicle) => {
     setSelectedVehicle(vehicle);
-    goTo("summary");
   };
 
   const onPaymentChange = (event) => {
@@ -203,77 +202,82 @@ function Renta() {
           <section className="renta-step is-active" aria-labelledby="map-title">
             <div className="renta-container">
               <p className="renta-kicker">Paso 1</p>
-              <h1 id="map-title">Elige una estacion sede</h1>
-              <p className="renta-lead">Selecciona una estacion del mapa para ver que vehiculos hay disponibles en tiempo real.</p>
+              <h1 id="map-title">Selecciona ubicacion y vehiculo</h1>
+              <p className="renta-lead">A la derecha tienes el catalogo. A la izquierda eliges estacion y revisas el resumen antes de pagar.</p>
 
-              <div className="renta-map-layout">
-                <div className="renta-metro-map" aria-label="Mapa de estaciones">
-                  {STATIONS.map((station) => (
+              <div className="renta-dashboard">
+                <div className="renta-left-column">
+                  <div className="renta-map-layout">
+                    <div className="renta-metro-map" aria-label="Mapa de estaciones">
+                      {STATIONS.map((station) => (
+                        <button
+                          key={station.id}
+                          className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`}
+                          type="button"
+                          style={{ left: `${station.x}%`, top: `${station.y}%` }}
+                          onClick={() => {
+                            setSelectedStation(station);
+                            setSelectedVehicle(null);
+                          }}
+                        >
+                          {station.name.replace("Metro ", "")}
+                        </button>
+                      ))}
+                    </div>
+
+                    <aside className="renta-station-panel">
+                      <h2>Estacion seleccionada</h2>
+                      <p className="renta-station-name">{selectedStation ? selectedStation.name : "Ninguna aun"}</p>
+                      <p className="renta-muted">
+                        {selectedStation
+                          ? `${selectedStation.line} • ${selectedStation.vehicles.length} vehiculos disponibles`
+                          : "Toca una estacion para continuar."}
+                      </p>
+                    </aside>
+                  </div>
+
+                  <article className="renta-card renta-summary-inline">
+                    <h2>Resumen de compra</h2>
+                    <p><strong>Estacion:</strong> {selectedStation ? selectedStation.name : "-"}</p>
+                    <p><strong>Vehiculo:</strong> {selectedVehicle ? selectedVehicle.type : "-"}</p>
+                    <p><strong>Serie:</strong> {selectedVehicle ? selectedVehicle.serial : "-"}</p>
+                    <p><strong>Costo (30 min):</strong> {selectedVehicle ? `${money(selectedVehicle.price30)}` : "-"}</p>
+                    <p className="renta-total"><strong>Total a pagar:</strong> {selectedVehicle ? `${money(selectedVehicle.price30)}` : "-"}</p>
+
                     <button
-                      key={station.id}
-                      className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`}
+                      className="renta-btn renta-btn-primary"
                       type="button"
-                      style={{ left: `${station.x}%`, top: `${station.y}%` }}
-                      onClick={() => {
-                        setSelectedStation(station);
-                        setSelectedVehicle(null);
-                      }}
+                      disabled={!selectedStation || !selectedVehicle}
+                      onClick={() => goTo("payment")}
                     >
-                      {station.name.replace("Metro ", "")}
+                      Continuar con el pago
                     </button>
-                  ))}
+                  </article>
                 </div>
 
-                <aside className="renta-station-panel">
-                  <h2>Estacion seleccionada</h2>
-                  <p className="renta-station-name">{selectedStation ? selectedStation.name : "Ninguna aun"}</p>
-                  <p className="renta-muted">
-                    {selectedStation
-                      ? `${selectedStation.line} • ${selectedStation.vehicles.length} vehiculos disponibles`
-                      : "Toca una estacion para continuar."}
-                  </p>
-                </aside>
-              </div>
-
-              {!!selectedStation && (
-                <section className="renta-vehicles-panel">
-                  <h2>Vehiculos disponibles</h2>
-                  <p className="renta-muted">Costo mostrado por cada 30 minutos.</p>
-                  <div className="renta-vehicle-grid">
-                    {selectedStation.vehicles.map((vehicle) => (
-                      <article key={vehicle.serial} className="renta-vehicle-card">
-                        <h3>{vehicle.type}</h3>
-                        <p><strong>Serie:</strong> {vehicle.serial}</p>
-                        <p><strong>Costo:</strong> {money(vehicle.price30)} / 30 min</p>
-                        <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(vehicle)}>
-                          Elegir vehiculo
-                        </button>
-                      </article>
-                    ))}
-                  </div>
+                <section className="renta-vehicles-panel renta-vehicles-panel-side">
+                  <h2>Catalogo de vehiculos</h2>
+                  <p className="renta-muted">Elige uno del catalogo para cargar el resumen automaticamente.</p>
+                  {selectedStation ? (
+                    <div className="renta-vehicle-grid">
+                      {selectedStation.vehicles.map((vehicle) => (
+                        <article
+                          key={vehicle.serial}
+                          className={`renta-vehicle-card ${selectedVehicle?.serial === vehicle.serial ? "selected" : ""}`}
+                        >
+                          <h3>{vehicle.type}</h3>
+                          <p><strong>Serie:</strong> {vehicle.serial}</p>
+                          <p><strong>Costo:</strong> {money(vehicle.price30)} / 30 min</p>
+                          <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(vehicle)}>
+                            Elegir vehiculo
+                          </button>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="renta-muted">Primero selecciona una estacion en el mapa de la izquierda.</p>
+                  )}
                 </section>
-              )}
-            </div>
-          </section>
-        )}
-
-        {step === "summary" && selectedStation && selectedVehicle && (
-          <section className="renta-step is-active" aria-labelledby="summary-title">
-            <div className="renta-container renta-container-narrow">
-              <p className="renta-kicker">Paso 2</p>
-              <h2 id="summary-title">Resumen de tu compra</h2>
-
-              <article className="renta-card renta-summary-card">
-                <p><strong>Estacion:</strong> {selectedStation.name}</p>
-                <p><strong>Vehiculo:</strong> {selectedVehicle.type}</p>
-                <p><strong>Serie:</strong> {selectedVehicle.serial}</p>
-                <p><strong>Costo (30 min):</strong> {money(selectedVehicle.price30)}</p>
-                <p className="renta-total"><strong>Total a pagar:</strong> {money(selectedVehicle.price30)}</p>
-              </article>
-
-              <div className="renta-actions-row">
-                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Cambiar vehiculo</button>
-                <button className="renta-btn renta-btn-primary" type="button" onClick={() => goTo("payment")}>Continuar al pago</button>
               </div>
             </div>
           </section>
@@ -282,7 +286,7 @@ function Renta() {
         {step === "payment" && (
           <section className="renta-step is-active" aria-labelledby="payment-title">
             <div className="renta-container renta-container-narrow">
-              <p className="renta-kicker">Paso 3</p>
+              <p className="renta-kicker">Paso 2</p>
               <h2 id="payment-title">Pago</h2>
 
               <form className="renta-card renta-payment-form" onSubmit={onPay}>
@@ -321,7 +325,7 @@ function Renta() {
         {step === "ticket" && paidOrder && (
           <section className="renta-step is-active" aria-labelledby="ticket-title">
             <div className="renta-container renta-container-narrow">
-              <p className="renta-kicker">Paso 4</p>
+              <p className="renta-kicker">Paso 3</p>
               <h2 id="ticket-title">Ticket generado</h2>
 
               <article className="renta-ticket">
@@ -345,7 +349,7 @@ function Renta() {
         {step === "trip" && paidOrder && (
           <section className="renta-step is-active" aria-labelledby="trip-title">
             <div className="renta-container renta-container-narrow">
-              <p className="renta-kicker">Paso 5</p>
+              <p className="renta-kicker">Paso 4</p>
               <h2 id="trip-title">Viaje activo</h2>
 
               <article className="renta-card renta-trip-card">

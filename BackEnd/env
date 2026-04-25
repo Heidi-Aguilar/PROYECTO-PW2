@@ -1,2 +1,0 @@
-PORT=5000
-MONGO_URI=mongodb+srv://juanalbertvm_db_user:N8ZxU7055RuRCXJJ@cluster0.eojvuvp.mongodb.net/OyeVaquero?retryWrites=true&w=majority

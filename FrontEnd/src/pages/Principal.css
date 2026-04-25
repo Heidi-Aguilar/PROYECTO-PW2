@@ -401,6 +401,9 @@ h6 {
   z-index: 1;
   top: auto;
   transform: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .catalogo-intro {
@@ -471,11 +474,11 @@ h6 {
 .catalogo-card {
   position: relative;
   background:
-    linear-gradient(180deg, rgba(244, 236, 220, .9), rgba(236, 225, 206, .84)),
+    linear-gradient(180deg, rgba(41, 28, 2, 0.9), rgba(66, 45, 7, 0.84)),
     url('/img/tarjetas.jpg') center / cover no-repeat;
   border: 1px solid rgba(126, 99, 68, .24);
   border-radius: 4px;
-  box-shadow: 0 10px 22px rgba(44, 26, 14, .2);
+  box-shadow: 0 10px 22px rgba(251, 210, 184, 0.2);
   text-align: center;
   transition: transform .38s cubic-bezier(.16, 1, .3, 1), box-shadow .38s cubic-bezier(.16, 1, .3, 1), background .32s ease;
   overflow: visible;

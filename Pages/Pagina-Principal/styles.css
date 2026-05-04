@@ -381,7 +381,7 @@ h6 {
   position: relative;
   isolation: isolate;
   min-height: auto;
-  padding: 88px 0 320px;
+  padding: 88px 0 220px;
 }
 
 .section-catalogo::before {
@@ -457,10 +457,14 @@ h6 {
 
 .catalogo-grid {
   margin-top: 42px;
-  margin-bottom: 120px;
+  margin-bottom: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 34px;
+}
+
+.catalogo-spacer {
+  height: 110px;
 }
 
 .catalogo-card {
@@ -513,9 +517,9 @@ h6 {
 
 .catalogo-card-image {
   position: relative;
-  margin: 16px 16px 0;
+  margin: 14px 14px 0;
   height: 0;
-  padding-top: 74%;
+  padding-top: 38%;
   border-radius: 12px;
   background-position: center;
   background-size: cover;
@@ -566,12 +570,12 @@ h6 {
 }
 
 .catalogo-card-body {
-  padding: 18px 20px 20px;
+  padding: 12px 14px 10px;
 }
 
 .catalogo-card h3 {
-  margin: 0 0 8px;
-  font-size: 1.15rem;
+  margin: 0 0 6px;
+  font-size: 1.03rem;
   letter-spacing: .03em;
   text-transform: uppercase;
   color: #4f351f;
@@ -585,10 +589,10 @@ h6 {
 .catalogo-card p {
   display: block;
   margin: 0;
-  min-height: 72px;
+  min-height: 0;
   color: #74553a;
-  font-size: .98rem;
-  line-height: 1.35;
+  font-size: .9rem;
+  line-height: 1.25;
 }
 
 .catalogo-card:hover p,
@@ -597,16 +601,16 @@ h6 {
 }
 
 .catalogo-card-link {
-  margin-top: 16px;
+  margin-top: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 132px;
-  padding: 10px 18px;
+  min-width: 118px;
+  padding: 8px 14px;
   border-radius: 10px;
   text-decoration: none;
   text-transform: uppercase;
-  font-size: .8rem;
+  font-size: .74rem;
   letter-spacing: .08em;
   color: #f5e8d4;
   background: linear-gradient(180deg, #9f7447, #7f5934);
@@ -1376,6 +1380,14 @@ h6 {
   .section-benefits,
   .section-contact {
     padding: 48px 0;
+  }
+}
+
+@media (min-width: 901px) {
+  body .section-catalogo > .container {
+    position: relative !important;
+    top: auto !important;
+    transform: none !important;
   }
 }
 

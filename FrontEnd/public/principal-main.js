@@ -108,7 +108,10 @@ if (window.__principalEffectsInitialized) {
 
   revealTargets.forEach((selector) => {
     document.querySelectorAll(selector).forEach((element) => {
-      element.classList.add('reveal-on-scroll');
+      // No aplicar animación a elementos dentro de secciones marcadas con data-no-reveal
+      if (!element.closest('[data-no-reveal]')) {
+        element.classList.add('reveal-on-scroll');
+      }
     });
   });
 

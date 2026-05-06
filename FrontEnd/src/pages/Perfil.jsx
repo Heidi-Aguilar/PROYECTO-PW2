@@ -1,13 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/images/LOGO2.png";
 import avatarVaquero from "../assets/images/AVATAR_USER.jpg.jpeg";
-import userpng from "../assets/images/user1.png";
 import "./Perfil.css";
 
 function Perfil() {
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // Si no hay sesión, redirigir al login
+      navigate("/auth");
+      return;
+    }
+
+    const datosUsuario = localStorage.getItem("usuario");
+    if (datosUsuario) {
+      setUsuario(JSON.parse(datosUsuario));
+    }
+  }, [navigate]);
 
   const stats = [
     { label: "Rutas", value: "24", icon: "bx-map-alt" },
@@ -32,39 +46,16 @@ function Perfil() {
 
   const logout = () => {
     window.sessionStorage.removeItem("renta-active-trip");
-    window.localStorage.removeItem("authToken");
-    window.localStorage.removeItem("user");
-    navigate("/login");
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/auth");
   };
+
+  // Mientras carga el usuario no renderizar nada
+  if (!usuario) return null;
 
   return (
     <div className="perfil-page">
-      <header className="perfil-header">
-        <div className="perfil-header-top">
-          <img className="perfil-brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
-        </div>
-
-        <div className="perfil-header-nav-row">
-          <div className="perfil-nav-social" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-            <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
-            <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
-            <Link to="/login" aria-label="Login">o</Link>
-          </div>
-
-          <nav className="perfil-nav">
-            <Link to="/">Catalogo</Link>
-            <Link to="/renta">Renta</Link>
-            <Link to="/manual">Manual</Link>
-            <Link to="/perfil">Perfil</Link>
-          </nav>
-
-          <Link to="/perfil" className="perfil-nav-user" aria-label="Perfil">
-            <img src={userpng} alt="Perfil" />
-          </Link>
-        </div>
-      </header>
-
       <div className="perfil-body">
         <div className="perfil-card-container anim-slide-up">
           <div className="profile-sidebar">
@@ -74,8 +65,15 @@ function Perfil() {
                 <i className="bx bxs-star"></i>
               </div>
             </div>
-            <h2 className="rye-font user-name">Juan "El Rapido"</h2>
-            <p className="since-text">Desde: Abril 2026</p>
+
+            {/* Nombre real del usuario */}
+            <h2 className="rye-font user-name">
+              {usuario.nombre} {usuario.apellido}
+            </h2>
+
+            {/* Correo del usuario */}
+            <p className="since-text">{usuario.correo}</p>
+
             <div className="status-pill">
               <span className="dot pulse-green"></span> EN RUTA
             </div>

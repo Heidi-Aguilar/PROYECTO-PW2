@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import './Auth.css';
 import logoHeyVaquero from '../assets/images/LOGO1.png';
@@ -9,12 +8,11 @@ function Auth() {
   const navigate = useNavigate();
 
   const [registerData, setRegisterData] = useState({
-    nombre:"B",
-    apellido:"A",
-    pais:"C",
-    fechaNacimiento:"2005-02-12",
-    username: "",
-    email: "",
+    nombre: "",
+    apellido: "",
+    pais: "",
+    fechaNacimiento: "",
+    correo: "",
     password: ""
   });
 
@@ -49,20 +47,18 @@ function Auth() {
       });
 
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
-        alert("Usuario registrado correctamente");
-        console.log(data);
+        alert("¡Cuenta creada con éxito! Ahora inicia sesión.");
         setRegisterData({
-          nombre:"B",
-          apellido:"A",
-          pais:"C",
-          fechaNacimiento:"2005-02-12",
-          username: "",
-          email: "",
+          nombre: "",
+          apellido: "",
+          pais: "",
+          fechaNacimiento: "",
+          correo: "",
           password: ""
         });
+        setIsActive(false); // Regresar al panel de Login
       } else {
         alert(data.message || "Error al registrar");
       }
@@ -88,11 +84,12 @@ function Auth() {
       const data = await response.json();
 
       if (response.ok) {
-        //alert("Login exitoso");
         console.log(data);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.user));
 
         setLoginData({
-          email: "",
+          correo: "",
           password: ""
         });
 
@@ -106,7 +103,7 @@ function Auth() {
       console.error(error);
       alert("Error de conexión");
     }
-};
+  };
 
   const [isActive, setIsActive] = useState(false);
 
@@ -157,10 +154,10 @@ function Auth() {
             <div className="input-box">
               <input
                 type="text"
-                name="username"
-                placeholder="Username"
+                name="nombre"
+                placeholder="Nombre"
                 required
-                value={registerData.username}
+                value={registerData.nombre}
                 onChange={handleChange}
               />
               <i className='bx bxs-user'></i>
@@ -168,11 +165,46 @@ function Auth() {
 
             <div className="input-box">
               <input
+                type="text"
+                name="apellido"
+                placeholder="Apellido"
+                required
+                value={registerData.apellido}
+                onChange={handleChange}
+              />
+              <i className='bx bxs-user'></i>
+            </div>
+
+            <div className="input-box">
+              <input
+                type="date"
+                name="fechaNacimiento"
+                required
+                value={registerData.fechaNacimiento}
+                onChange={handleChange}
+              />
+              <i className='bx bxs-calendar'></i>
+            </div>
+
+            <div className="input-box">
+              <input
+                type="text"
+                name="pais"
+                placeholder="País"
+                required
+                value={registerData.pais}
+                onChange={handleChange}
+              />
+              <i className='bx bxs-map'></i>
+            </div>
+
+            <div className="input-box">
+              <input
                 type="email"
-                name="email"
+                name="correo"
                 placeholder="Email"
                 required
-                value={registerData.email}
+                value={registerData.correo}
                 onChange={handleChange}
               />
               <i className='bx bxs-envelope'></i>

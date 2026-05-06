@@ -1,70 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Renta.css";
 import userpng from '../assets/images/user1.png';
 
 const RENTA_TRIP_STORAGE_KEY = "renta-active-trip";
 
-const STATIONS = [
-  {
-    id: "norte",
-    name: "Metro Norte",
-    line: "Linea Verde",
-    x: 18,
-    y: 28,
-    vehicles: [
-      { type: "Bicicleta", serial: "BIC-NR-1021", price30: 35 },
-      { type: "Electrica", serial: "ELE-NR-5581", price30: 49 },
-      { type: "Scooter electrico", serial: "SCO-NR-4412", price30: 55 },
-      { type: "Patin", serial: "PAT-NR-3004", price30: 42 }
-    ]
-  },
-  {
-    id: "centro",
-    name: "Metro Centro",
-    line: "Linea Dorada",
-    x: 46,
-    y: 42,
-    vehicles: [
-      { type: "Bicicleta", serial: "BIC-CT-7840", price30: 37 },
-      { type: "Electrica", serial: "ELE-CT-1097", price30: 50 },
-      { type: "Scooter electrico", serial: "SCO-CT-6618", price30: 57 },
-      { type: "Patin", serial: "PAT-CT-8891", price30: 44 }
-    ]
-  },
-  {
-    id: "sur",
-    name: "Metro Sur",
-    line: "Linea Azul",
-    x: 74,
-    y: 60,
-    vehicles: [
-      { type: "Bicicleta", serial: "BIC-SR-2190", price30: 34 },
-      { type: "Electrica", serial: "ELE-SR-5500", price30: 48 },
-      { type: "Scooter electrico", serial: "SCO-SR-1180", price30: 54 },
-      { type: "Patin", serial: "PAT-SR-4421", price30: 41 }
-    ]
-  },
-  {
-    id: "oriente",
-    name: "Metro Oriente",
-    line: "Linea Naranja",
-    x: 62,
-    y: 22,
-    vehicles: [
-      { type: "Bicicleta", serial: "BIC-OR-1090", price30: 36 },
-      { type: "Electrica", serial: "ELE-OR-9922", price30: 51 },
-      { type: "Scooter electrico", serial: "SCO-OR-2140", price30: 56 },
-      { type: "Patin", serial: "PAT-OR-7774", price30: 45 }
-    ]
-  }
-];
-
 const money = (value) => `$${value.toFixed(2)} MXN`;
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+  };
+};
 
 function Renta() {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [step, setStep] = useState("map");
+  const [stations, setStations] = useState([]);
+  const [loadingMap, setLoadingMap] = useState(true);
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [paidOrder, setPaidOrder] = useState(null);
@@ -80,55 +37,87 @@ function Renta() {
     terms: false
   });
 
-  const saveTripState = () => {
-    if (!selectedStation || !selectedVehicle || !paidOrder || !tripStartedAt) {
-      return;
+  // --- CARGA DE ESTACIONES Y VEHÍCULOS DESDE EL BACKEND ---
+  const cargarDatos = useCallback(async () => {
+    setLoadingMap(true);
+    try {
+      const [resEstaciones, resVehiculos] = await Promise.all([
+        fetch("http://localhost:5000/api/estaciones", { headers: getAuthHeaders() }),
+        fetch("http://localhost:5000/api/vehiculos", { headers: getAuthHeaders() })
+      ]);
+
+      // Si el token expiró o no hay sesión, redirigir al login
+      if (resEstaciones.status === 401 || resEstaciones.status === 403) {
+        navigate("/login");
+        return;
+      }
+
+      const estacionesData = await resEstaciones.json();
+      console.log("Estaciones recibidas:", estacionesData.length, estacionesData);
+      const vehiculosData = await resVehiculos.json();
+
+      //Obtener los extremos de las coordenadas
+      const lats = estacionesData.map(e => e.coordenadas.lat);
+      const lngs = estacionesData.map(e => e.coordenadas.lng);
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+
+      // Mapeamos al formato que usa el JSX
+      const stationsMapped = estacionesData.map((estacion) => ({
+        id: estacion._id,
+        name: estacion.nombre,
+        line: `Capacidad: ${estacion.capacidadMaxima}`,
+        // Normalizamos lat a eje Y (invertido porque Y crece hacia abajo en CSS)
+        x: maxLng === minLng ? 50 : ((estacion.coordenadas.lng - minLng) / (maxLng - minLng)) * 80 + 10,
+        y: maxLat === minLat ? 50 : ((maxLat - estacion.coordenadas.lat) / (maxLat - minLat)) * 80 + 10,
+        vehicles: vehiculosData
+          .filter((v) =>
+            v.estacionActual &&
+            v.estacionActual._id === estacion._id &&
+            v.estado === "Disponible"
+          )
+          .map((v) => ({
+            id: v._id,
+            type: v.tipo,
+            serial: v.codigoVehiculo,
+            price30: v.precioPorMinuto * 30,
+            precioReal: v.precioPorMinuto
+          }))
+      }));
+
+      setStations(stationsMapped);
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+      showToast("Error al conectar con el servidor.");
+    } finally {
+      setLoadingMap(false);
     }
-
-    const payload = {
-      selectedStation,
-      selectedVehicle,
-      paidOrder,
-      tripStartedAt
-    };
-
-    window.sessionStorage.setItem(RENTA_TRIP_STORAGE_KEY, JSON.stringify(payload));
-  };
-
-  const showToast = (message) => {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2200);
-  };
+  }, [navigate]);
 
   useEffect(() => {
-    if (!tripStartedAt) {
-      return undefined;
-    }
+    cargarDatos();
+  }, [cargarDatos]);
 
+  // --- TIMER DEL VIAJE ---
+  useEffect(() => {
+    if (!tripStartedAt) return undefined;
     const tick = () => setTripElapsed(Math.floor((Date.now() - tripStartedAt) / 1000));
     tick();
     const timerId = window.setInterval(tick, 1000);
     return () => window.clearInterval(timerId);
   }, [tripStartedAt]);
 
+  // --- REANUDAR VIAJE ACTIVO ---
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const shouldResumeTrip = params.get("resumeTrip") === "1";
-    if (!shouldResumeTrip) {
-      return;
-    }
+    if (params.get("resumeTrip") !== "1") return;
 
     const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);
-    if (!raw) {
-      return;
-    }
+    if (!raw) return;
 
     try {
       const saved = JSON.parse(raw);
-      if (!saved?.tripStartedAt || !saved?.paidOrder) {
-        return;
-      }
-
+      if (!saved?.tripStartedAt || !saved?.paidOrder) return;
       setSelectedStation(saved.selectedStation || null);
       setSelectedVehicle(saved.selectedVehicle || null);
       setPaidOrder(saved.paidOrder || null);
@@ -140,9 +129,7 @@ function Renta() {
   }, [location.search]);
 
   const qrUrl = useMemo(() => {
-    if (!paidOrder) {
-      return "";
-    }
+    if (!paidOrder) return "";
     const payload = `${paidOrder.id}|${paidOrder.serial}|${paidOrder.station}|${paidOrder.total}`;
     return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payload)}`;
   }, [paidOrder]);
@@ -158,95 +145,115 @@ function Renta() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const onChooseVehicle = (vehicle) => {
-    setSelectedVehicle(vehicle);
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2200);
   };
+
+  const saveTripState = () => {
+    if (!selectedStation || !selectedVehicle || !paidOrder || !tripStartedAt) return;
+    window.sessionStorage.setItem(RENTA_TRIP_STORAGE_KEY, JSON.stringify({
+      selectedStation, selectedVehicle, paidOrder, tripStartedAt
+    }));
+  };
+
+  const onChooseVehicle = (vehicle) => setSelectedVehicle(vehicle);
 
   const onPaymentChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setPayment((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
+    setPayment((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const onPay = (event) => {
     event.preventDefault();
-
     if (!selectedStation || !selectedVehicle) {
       showToast("Primero selecciona estacion y vehiculo.");
       goTo("map");
       return;
     }
-
     const now = new Date();
     const orderId = `RV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const order = {
+    setPaidOrder({
       id: orderId,
       station: selectedStation.name,
       vehicleType: selectedVehicle.type,
       serial: selectedVehicle.serial,
       total: selectedVehicle.price30,
       paidAt: now
-    };
-
-    setPaidOrder(order);
+    });
     goTo("ticket");
     showToast("Pago realizado con exito.");
   };
 
-  const onStartTrip = () => {
+  // --- INICIAR VIAJE (conectado al backend) ---
+  const onStartTrip = async () => {
     if (!paidOrder) {
       showToast("No hay ticket valido para iniciar.");
       return;
     }
-    setTripStartedAt(Date.now());
-    setTripElapsed(0);
-    goTo("trip");
-    showToast("Viaje iniciado. Maneja con precaucion.");
+    try {
+      const respuesta = await fetch("http://localhost:5000/api/rentas/iniciar", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ vehiculoId: selectedVehicle.id })
+      });
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok) {
+        localStorage.setItem("rentaActivaId", data.renta._id);
+        setTripStartedAt(Date.now());
+        setTripElapsed(0);
+        goTo("trip");
+        showToast("Viaje iniciado. Vehículo desbloqueado.");
+      } else {
+        showToast(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("Error al comunicarse con el servidor.");
+    }
   };
 
-  const onStopTrip = () => {
-    const total = tripTimeLabel;
+  // --- PARAR VIAJE (conectado al backend) ---
+  const onStopTrip = async () => {
+    const rentaId = localStorage.getItem("rentaActivaId");
+
+    if (rentaId) {
+      try {
+        const respuesta = await fetch(`http://localhost:5000/api/rentas/finalizar/${rentaId}`, {
+          method: "PUT",
+          headers: getAuthHeaders()
+        });
+        const data = await respuesta.json();
+
+        if (respuesta.ok) {
+          showToast(`Viaje finalizado. Cobro final: $${data.total.toFixed(2)} MXN`);
+          localStorage.removeItem("rentaActivaId");
+        } else {
+          showToast(`Error al finalizar: ${data.message}`);
+        }
+      } catch (error) {
+        console.error(error);
+        showToast("Error de conexión al finalizar el viaje.");
+      }
+    } else {
+      showToast(`Viaje finalizado. Tiempo total: ${tripTimeLabel}`);
+    }
+
+    // Limpiar estado local siempre
     setTripStartedAt(null);
     setTripElapsed(0);
     setPaidOrder(null);
     setSelectedVehicle(null);
     setSelectedStation(null);
     window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
+    await cargarDatos(); // Recargar mapa para que el vehículo vuelva a aparecer disponible
     goTo("map");
-    showToast(`Viaje finalizado. Tiempo total: ${total}`);
   };
 
   return (
     <div className="renta-page">
-      <header className="renta-header">
-        <div className="renta-header-top">
-          <img className="renta-brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
-        </div>
-
-        <div className="renta-header-nav-row">
-          <div className="renta-nav-social" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-            <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
-            <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
-            <Link to="/login" aria-label="Login">o</Link>
-          </div>
-
-          <nav className="renta-nav">
-            <a href="/#catalogo">Catalogo</a>
-            <Link to="/renta">Renta</Link>
-          </nav>
-
-          <div className="renta-header-actions">
-            <Link to="/manual" className="renta-help-top">Ayuda</Link>
-            <Link to="/perfil" className="nav-user" aria-label="Perfil">
-              <img src={userpng} alt="Perfil" />
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="renta-main">
         {step === "map" && (
           <section className="renta-step is-active" aria-labelledby="map-title">
@@ -259,20 +266,26 @@ function Renta() {
                 <div className="renta-left-column">
                   <div className="renta-map-layout">
                     <div className="renta-metro-map" aria-label="Mapa de estaciones">
-                      {STATIONS.map((station) => (
-                        <button
-                          key={station.id}
-                          className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`}
-                          type="button"
-                          style={{ left: `${station.x}%`, top: `${station.y}%` }}
-                          onClick={() => {
-                            setSelectedStation(station);
-                            setSelectedVehicle(null);
-                          }}
-                        >
-                          {station.name.replace("Metro ", "")}
-                        </button>
-                      ))}
+                      {loadingMap ? (
+                        <p className="renta-muted">Cargando estaciones...</p>
+                      ) : stations.length === 0 ? (
+                        <p className="renta-muted">No hay estaciones disponibles.</p>
+                      ) : (
+                        stations.map((station) => (
+                          <button
+                            key={station.id}
+                            className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`}
+                            type="button"
+                            style={{ left: `${station.x}%`, top: `${station.y}%` }}
+                            onClick={() => {
+                              setSelectedStation(station);
+                              setSelectedVehicle(null);
+                            }}
+                          >
+                            {station.name.replace("Metro ", "")}
+                          </button>
+                        ))
+                      )}
                     </div>
 
                     <aside className="renta-station-panel">
@@ -291,8 +304,8 @@ function Renta() {
                     <p><strong>Estacion:</strong> {selectedStation ? selectedStation.name : "-"}</p>
                     <p><strong>Vehiculo:</strong> {selectedVehicle ? selectedVehicle.type : "-"}</p>
                     <p><strong>Serie:</strong> {selectedVehicle ? selectedVehicle.serial : "-"}</p>
-                    <p><strong>Costo (30 min):</strong> {selectedVehicle ? `${money(selectedVehicle.price30)}` : "-"}</p>
-                    <p className="renta-total"><strong>Total a pagar:</strong> {selectedVehicle ? `${money(selectedVehicle.price30)}` : "-"}</p>
+                    <p><strong>Costo (30 min):</strong> {selectedVehicle ? money(selectedVehicle.price30) : "-"}</p>
+                    <p className="renta-total"><strong>Total a pagar:</strong> {selectedVehicle ? money(selectedVehicle.price30) : "-"}</p>
 
                     <button
                       className="renta-btn renta-btn-primary"
@@ -309,21 +322,25 @@ function Renta() {
                   <h2>Catalogo de vehiculos</h2>
                   <p className="renta-muted">Elige uno del catalogo para cargar el resumen automaticamente.</p>
                   {selectedStation ? (
-                    <div className="renta-vehicle-grid">
-                      {selectedStation.vehicles.map((vehicle) => (
-                        <article
-                          key={vehicle.serial}
-                          className={`renta-vehicle-card ${selectedVehicle?.serial === vehicle.serial ? "selected" : ""}`}
-                        >
-                          <h3>{vehicle.type}</h3>
-                          <p><strong>Serie:</strong> {vehicle.serial}</p>
-                          <p><strong>Costo:</strong> {money(vehicle.price30)} / 30 min</p>
-                          <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(vehicle)}>
-                            Elegir vehiculo
-                          </button>
-                        </article>
-                      ))}
-                    </div>
+                    selectedStation.vehicles.length === 0 ? (
+                      <p className="renta-muted">No hay vehiculos disponibles en esta estacion.</p>
+                    ) : (
+                      <div className="renta-vehicle-grid">
+                        {selectedStation.vehicles.map((vehicle) => (
+                          <article
+                            key={vehicle.serial}
+                            className={`renta-vehicle-card ${selectedVehicle?.serial === vehicle.serial ? "selected" : ""}`}
+                          >
+                            <h3>{vehicle.type}</h3>
+                            <p><strong>Serie:</strong> {vehicle.serial}</p>
+                            <p><strong>Costo:</strong> {money(vehicle.price30)} / 30 min</p>
+                            <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(vehicle)}>
+                              Elegir vehiculo
+                            </button>
+                          </article>
+                        ))}
+                      </div>
+                    )
                   ) : (
                     <p className="renta-muted">Primero selecciona una estacion en el mapa de la izquierda.</p>
                   )}

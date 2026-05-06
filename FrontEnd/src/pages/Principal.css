@@ -380,7 +380,7 @@ h6 {
   position: relative;
   isolation: isolate;
   min-height: auto;
-  padding: 88px 0 220px;
+  padding-top: 88px;
 }
 
 .section-catalogo::before {
@@ -401,6 +401,11 @@ h6 {
   background: transparent;
   border-radius: 0;
   box-shadow: none;
+}
+
+.container{
+  height: 100% !important;
+  padding-bottom: 60px;
 }
 
 .catalogo-intro {
@@ -468,6 +473,7 @@ h6 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 34px;
   align-items: start;
+  height: 100%;
 }
 
 .catalogo-spacer {

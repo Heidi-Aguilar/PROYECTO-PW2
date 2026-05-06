@@ -40,9 +40,9 @@ app.get('/', (req, res) => {
 // ---------- REGISTRO --------------------
 app.post("/api/register", async (req, res) => {
   try {
-    const { nombre, apellido, pais, fechaNacimiento, email, password } = req.body;
+    const { nombre, apellido, pais, fechaNacimiento, correo, password } = req.body;
 
-    const existingUser = await User.findOne({ correo: email });
+    const existingUser = await User.findOne({ correo: correo });
 
     if (existingUser) {
       return res.status(400).json({ message: "Este correo ya está registrado" });
@@ -55,12 +55,12 @@ app.post("/api/register", async (req, res) => {
       apellido,
       fechaNacimiento,
       pais,
-      correo: email,
+      correo,
       password: hashedPassword
     });
 
     await newUser.save();
-    registrarLog(`Evento Crítico: Nuevo usuario registrado (${email})`);
+    registrarLog(`Evento Crítico: Nuevo usuario registrado (${correo})`);
 
     res.status(201).json({ message: "Usuario registrado correctamente" });
 

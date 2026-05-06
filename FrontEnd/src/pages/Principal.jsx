@@ -104,8 +104,6 @@ function Principal(){
                             </div>
                         </article>
                     </div>
-
-                    <div className="catalogo-spacer" aria-hidden="true"></div>
                 </div>
             </section>
 

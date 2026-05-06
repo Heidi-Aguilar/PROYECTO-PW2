@@ -1,16 +1,16 @@
-﻿import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import "./Principal.css"
 import userpng from '../assets/images/user1.png';
 
 function Principal(){
+
     useEffect(() => {
         const existingScript = document.getElementById("principal-effects-script")
         if (existingScript) {
             existingScript.remove()
         }
 
-        // Reset the singleton guard so the latest script can initialize again.
         delete window.__principalEffectsInitialized
 
         const script = document.createElement("script")
@@ -27,30 +27,6 @@ function Principal(){
 
     return(
         <>
-            <header className="header">
-                <div className="header-top">
-                    <img className="brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
-                </div>
-
-                <div className="header-nav-row">
-                    <div className="nav-social" aria-label="Redes sociales">
-                        <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-                        <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
-                        <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
-                        <a href="#contacto" aria-label="Contacto">o</a>
-                    </div>
-
-                    <nav className="nav">
-                        <a href="#catalogo">Catalogo</a>
-                        <Link to="/renta">Renta</Link>
-                    </nav>
-
-                    <Link to="/perfil" className="nav-user" aria-label="Perfil">
-                        <img src={userpng} alt="Perfil" />
-                    </Link>
-                </div>
-            </header>
-
             <section className="hero" aria-labelledby="hero-title">
                 <div className="hero-inner">
                     <h1 id="hero-title" className="hero-title" aria-live="polite">
@@ -68,7 +44,8 @@ function Principal(){
                 </div>
             </section>
 
-            <section id="catalogo" className="section-catalogo">
+            {/* data-no-reveal evita que el script externo aplique reveal-on-scroll al catálogo */}
+            <section id="catalogo" className="section-catalogo" data-no-reveal>
                 <div className="container">
                     <div className="catalogo-intro">
                         <p className="catalogo-kicker">Catalogo</p>
@@ -112,5 +89,3 @@ function Principal(){
 }
 
 export default Principal;
-
-

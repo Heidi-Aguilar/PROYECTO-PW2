@@ -1,53 +1,52 @@
 ﻿import { useEffect, useRef, useState } from "react";
-import logo from "../assets/images/logo.png";
+import { Link, useNavigate } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
+import userpng from "../assets/images/user1.png";
 import './Header.css';
 
 function Header(){
-
-    const headerRef = useRef(null);
-    const [lastScrollY, setLastScrollY] = useState(0);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        const updateRevealStates = () => {
-        const header = headerRef.current;
-        const currentScrollY = window.scrollY;
-
-        if (!header) return;
-
-        if (currentScrollY <= 8) {
-            header.classList.remove("header-hidden");
-        } 
-        else if (currentScrollY > lastScrollY + 4) {
-            header.classList.add("header-hidden");
-        } 
-        else if (currentScrollY < lastScrollY - 4) {
-            header.classList.remove("header-hidden");
-        }
-
-        setLastScrollY(currentScrollY);
-        };
-
-        window.addEventListener("scroll", updateRevealStates);
-
-        return () => {
-        window.removeEventListener("scroll", updateRevealStates);
-        };
-    }, [lastScrollY]);
-
+        // Verificar si hay sesión activa
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token);
+    }, []);
+    
     return(
-        <header ref={headerRef} className="header">
-            <div className="marca">
-                <img className='logo' src={logo} alt="logo" />
-            </div>
+        <header className="header">
+        <div className="header-top">
+          <img className="brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
+        </div>
 
-            <nav className="nav">
-                <a href="#catalogo">Catalogo</a>
-                <a aria-disabled="true">Renta</a>
-                <a href="#ventajas">Nosotros</a>
-                <a href="#contacto">Cuenta</a>
-            </nav>
+        <div className="header-nav-row">
+          <div className="nav-social" aria-label="Redes sociales">
+            <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
+            <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
+            <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
+            <Link to="/login" aria-label="Login">o</Link>
+          </div>
 
-        </header>
+          <nav className="nav">
+            <HashLink smooth to="/#catalogo">
+              Catalogo
+            </HashLink>
+            <Link to="/renta">Renta</Link>
+            <Link to="/manual">Manual</Link>
+          </nav>
+
+          {/* Mostrar perfil o botón de login según sesión */}
+            {isLoggedIn ? (
+            <Link to="/perfil" className="nav-user" aria-label="Perfil">
+            <img id="user-icon" src={userpng} alt="Perfil" />
+            </Link>
+            ) : (
+            <Link to="/login" className="nav-login-btn" aria-label="Iniciar sesión">
+            Iniciar sesión
+            </Link>
+            )}
+        </div>
+      </header>
     )
 }
 

@@ -220,33 +220,6 @@ function Renta() {
 
   return (
     <div className="renta-page">
-      <header className="renta-header">
-        <div className="renta-header-top">
-          <img className="renta-brand-logo" src="/img/logo.png" alt="Oye Vaquero" />
-        </div>
-
-        <div className="renta-header-nav-row">
-          <div className="renta-nav-social" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/oyevaquero" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-            <a href="https://x.com/oyevaquero" target="_blank" rel="noopener" aria-label="X">x</a>
-            <a href="https://www.instagram.com/oyevaquero" target="_blank" rel="noopener" aria-label="Instagram">i</a>
-            <Link to="/login" aria-label="Login">o</Link>
-          </div>
-
-          <nav className="renta-nav">
-            <a href="/#catalogo">Catalogo</a>
-            <Link to="/renta">Renta</Link>
-          </nav>
-
-          <div className="renta-header-actions">
-            <Link to="/manual" className="renta-help-top">Ayuda</Link>
-            <Link to="/perfil" className="nav-user" aria-label="Perfil">
-              <img src={userpng} alt="Perfil" />
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="renta-main">
         {step === "map" && (
           <section className="renta-step is-active" aria-labelledby="map-title">

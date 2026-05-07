@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo | Hey Vaquero ✨</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --pink-soft: #ffe4e1;
+            --pink-main: #ffb6c1;
+            --pink-dark: #ff69b4;
+            --kawaii-white: #fffafa;
+        }
+
+        body {
+            background-color: var(--pink-soft);
+            font-family: 'Lexend', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .admin-card {
+            background: white;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 0 var(--pink-main);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--pink-dark);
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px var(--pink-soft);
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: var(--pink-dark);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover { transform: translateX(-5px); }
+
+        .grid-forms {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) { .grid-forms { grid-template-columns: 1fr; } }
+
+        .section-box {
+            background: var(--kawaii-white);
+            border: 2px dashed var(--pink-main);
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 5px;
+            margin-left: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--pink-soft);
+            border-radius: 12px;
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus { border-color: var(--pink-dark); }
+
+        .btn-save {
+            background: var(--pink-dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #db2b81;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #db2b81; }
+        .btn-save:active { transform: translateY(2px); box-shadow: 0 0px 0 #db2b81; }
+
+        .btn-delete {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-delete:hover { background: #e60000; }
+
+        .item-list {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--pink-soft);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 10px;
+            display: none;
+            animation: slideUp 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="admin-card">
+        <a href="../Perfil/Perfil.html" class="back-btn"><i class='bx bx-left-arrow-alt'></i> Volver al Perfil</a>
+        <h1>🌸 Panel Administrativo ✨</h1>
+
+        <div class="grid-forms">
+            <div class="section-box">
+                <h3><i class='bx bxs-map-pin'></i> Nueva Estación</h3>
+                <div class="input-group">
+                    <label>Nombre de la Estación</label>
+                    <input type="text" id="est-nombre" placeholder="Ej. Metro Centro">
+                </div>
+                <div class="input-group">
+                    <label>Capacidad Máxima</label>
+                    <input type="number" id="est-cap" placeholder="Ej. 20">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="input-group">
+                        <label>Coord X (10-90)</label>
+                        <input type="number" id="est-lat" placeholder="X">
+                    </div>
+                    <div class="input-group">
+                        <label>Coord Y (10-90)</label>
+                        <input type="number" id="est-lng" placeholder="Y">
+                    </div>
+                </div>
+                <button class="btn-save" onclick="guardarEstacion()">Guardar Estación ✨</button>
+            </div>
+
+            <div class="section-box">
+                <h3><i class='bx bxs-car'></i> Nuevo Vehículo</h3>
+                <div class="input-group">
+                    <label>Asignar a Estación</label>
+                    <select id="veh-estacion">
+                        <option value="">Cargando estaciones...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Código de Serie</label>
+                    <input type="text" id="veh-codigo" placeholder="Ej. BICI-101">
+                </div>
+                <div class="input-group">
+                    <label>Tipo de Vehículo</label>
+                    <select id="veh-tipo">
+                        <option value="Bicicleta">Bicicleta 🚲</option>
+                        <option value="Electrica">Bici Eléctrica ⚡</option>
+                        <option value="Scooter electrico">Scooter 🛴</option>
+                        <option value="Auto">Auto 🚗</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Precio por minuto ($)</label>
+                    <input type="number" step="0.1" id="veh-precio" placeholder="Ej. 1.5">
+                </div>
+                <button class="btn-save" onclick="guardarVehiculo()">Registrar Vehículo 🎀</button>
+            </div>
+
+            <div class="section-box full-width">
+                <h3>🗑️ Gestionar Vehículos</h3>
+                <div id="lista-vehiculos" style="max-height: 250px; overflow-y: auto; padding-right: 10px;">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_URL = "http://localhost:5000/api";
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        async function cargarDatosIniciales() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = { 'Authorization': `Bearer ${token}` };
+
+                // 1. Cargar Estaciones para el Select
+                const resEst = await fetch(`${API_URL}/estaciones`, { headers });
+                const estaciones = await resEst.json();
+                const select = document.getElementById('veh-estacion');
+                select.innerHTML = '<option value="" disabled selected>Selecciona estación</option>';
+                estaciones.forEach(est => {
+                    const opt = document.createElement('option');
+                    opt.value = est._id;
+                    opt.textContent = est.nombre;
+                    select.appendChild(opt);
+                });
+
+                // 2. Cargar Vehículos para la lista de Eliminar
+                const resVeh = await fetch(`${API_URL}/vehiculos`, { headers });
+                const vehiculos = await resVeh.json();
+                const lista = document.getElementById('lista-vehiculos');
+                lista.innerHTML = '';
+                
+                if (vehiculos.length === 0) {
+                    lista.innerHTML = '<p style="text-align:center; color:#888;">No hay vehículos registrados todavía 🌸</p>';
+                    return;
+                }
+
+                vehiculos.forEach(v => {
+                    const estacionNombre = v.estacionActual ? v.estacionActual.nombre : 'Sin estación';
+                    lista.innerHTML += `
+                        <div class="item-list">
+                            <div>
+                                <strong>${v.codigoVehiculo}</strong> - ${v.tipo} <br>
+                                <small style="color: #888;">📍 ${estacionNombre} | Estado: ${v.estado}</small>
+                            </div>
+                            <button class="btn-delete" onclick="eliminarVehiculo('${v._id}')">Quitar ❌</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error al cargar datos:", error);
+            }
+        }
+
+        async function guardarEstacion() {
+            const nombre = document.getElementById('est-nombre').value;
+            const cap = document.getElementById('est-cap').value;
+            const x = document.getElementById('est-lat').value;
+            const y = document.getElementById('est-lng').value;
+
+            if(!nombre || !cap || !x || !y) return alert("Llena todos los campos, vaquera 🌸");
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/estaciones`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ nombre, capacidadMaxima: cap, coordenadas: { lat: x, lng: y } })
+                });
+
+                if(res.ok) {
+                    showToast("¡Estación creada con éxito! ✨");
+                    cargarDatosIniciales(); // Recarga todo automáticamente
+                } else alert("Error al guardar la estación.");
+            } catch (error) { alert("Error de conexión"); }
+        }
+
+        async function guardarVehiculo() {
+            const estacionId = document.getElementById('veh-estacion').value;
+            const codigo = document.getElementById('veh-codigo').value;
+            const tipo = document.getElementById('veh-tipo').value;
+            const precio = document.getElementById('veh-precio').value;
+
+            if(!estacionId || !codigo || !precio) return alert("Faltan datos para el vehículo 🚲");
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/vehiculos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        codigoVehiculo: codigo, tipo: tipo, precioPorMinuto: precio,
+                        estacionActual: estacionId, bateria: 100, estado: "Disponible"
+                    })
+                });
+
+                if(res.ok) {
+                    showToast("¡Vehículo registrado con éxito! 🎀");
+                    cargarDatosIniciales(); // Refresca la lista de vehículos abajo
+                } else alert("Error al registrar vehículo.");
+            } catch (error) { alert("Error de conexión"); }
+        }
+
+        async function eliminarVehiculo(id) {
+            if(!confirm("¿Segura que quieres borrar este vehículo para siempre? 🥺")) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_URL}/vehiculos/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if(res.ok) {
+                    showToast("Vehículo eliminado correctamente 🗑️");
+                    cargarDatosIniciales(); // Refresca la lista para que desaparezca
+                } else alert("No se pudo eliminar el vehículo.");
+            } catch (error) { alert("Error de conexión"); }
+        }
+
+        window.onload = cargarDatosIniciales;
+    </script>
+</body>
+</html>

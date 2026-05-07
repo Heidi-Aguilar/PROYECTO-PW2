@@ -15,21 +15,30 @@
             <i class='bx bx-left-arrow-alt'></i> Volver al inicio
         </a>
         <div class="profile-card-horizontal">
+            
             <div class="card-left">
                 <div class="avatar-container">
                     <img src="img/LOGOC.png" alt="Perfil" id="display-photo">
                     <label for="input-photo" class="edit-icon"><i class='bx bxs-camera'></i></label>
                     <input type="file" id="input-photo" hidden>
                 </div>
+                
                 <button class="btn-change-pass" id="openModal">Cambiar contraseña</button>
-            </div>
 
+                <button class="btn-logout" id="logoutBtn" style="margin-top: 10px; background: #ff4d4d; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold;">
+                    <i class='bx bx-log-out'></i> Cerrar Sesión
+                </button>
+                
+                <div id="admin-zone" style="margin-top: 15px; width: 100%;"></div>
+            </div>
+            
             <div class="card-right">
                 <div class="brand-header">
                     <img src="img/logo.png" alt="Hey Vaquero">
                 </div>
-                <h2 class="user-fullname">Nombre Apellido</h2>
                 
+                <h2 class="user-fullname" id="display-name">Nombre Apellido</h2>
+                    
                 <div class="info-grid">
                     <div class="field">
                         <span class="label">Edad</span>
@@ -37,36 +46,31 @@
                     </div>
                     <div class="field">
                         <span class="label">País</span>
-                        <p class="value">México</p>
+                        <p class="value" id="display-country">México</p>
                     </div>
                     <div class="field">
                         <span class="label">Fecha de nacimiento</span>
-                        <p class="value">12 de Octubre, 2001</p>
-                    </div>
-                    <div class="field">
-                        <span class="label">Sexo</span>
-                        <p class="value">Masculino</p>
+                        <p class="value" id="display-dob">12 de Octubre, 2001</p>
                     </div>
                     <div class="field full">
                         <span class="label">Correo electrónico</span>
-                        <p class="value">ejemplo@vaquero.com</p>
+                        <p class="value" id="display-email">ejemplo@vaquero.com</p>
                     </div>
                     <div class="field full">
                         <span class="label">Teléfono</span>
                         <p class="value">+52 81 1234 5678</p>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div> </div>
     </div>
 
     <div class="modal" id="passModal">
         <div class="modal-box">
             <h3>Actualizar Seguridad</h3>
-            <input type="password" placeholder="Contraseña actual" class="mod-input">
-            <input type="password" placeholder="Nueva contraseña" class="mod-input">
+            <input type="password" id="newPassword" placeholder="Nueva contraseña" class="mod-input">
+            <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" class="mod-input">
             <div class="mod-btns">
-                <button class="btn-save" onclick="closeModal()">Guardar</button>
+                <button class="btn-save" onclick="saveNewPass()">Guardar</button>
                 <button class="btn-close" onclick="closeModal()">Cancelar</button>
             </div>
         </div>

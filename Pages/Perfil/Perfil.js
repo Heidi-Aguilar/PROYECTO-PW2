@@ -115,32 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. TU CÓDIGO INTACTO: BOTÓN DE ADMIN ---
-    const adminZone = document.getElementById('admin-zone');
-    if (adminZone && datosUsuario && datosUsuario.rol === 'admin') {
+// 6. BOTÓN DE ADMIN 
+    if (datosUsuario && datosUsuario.rol === 'admin') {
         const adminBtn = document.createElement('button');
-        adminBtn.innerHTML = "⚙️ Panel de Control ";
+        adminBtn.innerHTML = "⚙️ Panel de Control ✨";
         adminBtn.style.cssText = `
-            background: #ff69b4;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            box-shadow: 0 4px 0 #db2b81;
-            transition: 0.3s;
-            margin-top: 15px;
+            background: #ff69b4; color: white; border: none; padding: 12px;
+            border-radius: 12px; cursor: pointer; width: 90%; font-weight: bold;
+            box-shadow: 0 4px 0 #db2b81; transition: 0.3s; margin: 20px auto; display: block;
         `;
+        adminBtn.onclick = () => window.location.href = "../Admin/admin.html";
         
-        adminBtn.onclick = () => {
-            window.location.href = "../Admin/admin.html";
-        };
-
-        adminBtn.onmouseover = () => adminBtn.style.transform = "scale(1.05)";
-        adminBtn.onmouseout = () => adminBtn.style.transform = "scale(1)";
-
-        adminZone.appendChild(adminBtn);
+        // Buscamos la cajita invisible
+        const adminZone = document.getElementById('admin-zone');
+        
+        if (adminZone) {
+            adminZone.appendChild(adminBtn);
+        } else {
+            // Si no encuentra la cajita, lo mete a la fuerza en la columna izquierda
+            const leftColumn = document.querySelector('.card-left') || document.body;
+            leftColumn.appendChild(adminBtn);
+        }
     }
-});

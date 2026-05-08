@@ -84,6 +84,34 @@ function Principal(){
                 </div>
             </section>
 
+            <footer className="principal-footer" aria-label="Pie de pagina">
+                <div className="principal-footer-inner">
+                    <section className="principal-footer-brand" aria-label="Marca">
+                        <h3>Oye Vaquero</h3>
+                        <p>Movilidad electrica simple, rapida y segura para tu dia a dia.</p>
+                    </section>
+
+                    <nav className="principal-footer-nav" aria-label="Navegacion">
+                        <Link to="/#catalogo">Catalogo</Link>
+                        <Link to="/renta">Renta</Link>
+                        <Link to="/manual">Manual</Link>
+                    </nav>
+
+                    <div className="principal-footer-contact" aria-label="Contacto">
+                        <a href="mailto:soporte@oyevaquero.com">soporte@oyevaquero.com</a>
+                        <a href="tel:+529991234567">+52 999 123 4567</a>
+                    </div>
+                </div>
+
+                <div className="principal-footer-bottom">
+                    <p>© 2026 Oye Vaquero. Todos los derechos reservados.</p>
+                    <div className="principal-footer-legal">
+                        <a href="#">Privacidad</a>
+                        <a href="#">Terminos</a>
+                    </div>
+                </div>
+            </footer>
+
         </>
     )
 }

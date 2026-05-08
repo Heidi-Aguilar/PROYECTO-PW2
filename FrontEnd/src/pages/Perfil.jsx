@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/images/LOGO2.png";
 import avatarVaquero from "../assets/images/AVATAR_USER.jpg.jpeg";
 import "./Perfil.css";
@@ -10,8 +10,28 @@ function Perfil() {
   const [usuario, setUsuario] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [walletMethods, setWalletMethods] = useState(() => {
+    const raw = localStorage.getItem("perfil-wallet-methods");
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        localStorage.removeItem("perfil-wallet-methods");
+      }
+    }
+    return [
+      { id: 1, brand: "Visa", alias: "Principal", last4: "4242", preferred: true },
+      { id: 2, brand: "Mastercard", alias: "Respaldo", last4: "7821", preferred: false }
+    ];
+  });
+  const [newWalletMethod, setNewWalletMethod] = useState({
+    brand: "Visa",
+    alias: "",
+    cardNumber: ""
+  });
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -41,6 +61,10 @@ function Perfil() {
     window.setTimeout(() => setToast(""), 2000);
   };
   
+  useEffect(() => {
+    localStorage.setItem("perfil-wallet-methods", JSON.stringify(walletMethods));
+  }, [walletMethods]);
+
   // --- CAMBIAR FOTO ---
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -101,13 +125,58 @@ function Perfil() {
   };
 
   const goToPayment = () => {
-    showToast("Te llevamos a Renta para gestionar tu pago.");
-    window.setTimeout(() => navigate("/renta?from=perfil&focus=pago"), 300);
+    setShowWalletModal(true);
   };
 
   const goToStations = () => {
     showToast("Te llevamos a Renta para ver estaciones.");
     window.setTimeout(() => navigate("/renta?from=perfil&focus=estaciones"), 300);
+  };
+
+  const setPreferredMethod = (methodId) => {
+    setWalletMethods((prev) =>
+      prev.map((method) => ({ ...method, preferred: method.id === methodId }))
+    );
+    showToast("Metodo predeterminado actualizado.");
+  };
+
+  const removeWalletMethod = (methodId) => {
+    setWalletMethods((prev) => {
+      const filtered = prev.filter((method) => method.id !== methodId);
+      if (filtered.length === 0) return filtered;
+      if (filtered.some((method) => method.preferred)) return filtered;
+      return filtered.map((method, index) => ({
+        ...method,
+        preferred: index === 0
+      }));
+    });
+    showToast("Metodo eliminado de la cartera.");
+  };
+
+  const addWalletMethod = (event) => {
+    event.preventDefault();
+    const cleanAlias = newWalletMethod.alias.trim();
+    const digitsOnly = newWalletMethod.cardNumber.replace(/\D/g, "");
+    if (cleanAlias.length < 2) {
+      showToast("Agrega un alias valido para la tarjeta.");
+      return;
+    }
+    if (digitsOnly.length < 12) {
+      showToast("Numero de tarjeta invalido.");
+      return;
+    }
+
+    const newItem = {
+      id: Date.now(),
+      brand: newWalletMethod.brand,
+      alias: cleanAlias,
+      last4: digitsOnly.slice(-4),
+      preferred: walletMethods.length === 0
+    };
+
+    setWalletMethods((prev) => [...prev, newItem]);
+    setNewWalletMethod({ brand: "Visa", alias: "", cardNumber: "" });
+    showToast("Metodo agregado a tu cartera virtual.");
   };
 
   const stats = [
@@ -251,6 +320,89 @@ function Perfil() {
             <div className="mod-btns">
               <button className="btn-save" type="button" onClick={handleSavePassword}>Guardar</button>
               <button className="btn-close" type="button" onClick={() => setShowModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWalletModal && (
+        <div
+          className="modal active"
+          style={{ display: "grid" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowWalletModal(false); }}
+        >
+          <div className="modal-box wallet-modal-box">
+            <h3>Cartera virtual</h3>
+            <p className="wallet-subtitle">Administra tus metodos de pago guardados.</p>
+
+            <div className="wallet-list">
+              {walletMethods.length === 0 ? (
+                <p className="wallet-empty">No tienes metodos guardados.</p>
+              ) : (
+                walletMethods.map((method) => (
+                  <article className="wallet-item" key={method.id}>
+                    <div>
+                      <p className="wallet-brand">{method.brand} •••• {method.last4}</p>
+                      <p className="wallet-alias">{method.alias}</p>
+                    </div>
+                    <div className="wallet-item-actions">
+                      <button
+                        className="wallet-action"
+                        type="button"
+                        disabled={method.preferred}
+                        onClick={() => setPreferredMethod(method.id)}
+                      >
+                        {method.preferred ? "Predeterminada" : "Marcar principal"}
+                      </button>
+                      <button
+                        className="wallet-action danger"
+                        type="button"
+                        onClick={() => removeWalletMethod(method.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <form className="wallet-form" onSubmit={addWalletMethod}>
+              <label>
+                Marca
+                <select
+                  value={newWalletMethod.brand}
+                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, brand: e.target.value }))}
+                >
+                  <option value="Visa">Visa</option>
+                  <option value="Mastercard">Mastercard</option>
+                  <option value="Amex">Amex</option>
+                </select>
+              </label>
+              <label>
+                Alias
+                <input
+                  type="text"
+                  placeholder="Ejemplo: Nomina"
+                  value={newWalletMethod.alias}
+                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, alias: e.target.value }))}
+                />
+              </label>
+              <label>
+                Tarjeta
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="1234 5678 9012 3456"
+                  value={newWalletMethod.cardNumber}
+                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, cardNumber: e.target.value }))}
+                />
+              </label>
+              <button className="btn-save" type="submit">Agregar metodo</button>
+            </form>
+
+            <div className="mod-btns" style={{ marginTop: "12px" }}>
+              <button className="btn-close" type="button" onClick={() => setShowWalletModal(false)}>Cerrar</button>
             </div>
           </div>
         </div>

@@ -110,21 +110,41 @@ function Renta() {
   // --- REANUDAR VIAJE ACTIVO ---
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get("resumeTrip") !== "1") return;
+    if (params.get("resumeTrip") === "1") {
+      const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);
+      if (!raw) return;
 
-    const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);
-    if (!raw) return;
+      try {
+        const saved = JSON.parse(raw);
+        if (!saved?.tripStartedAt || !saved?.paidOrder) return;
+        setSelectedStation(saved.selectedStation || null);
+        setSelectedVehicle(saved.selectedVehicle || null);
+        setPaidOrder(saved.paidOrder || null);
+        setTripStartedAt(saved.tripStartedAt);
+        goTo("trip");
+      } catch {
+        window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
+      }
+      return;
+    }
 
-    try {
-      const saved = JSON.parse(raw);
-      if (!saved?.tripStartedAt || !saved?.paidOrder) return;
-      setSelectedStation(saved.selectedStation || null);
-      setSelectedVehicle(saved.selectedVehicle || null);
-      setPaidOrder(saved.paidOrder || null);
-      setTripStartedAt(saved.tripStartedAt);
-      goTo("trip");
-    } catch {
-      window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
+    // Permite abrir vistas especificas desde Perfil.
+    if (params.get("from") !== "perfil") return;
+
+    const focus = params.get("focus");
+    if (focus === "pago") {
+      setStep("payment");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setToast("Completa tus datos para continuar con el pago.");
+      window.setTimeout(() => setToast(""), 2200);
+      return;
+    }
+
+    if (focus === "estaciones") {
+      setStep("map");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setToast("Selecciona una estacion y un vehiculo para continuar.");
+      window.setTimeout(() => setToast(""), 2200);
     }
   }, [location.search]);
 

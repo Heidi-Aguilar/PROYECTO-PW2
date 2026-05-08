@@ -31,6 +31,13 @@ const UsuarioSchema = new mongoose.Schema({
         type: String, 
         default: 'cliente'
     },
+    metodosPago: {
+        ultimos4: String,
+        marca: String,
+        expiracion: String,
+        tarjetaEncriptada: String,
+        default: []
+    },
     billetera: {
         saldo: { 
         type: Number, 

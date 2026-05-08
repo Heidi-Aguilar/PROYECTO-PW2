@@ -56,6 +56,11 @@ function Perfil() {
 
   }, [navigate]);
 
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2000);
+  };
+  
   useEffect(() => {
     localStorage.setItem("perfil-wallet-methods", JSON.stringify(walletMethods));
   }, [walletMethods]);
@@ -77,6 +82,13 @@ function Perfil() {
     }
     if (newPassword !== confirmPassword) {
       showToast("Las contraseñas no coinciden.");
+      return;
+    }
+
+    //VALIDACIÓN DE CONTRASEÑA SEGURA
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      showToast("Debe tener al menos 8 caracteres, una mayúscula, minúscula y un número.");
       return;
     }
 
@@ -104,7 +116,6 @@ function Perfil() {
       showToast("Error de conexión con el servidor.");
     }
   };
-
   // --- CERRAR SESIÓN ---
   const logout = () => {
     window.sessionStorage.removeItem("renta-active-trip");

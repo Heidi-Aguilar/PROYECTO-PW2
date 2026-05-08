@@ -401,7 +401,7 @@ body::-webkit-scrollbar,
 .btn-close:hover { background: rgba(47, 36, 25, 0.05); }
 
 .wallet-modal-box {
-  max-width: 560px;
+  max-width: 600px;
   text-align: left;
 }
 

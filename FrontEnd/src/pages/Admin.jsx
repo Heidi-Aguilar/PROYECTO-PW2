@@ -1,0 +1,271 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Admin.css";
+
+const API_URL = "http://localhost:5000/api";
+
+function Admin() {
+  const navigate = useNavigate();
+  const [estaciones, setEstaciones] = useState([]);
+  const [vehiculos, setVehiculos] = useState([]);
+  const [toast, setToast] = useState("");
+  const [usuarios, setUsuarios] = useState([]);
+
+  const [estForm, setEstForm] = useState({ nombre: "", capacidadMaxima: "", lat: "", lng: "" });
+  const [vehForm, setVehForm] = useState({ estacionActual: "", codigoVehiculo: "", tipo: "Bicicleta", precioPorMinuto: "" });
+
+  // ESTADOS PARA REPORTES
+  const [reporteActivo, setReporteActivo] = useState(null);
+  const [datosReporte, setDatosReporte] = useState([]);
+
+  const getHeaders = (withContent = false) => {
+    const token = localStorage.getItem("token");
+    return {
+      ...(withContent && { "Content-Type": "application/json" }),
+      "Authorization": `Bearer ${token}`
+    };
+  };
+
+  const showToast = (msg) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(""), 3000);
+  };
+
+  const cargarDatos = async () => {
+    try {
+      const [resEst, resVeh, resUsu] = await Promise.all([
+        fetch(`${API_URL}/estaciones`, { headers: getHeaders() }),
+        fetch(`${API_URL}/vehiculos`, { headers: getHeaders() }),
+        fetch(`${API_URL}/usuarios`, { headers: getHeaders() }) // <--- NUEVO
+      ]);
+
+      if (resEst.status === 401 || resEst.status === 403) {
+        navigate("/login");
+        return;
+      }
+
+      setEstaciones(await resEst.json());
+      setVehiculos(await resVeh.json());
+      setUsuarios(await resUsu.json()); // <--- NUEVO
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+      showToast("Error de conexión con el servidor.");
+    }
+  };
+
+  // FUNCIÓN PARA CARGAR REPORTES (Rúbrica)
+  const verReporte = async (tipo) => {
+    try {
+      const res = await fetch(`${API_URL}/reportes/${tipo}`, { headers: getHeaders() });
+      if (res.ok) {
+        setDatosReporte(await res.json());
+        setReporteActivo(tipo);
+        showToast("Reporte generado con éxito.");
+      } else {
+        showToast("Error al cargar el reporte.");
+      }
+    } catch (error) {
+      showToast("Error de conexión al cargar reportes.");
+    }
+  };
+
+  useEffect(() => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario || usuario.rol !== "admin") return navigate("/");
+    cargarDatos();
+  }, []);
+  const eliminarUsuario = async (id) => {
+    if (!window.confirm("¿Seguro que quieres expulsar a este vaquero del pueblo? Esta acción no se puede deshacer.")) return;
+    try {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, {
+        method: "DELETE",
+        headers: getHeaders()
+      });
+      if (res.ok) {
+        showToast("Usuario eliminado correctamente.");
+        cargarDatos();
+      } else {
+        showToast("No se pudo eliminar al usuario.");
+      }
+    } catch {
+      showToast("Error de conexión.");
+    }
+  };
+
+  const guardarEstacion = async () => {
+    const { nombre, capacidadMaxima, lat, lng } = estForm;
+    if (!nombre || !capacidadMaxima || !lat || !lng) return showToast("Llena todos los campos de la estación.");
+    try {
+      const res = await fetch(`${API_URL}/estaciones`, {
+        method: "POST", headers: getHeaders(true),
+        body: JSON.stringify({ nombre, capacidadMaxima, coordenadas: { lat: Number(lat), lng: Number(lng) } })
+      });
+      if (res.ok) {
+        showToast("¡Estación creada con éxito!");
+        setEstForm({ nombre: "", capacidadMaxima: "", lat: "", lng: "" });
+        cargarDatos();
+      } else showToast("Error al guardar la estación.");
+    } catch { showToast("Error de conexión."); }
+  };
+
+  const guardarVehiculo = async () => {
+    const { estacionActual, codigoVehiculo, tipo, precioPorMinuto } = vehForm;
+    if (!estacionActual || !codigoVehiculo || !precioPorMinuto) return showToast("Faltan datos para el vehículo.");
+    try {
+      const res = await fetch(`${API_URL}/vehiculos`, {
+        method: "POST", headers: getHeaders(true),
+        body: JSON.stringify({ codigoVehiculo, tipo, precioPorMinuto: Number(precioPorMinuto), estacionActual, bateria: 100, estado: "Disponible" })
+      });
+      if (res.ok) {
+        showToast("¡Vehículo registrado con éxito!");
+        setVehForm({ estacionActual: "", codigoVehiculo: "", tipo: "Bicicleta", precioPorMinuto: "" });
+        cargarDatos();
+      } else showToast("Error al registrar vehículo.");
+    } catch { showToast("Error de conexión."); }
+  };
+
+  const eliminarVehiculo = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este vehículo?")) return;
+    try {
+      const res = await fetch(`${API_URL}/vehiculos/${id}`, { method: "DELETE", headers: getHeaders() });
+      if (res.ok) {
+        showToast("Vehículo eliminado correctamente.");
+        cargarDatos();
+      } else showToast("No se pudo eliminar el vehículo.");
+    } catch { showToast("Error de conexión."); }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-container">
+        <button className="admin-back-btn" onClick={() => navigate("/perfil")}>
+          <i className="bx bx-left-arrow-alt"></i> Volver al Perfil
+        </button>
+        <h1 className="admin-title">Panel Administrativo</h1>
+        <div className="admin-grid">
+
+          {/* NUEVA ESTACIÓN */}
+          <div className="admin-section-box">
+            <h3><i className="bx bxs-map-pin"></i> Nueva Estación</h3>
+            <div className="admin-input-group"><label>Nombre de la Estación</label><input type="text" placeholder="Ej. Metro Centro" value={estForm.nombre} onChange={(e) => setEstForm({ ...estForm, nombre: e.target.value })}/></div>
+            <div className="admin-input-group"><label>Capacidad Máxima</label><input type="number" placeholder="Ej. 20" value={estForm.capacidadMaxima} onChange={(e) => setEstForm({ ...estForm, capacidadMaxima: e.target.value })}/></div>
+            <div className="admin-coords-row">
+              <div className="admin-input-group"><label>Coord X (10–90)</label><input type="number" placeholder="X" value={estForm.lat} onChange={(e) => setEstForm({ ...estForm, lat: e.target.value })}/></div>
+              <div className="admin-input-group"><label>Coord Y (10–90)</label><input type="number" placeholder="Y" value={estForm.lng} onChange={(e) => setEstForm({ ...estForm, lng: e.target.value })}/></div>
+            </div>
+            <button className="admin-btn-save" type="button" onClick={guardarEstacion}><i className="bx bx-plus-circle"></i> Guardar Estación</button>
+          </div>
+
+          {/* NUEVO VEHÍCULO */}
+          <div className="admin-section-box">
+            <h3><i className="bx bxs-car"></i> Nuevo Vehículo</h3>
+            <div className="admin-input-group"><label>Asignar a Estación</label>
+              <select value={vehForm.estacionActual} onChange={(e) => setVehForm({ ...vehForm, estacionActual: e.target.value })}>
+                <option value="" disabled>Selecciona estación</option>
+                {estaciones.map((est) => <option key={est._id} value={est._id}>{est.nombre}</option>)}
+              </select>
+            </div>
+            <div className="admin-input-group"><label>Código de Serie</label><input type="text" placeholder="Ej. BICI-101" value={vehForm.codigoVehiculo} onChange={(e) => setVehForm({ ...vehForm, codigoVehiculo: e.target.value })}/></div>
+            <div className="admin-input-group"><label>Tipo de Vehículo</label>
+              <select value={vehForm.tipo} onChange={(e) => setVehForm({ ...vehForm, tipo: e.target.value })}>
+                <option value="Bicicleta">Bicicleta</option>
+                <option value="Electrica">Bici Eléctrica</option>
+                <option value="Scooter electrico">Scooter Eléctrico</option>
+                <option value="Auto">Auto</option>
+              </select>
+            </div>
+            <div className="admin-input-group"><label>Precio por minuto ($)</label><input type="number" step="0.1" placeholder="Ej. 1.5" value={vehForm.precioPorMinuto} onChange={(e) => setVehForm({ ...vehForm, precioPorMinuto: e.target.value })}/></div>
+            <button className="admin-btn-save" type="button" onClick={guardarVehiculo}><i className="bx bx-plus-circle"></i> Registrar Vehículo</button>
+          </div>
+
+          {/* GESTIONAR VEHÍCULOS */}
+          <div className="admin-section-box admin-full-width">
+            <h3><i className="bx bxs-user-detail"></i> Gestionar Usuarios</h3>
+            <div className="admin-vehicle-list">
+              {usuarios.length === 0 ? (
+                <p className="admin-empty">No hay usuarios registrados todavía.</p>
+              ) : (
+                usuarios.map((u) => (
+                  <div key={u._id} className="admin-item">
+                    <div className="admin-item-info">
+                      <strong>{u.nombre} {u.apellido}</strong> — {u.rol === 'admin' ? '⭐ Admin' : 'Vaquero'}
+                      <span className="admin-item-sub">
+                        <i className="bx bxs-envelope"></i> {u.correo} &nbsp;·&nbsp; País: {u.pais}
+                      </span>
+                    </div>
+                    {/* Evitamos que el admin se elimine a sí mismo por accidente */}
+                    {u.rol !== 'admin' && (
+                      <button
+                        className="admin-btn-delete"
+                        type="button"
+                        onClick={() => eliminarUsuario(u._id)}
+                      >
+                        <i className="bx bx-trash"></i> Expulsar
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* SECCIÓN DE REPORTES*/}
+          <div className="admin-section-box admin-full-width">
+            <h3><i className="bx bxs-report"></i> Reportes del Sistema</h3>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              <button className="admin-btn-save" style={{ width: 'auto' }} onClick={() => verReporte('historial-rentas')}>Historial Rentas</button>
+              <button className="admin-btn-save" style={{ width: 'auto' }} onClick={() => verReporte('incidentes-pendientes')}>Incidentes</button>
+              <button className="admin-btn-save" style={{ width: 'auto' }} onClick={() => verReporte('ingresos-transacciones')}>Ingresos</button>
+              <button className="admin-btn-save" style={{ width: 'auto' }} onClick={() => verReporte('ocupacion-estaciones')}>Ocupación</button>
+            </div>
+
+            <div className="admin-vehicle-list" style={{ maxHeight: '250px' }}>
+              {!reporteActivo && <p className="admin-empty">Haz clic en un botón para cargar un reporte.</p>}
+              {reporteActivo && datosReporte.length === 0 && <p className="admin-empty">No hay datos para este reporte.</p>}
+              
+              {reporteActivo === 'historial-rentas' && datosReporte.map((r, i) => (
+                 <div key={i} className="admin-item">
+                   <div className="admin-item-info">
+                     <strong>Renta ID: {r._id}</strong>
+                     <span className="admin-item-sub">Usuario: {r.usuario?.nombre} | Vehículo: {r.vehiculo?.codigoVehiculo} | Total: ${r.costoTotal || 0} | Estado: {r.estado}</span>
+                   </div>
+                 </div>
+              ))}
+
+              {reporteActivo === 'incidentes-pendientes' && datosReporte.map((r, i) => (
+                 <div key={i} className="admin-item">
+                   <div className="admin-item-info">
+                     <strong>Incidente: {r.descripcion}</strong>
+                     <span className="admin-item-sub">Vehículo: {r.vehiculo?.codigoVehiculo} | Reporta: {r.reportadoPor?.nombre}</span>
+                   </div>
+                 </div>
+              ))}
+
+              {reporteActivo === 'ingresos-transacciones' && datosReporte.map((r, i) => (
+                 <div key={i} className="admin-item">
+                   <div className="admin-item-info">
+                     <strong>Tipo: {r.tipo}</strong>
+                     <span className="admin-item-sub">Usuario: {r.usuarioID?.nombre} | Monto: ${r.monto} | Fecha: {new Date(r.fecha).toLocaleDateString()}</span>
+                   </div>
+                 </div>
+              ))}
+
+              {reporteActivo === 'ocupacion-estaciones' && datosReporte.map((r, i) => (
+                 <div key={i} className="admin-item">
+                   <div className="admin-item-info">
+                     <strong>{r.codigoVehiculo} ({r.tipo})</strong>
+                     <span className="admin-item-sub">En estación: {r.estacionActual?.nombre} (Capacidad: {r.estacionActual?.capacidadMaxima})</span>
+                   </div>
+                 </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div className={`admin-toast ${toast ? "show" : ""}`} role="status">{toast}</div>
+    </div>
+  );
+}
+
+export default Admin;

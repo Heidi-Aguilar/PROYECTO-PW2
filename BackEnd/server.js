@@ -168,6 +168,72 @@ app.delete("/api/usuarios/:id", verificarToken, async (req, res) => {
 });
 
 // ==========================================
+//        ENDPOINTS DE MÉTODOS DE PAGO
+// ==========================================
+
+// 1. Obtener tarjetas guardadas del usuario activo
+app.get("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
+  try {
+    const usuario = await User.findById(req.user.id);
+    if (!usuario) return res.status(404).json({ message: "Usuario no encontrado" });
+    // Solo enviamos los últimos 4 dígitos y la marca, NUNCA la encriptada al frontend
+    const tarjetasSeguras = usuario.metodosPago.map(t => ({
+      _id: t._id,
+      ultimos4: t.ultimos4,
+      marca: t.marca,
+      expiracion: t.expiracion
+    }));
+    res.json(tarjetasSeguras);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener métodos de pago" });
+  }
+});
+
+
+// Obtener perfil completo del usuario
+app.get("/api/usuarios/:id", verificarToken, async (req, res) => {
+  try {
+    const usuario = await User.findById(req.params.id).select("-password");
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(200).json(usuario);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+});
+
+
+// 2. Guardar nueva tarjeta encriptada
+app.post("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
+  try {
+    const { numeroTarjeta, expiracion } = req.body;
+    
+    // Determinamos la marca de forma básica
+    let marca = "Desconocida";
+    if (numeroTarjeta.startsWith("4")) marca = "Visa";
+    else if (numeroTarjeta.startsWith("5")) marca = "MasterCard";
+    else if (numeroTarjeta.startsWith("3")) marca = "American Express";
+
+    const ultimos4 = numeroTarjeta.slice(-4);
+    const tarjetaEncriptada = await bcrypt.hash(numeroTarjeta, 10); // Encriptación real
+
+    const usuario = await User.findById(req.user.id);
+    usuario.metodosPago.push({ ultimos4, marca, expiracion, tarjetaEncriptada });
+    await usuario.save();
+
+    registrarLog(`Evento: Usuario ${usuario.correo} guardó un nuevo método de pago`);
+    res.status(201).json({ message: "Tarjeta guardada con seguridad" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al guardar tarjeta" });
+  }
+});
+
+// ==========================================
 //           ENDPOINTS DE ESTACIONES
 // ==========================================
 app.get("/api/estaciones", verificarToken, async (req, res) => {

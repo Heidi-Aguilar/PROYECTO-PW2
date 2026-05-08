@@ -15,32 +15,68 @@ function Auth() {
   const handleChange = (e) => setRegisterData({ ...registerData, [e.target.name]: e.target.value });
   const handleLoginChange = (e) => setLoginData({ ...loginData, [e.target.name]: e.target.value });
 
-  const handleRegister = async (e) => {
+const handleRegister = async (e) => {
     e.preventDefault();
 
-    // ✅ VALIDACIÓN DE CONTRASEÑA (Rúbrica)
-    // Debe tener al menos 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    if (!passwordRegex.test(registerData.password)) {
-      alert("⚠️ La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula y un número.");
+    const { nombre, apellido, pais, fechaNacimiento, correo, password } = registerData;
+
+    // 1. VALIDACIÓN: No casillas vacías
+    if (!nombre || !apellido || !pais || !fechaNacimiento || !correo || !password) {
+      alert("Por favor, llena todos los campos, vaquero.");
       return;
     }
 
+    // 2. VALIDACIÓN: Solo letras en nombre y apellido (incluye espacios y acentos)
+    const nombreRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nombreRegex.test(nombre) || !nombreRegex.test(apellido)) {
+      alert("⚠️ El nombre y apellido solo pueden contener letras.");
+      return;
+    }
+
+    // 3. VALIDACIÓN: No menores de 15 años
+    const hoy = new Date();
+    const cumple = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - cumple.getFullYear();
+    const mes = hoy.getMonth() - cumple.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < cumple.getDate())) {
+      edad--;
+    }
+
+    if (edad < 15) {
+      alert("⚠️ Lo sentimos, debes tener al menos 15 años para registrarte.");
+      return;
+    }
+
+    // 4. VALIDACIÓN: Contraseña segura (mínimo 8 caracteres, una mayúscula, una minúscula y un número)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      alert("La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula y un número.");
+      return;
+    }
+
+    // 5. PROCESO DE REGISTRO
     try {
       const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registerData)
       });
+
       const data = await response.json();
+
       if (response.ok) {
         alert("¡Cuenta creada con éxito! Ahora inicia sesión.");
-        setRegisterData({ nombre: "", apellido: "", pais: "", fechaNacimiento: "", correo: "", password: "" });
+        setRegisterData({
+          nombre: "", apellido: "", pais: "", fechaNacimiento: "", correo: "", password: ""
+        });
         setIsActive(false); 
       } else {
+        // Aquí se muestra el error si el usuario ya existe (viene del backend)
         alert(data.message || "Error al registrar");
       }
+
     } catch (error) {
+      console.error(error);
       alert("Error de conexión con el servidor");
     }
   };

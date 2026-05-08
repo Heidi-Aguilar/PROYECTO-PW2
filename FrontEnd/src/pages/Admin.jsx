@@ -9,11 +9,12 @@ function Admin() {
   const [estaciones, setEstaciones] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [toast, setToast] = useState("");
+  const [usuarios, setUsuarios] = useState([]);
 
   const [estForm, setEstForm] = useState({ nombre: "", capacidadMaxima: "", lat: "", lng: "" });
   const [vehForm, setVehForm] = useState({ estacionActual: "", codigoVehiculo: "", tipo: "Bicicleta", precioPorMinuto: "" });
 
-  // ✅ ESTADOS PARA REPORTES (Rúbrica)
+  // ESTADOS PARA REPORTES
   const [reporteActivo, setReporteActivo] = useState(null);
   const [datosReporte, setDatosReporte] = useState([]);
 
@@ -32,19 +33,27 @@ function Admin() {
 
   const cargarDatos = async () => {
     try {
-      const [resEst, resVeh] = await Promise.all([
+      const [resEst, resVeh, resUsu] = await Promise.all([
         fetch(`${API_URL}/estaciones`, { headers: getHeaders() }),
-        fetch(`${API_URL}/vehiculos`, { headers: getHeaders() })
+        fetch(`${API_URL}/vehiculos`, { headers: getHeaders() }),
+        fetch(`${API_URL}/usuarios`, { headers: getHeaders() }) // <--- NUEVO
       ]);
-      if (resEst.status === 401 || resEst.status === 403) return navigate("/login");
+
+      if (resEst.status === 401 || resEst.status === 403) {
+        navigate("/login");
+        return;
+      }
+
       setEstaciones(await resEst.json());
       setVehiculos(await resVeh.json());
+      setUsuarios(await resUsu.json()); // <--- NUEVO
     } catch (error) {
+      console.error("Error al cargar datos:", error);
       showToast("Error de conexión con el servidor.");
     }
   };
 
-  // ✅ FUNCIÓN PARA CARGAR REPORTES (Rúbrica)
+  // FUNCIÓN PARA CARGAR REPORTES (Rúbrica)
   const verReporte = async (tipo) => {
     try {
       const res = await fetch(`${API_URL}/reportes/${tipo}`, { headers: getHeaders() });
@@ -65,6 +74,23 @@ function Admin() {
     if (!usuario || usuario.rol !== "admin") return navigate("/");
     cargarDatos();
   }, []);
+  const eliminarUsuario = async (id) => {
+    if (!window.confirm("¿Seguro que quieres expulsar a este vaquero del pueblo? Esta acción no se puede deshacer.")) return;
+    try {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, {
+        method: "DELETE",
+        headers: getHeaders()
+      });
+      if (res.ok) {
+        showToast("Usuario eliminado correctamente.");
+        cargarDatos();
+      } else {
+        showToast("No se pudo eliminar al usuario.");
+      }
+    } catch {
+      showToast("Error de conexión.");
+    }
+  };
 
   const guardarEstacion = async () => {
     const { nombre, capacidadMaxima, lat, lng } = estForm;
@@ -154,18 +180,36 @@ function Admin() {
 
           {/* GESTIONAR VEHÍCULOS */}
           <div className="admin-section-box admin-full-width">
-            <h3><i className="bx bxs-trash"></i> Gestionar Vehículos</h3>
+            <h3><i className="bx bxs-user-detail"></i> Gestionar Usuarios</h3>
             <div className="admin-vehicle-list">
-              {vehiculos.length === 0 ? <p className="admin-empty">No hay vehículos registrados.</p> : vehiculos.map((v) => (
-                <div key={v._id} className="admin-item">
-                  <div className="admin-item-info"><strong>{v.codigoVehiculo}</strong> — {v.tipo}<span className="admin-item-sub"><i className="bx bxs-map-pin"></i>{v.estacionActual ? v.estacionActual.nombre : "Sin estación"} &nbsp;·&nbsp; Estado: {v.estado}</span></div>
-                  <button className="admin-btn-delete" type="button" onClick={() => eliminarVehiculo(v._id)}><i className="bx bx-trash"></i> Quitar</button>
-                </div>
-              ))}
+              {usuarios.length === 0 ? (
+                <p className="admin-empty">No hay usuarios registrados todavía.</p>
+              ) : (
+                usuarios.map((u) => (
+                  <div key={u._id} className="admin-item">
+                    <div className="admin-item-info">
+                      <strong>{u.nombre} {u.apellido}</strong> — {u.rol === 'admin' ? '⭐ Admin' : 'Vaquero'}
+                      <span className="admin-item-sub">
+                        <i className="bx bxs-envelope"></i> {u.correo} &nbsp;·&nbsp; País: {u.pais}
+                      </span>
+                    </div>
+                    {/* Evitamos que el admin se elimine a sí mismo por accidente */}
+                    {u.rol !== 'admin' && (
+                      <button
+                        className="admin-btn-delete"
+                        type="button"
+                        onClick={() => eliminarUsuario(u._id)}
+                      >
+                        <i className="bx bx-trash"></i> Expulsar
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
-          {/* ✅ SECCIÓN DE REPORTES (Rúbrica) */}
+          {/* SECCIÓN DE REPORTES*/}
           <div className="admin-section-box admin-full-width">
             <h3><i className="bx bxs-report"></i> Reportes del Sistema</h3>
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>

@@ -56,6 +56,13 @@ function Perfil() {
       return;
     }
 
+    //VALIDACIÓN DE CONTRASEÑA SEGURA
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      showToast("Debe tener al menos 8 caracteres, una mayúscula, minúscula y un número.");
+      return;
+    }
+
     const token = localStorage.getItem("token");
     try {
       const res = await fetch(`http://localhost:5000/api/usuarios/${usuario.id}`, {
@@ -80,7 +87,6 @@ function Perfil() {
       showToast("Error de conexión con el servidor.");
     }
   };
-
   // --- CERRAR SESIÓN ---
   const logout = () => {
     window.sessionStorage.removeItem("renta-active-trip");

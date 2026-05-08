@@ -36,6 +36,11 @@ function Perfil() {
 
   }, [navigate]);
 
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2000);
+  };
+  
   // --- CAMBIAR FOTO ---
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];

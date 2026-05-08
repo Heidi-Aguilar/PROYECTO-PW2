@@ -167,24 +167,6 @@ app.delete("/api/usuarios/:id", verificarToken, async (req, res) => {
   }
 });
 
-
-// Obtener perfil completo del usuario
-app.get("/api/usuarios/:id", verificarToken, async (req, res) => {
-  try {
-    const usuario = await User.findById(req.params.id).select("-password");
-
-    if (!usuario) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    res.status(200).json(usuario);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error del servidor" });
-  }
-});
-
 // ==========================================
 //        ENDPOINTS DE MÉTODOS DE PAGO
 // ==========================================
@@ -206,6 +188,25 @@ app.get("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
     res.status(500).json({ message: "Error al obtener métodos de pago" });
   }
 });
+
+
+// Obtener perfil completo del usuario
+app.get("/api/usuarios/:id", verificarToken, async (req, res) => {
+  try {
+    const usuario = await User.findById(req.params.id).select("-password");
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(200).json(usuario);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+});
+
 
 // 2. Guardar nueva tarjeta encriptada
 app.post("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {

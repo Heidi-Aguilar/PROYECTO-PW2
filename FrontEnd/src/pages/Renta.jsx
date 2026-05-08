@@ -11,6 +11,7 @@ const getAuthHeaders = (withContent = false) => {
     ...(withContent && { "Content-Type": "application/json" }),
     "Authorization": `Bearer ${token}`
   };
+  
 };
 
 function Renta() {
@@ -75,7 +76,7 @@ function Renta() {
 
   useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
-  // TIMER Y PERSISTENCIA (Se mantienen igual)
+  // TIMER Y PERSISTENCIA
   useEffect(() => {
     if (!tripStartedAt) return undefined;
     const tick = () => setTripElapsed(Math.floor((Date.now() - tripStartedAt) / 1000));

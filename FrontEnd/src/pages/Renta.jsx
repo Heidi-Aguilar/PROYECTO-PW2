@@ -98,6 +98,8 @@ function Renta() {
       setStep("trip");
     } catch { window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY); }
   }, []);
+  
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("resumeTrip") === "1") {
       const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);

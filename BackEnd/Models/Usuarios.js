@@ -31,6 +31,11 @@ const UsuarioSchema = new mongoose.Schema({
         type: String, 
         default: 'cliente'
     },
+    adeudo: { 
+        type: Number, 
+        default: 0 
+    }, // <--- NUEVO: Para guardar multas o saldos negativos
+
     metodosPago: {
         ultimos4: String,
         marca: String,

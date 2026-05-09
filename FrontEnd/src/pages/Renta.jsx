@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Renta.css";
 
 const RENTA_TRIP_STORAGE_KEY = "renta-active-trip";
+const PERFIL_WALLET_STORAGE_KEY = "perfil-wallet-methods";
 const money = (value) => `$${value.toFixed(2)} MXN`;
 
 const getAuthHeaders = (withContent = false) => {
@@ -27,30 +28,53 @@ function Renta() {
   const [tripStartedAt, setTripStartedAt] = useState(null);
   const [tripElapsed, setTripElapsed] = useState(0);
   const [toast, setToast] = useState("");
+
+  // --- Wallet ---
+
+  const [savedCards, setSavedCards] = useState([]);
+  const [selectedCardId, setSelectedCardId] = useState("new"); // "new" por defecto para agregar otra
+  const [guardarTarjeta, setGuardarTarjeta] = useState(false);
   
   // --- ESTADOS NUEVOS PARA PAGOS ---
-  const [savedCards, setSavedCards] = useState([]);
-  const [selectedCardId, setSelectedCardId] = useState("new"); // "new" = Nueva tarjeta
-  const [guardarTarjeta, setGuardarTarjeta] = useState(false);
   const [payment, setPayment] = useState({ holder: "", card: "", exp: "", cvv: "", terms: false });
 
   const showToast = (msg) => { setToast(msg); window.setTimeout(() => setToast(""), 3000); };
   const goTo = (nextStep) => { setStep(nextStep); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const cargarDatos = useCallback(async () => {
-    setLoadingMap(true);
-    try {
-      const [resEstaciones, resVehiculos, resTarjetas] = await Promise.all([
-        fetch("http://localhost:5000/api/estaciones", { headers: getAuthHeaders() }),
-        fetch("http://localhost:5000/api/vehiculos", { headers: getAuthHeaders() }),
-        fetch("http://localhost:5000/api/usuarios/metodos-pago", { headers: getAuthHeaders() })
-      ]);
+  setLoadingMap(true);
+  try {
+    const localWalletRaw = localStorage.getItem(PERFIL_WALLET_STORAGE_KEY);
+    if (localWalletRaw) {
+      try {
+        const localWallet = JSON.parse(localWalletRaw);
+        const normalizedCards = Array.isArray(localWallet)
+          ? localWallet.map((card, index) => ({
+              _id: String(card.id ?? index),
+              marca: card.brand || "Tarjeta",
+              ultimos4: card.last4 || "0000",
+              expiracion: card.expiracion || "--/--"
+            }))
+          : [];
+        setSavedCards(normalizedCards);
+      } catch {
+        setSavedCards([]);
+      }
+    } else {
+      setSavedCards([]);
+    }
 
-      if (resEstaciones.status === 401) return navigate("/login");
+    const headers = getAuthHeaders();
+    const [resEstaciones, resVehiculos] = await Promise.all([
+      fetch("http://localhost:5000/api/estaciones", { headers }),
+      fetch("http://localhost:5000/api/vehiculos", { headers })
+    ]);
 
-      const estacionesData = await resEstaciones.json();
-      const vehiculosData = await resVehiculos.json();
-      if (resTarjetas.ok) setSavedCards(await resTarjetas.json());
+    if (resEstaciones.status === 401) return navigate("/login");
+
+    const estacionesData = await resEstaciones.json();
+    const vehiculosData = await resVehiculos.json();
+
 
       const lats = estacionesData.map(e => e.coordenadas.lat);
       const lngs = estacionesData.map(e => e.coordenadas.lng);
@@ -68,11 +92,11 @@ function Renta() {
 
       setStations(stationsMapped);
     } catch (error) {
-      showToast("Error al conectar con el servidor.");
-    } finally {
-      setLoadingMap(false);
-    }
-  }, [navigate]);
+    showToast("Error al conectar con el servidor.");
+  } finally {
+    setLoadingMap(false);
+  }
+}, [navigate]);
 
   useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
@@ -156,6 +180,19 @@ function Renta() {
     setPayment((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
+  const onChooseVehicle = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    showToast(`Vehiculo ${vehicle.type} seleccionado.`);
+  };
+
+  const saveTripState = () => {
+    if (!selectedStation || !selectedVehicle || !paidOrder || !tripStartedAt) return;
+    window.sessionStorage.setItem(
+      RENTA_TRIP_STORAGE_KEY,
+      JSON.stringify({ selectedStation, selectedVehicle, paidOrder, tripStartedAt })
+    );
+  };
+
   //VALIDACIONES DE TARJETA
   const validarLuhn = (num) => {
     let arr = (num + '').split('').reverse().map(x => parseInt(x, 10));
@@ -216,6 +253,7 @@ function Renta() {
     goTo("ticket");
   };
 
+  // --- INICIAR VIAJE ---
   const onStartTrip = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/rentas/iniciar", {
@@ -230,18 +268,28 @@ function Renta() {
         window.sessionStorage.setItem(RENTA_TRIP_STORAGE_KEY, JSON.stringify({ selectedStation, selectedVehicle, paidOrder, tripStartedAt: startedAt }));
         goTo("trip");
         showToast("Viaje iniciado. Vehículo desbloqueado.");
-      } else showToast(`Error: ${data.message}`);
+      } else {
+        // ✅ AQUÍ DETECTAMOS LA DEUDA O EL VIAJE ACTIVO Y LO MOSTRAMOS
+        alert(`🚨 ATENCIÓN: ${data.message}`);
+        if (res.status === 403) navigate("/perfil"); // Lo mandamos a pagar
+      }
     } catch (error) { showToast("Error al comunicarse con el servidor."); }
   };
 
-  const onStopTrip = async () => {
+  // --- PARAR VIAJE ---
+  // Recibe un parámetro para saber si la dejó en la calle o en la estación
+  const onStopTrip = async (fueraDeEstacion = false) => {
     const rentaId = localStorage.getItem("rentaActivaId");
     if (rentaId) {
       try {
-        const res = await fetch(`http://localhost:5000/api/rentas/finalizar/${rentaId}`, { method: "PUT", headers: getAuthHeaders() });
+        const res = await fetch(`http://localhost:5000/api/rentas/finalizar/${rentaId}`, { 
+          method: "PUT", 
+          headers: getAuthHeaders(true),
+          body: JSON.stringify({ fueraDeEstacion }) // Mandamos el dato al servidor
+        });
         const data = await res.json();
         if (res.ok) {
-          showToast(`Viaje finalizado. Cobro final: $${data.total.toFixed(2)} MXN`);
+          alert(`Viaje finalizado. Total: $${data.total.toFixed(2)} MXN ${data.nota || ''}`);
           localStorage.removeItem("rentaActivaId");
         } else showToast(`Error al finalizar: ${data.message}`);
       } catch (error) { showToast("Error de conexión al finalizar el viaje."); }
@@ -266,7 +314,7 @@ function Renta() {
                   <div className="renta-map-layout">
                     <div className="renta-metro-map">
                       {loadingMap ? <p style={{padding:"20px"}}>Cargando estaciones...</p> : stations.map((station) => (
-                        <button key={station.id} className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`} style={{ left: `${station.x}%`, top: `${station.y}%` }} onClick={() => { setSelectedStation(station); setSelectedVehicle(null); }}>
+                        <button type="button" key={station.id} className={`renta-station-pin ${selectedStation?.id === station.id ? "active" : ""}`} style={{ left: `${station.x}%`, top: `${station.y}%` }} onClick={() => { setSelectedStation(station); setSelectedVehicle(null); }}>
                           {station.name.replace("Metro ", "")}
                         </button>
                       ))}
@@ -279,7 +327,7 @@ function Renta() {
                   <article className="renta-card renta-summary-inline">
                     <h2>Resumen de compra</h2>
                     <p><strong>Costo (30 min):</strong> {selectedVehicle ? money(selectedVehicle.price30) : "-"}</p>
-                    <button className="renta-btn renta-btn-primary" disabled={!selectedStation || !selectedVehicle} onClick={() => goTo("payment")}>Continuar con el pago</button>
+                    <button type="button" className="renta-btn renta-btn-primary" disabled={!selectedStation || !selectedVehicle} onClick={() => goTo("payment")}>Continuar con el pago</button>
                   </article>
                 </div>
                 <section className="renta-vehicles-panel renta-vehicles-panel-side">
@@ -287,11 +335,11 @@ function Renta() {
                   {selectedStation ? (
                     <div className="renta-vehicle-grid">
                       {selectedStation.vehicles.map((v) => (
-                        <article key={v.serial} className={`renta-vehicle-card ${selectedVehicle?.serial === v.serial ? "selected" : ""}`}>
+                        <article key={v.id} className={`renta-vehicle-card ${selectedVehicle?.id === v.id ? "selected" : ""}`}>
                           <h3>{v.type}</h3>
                           <p><strong>Serie:</strong> {v.serial}</p>
                           <p><strong>Costo:</strong> {money(v.price30)}</p>
-                          <button className="renta-btn renta-btn-primary" onClick={() => setSelectedVehicle(v)}>Elegir</button>
+                          <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(v)}>Elegir</button>
                         </article>
                       ))}
                     </div>
@@ -303,60 +351,66 @@ function Renta() {
         )}
 
         {step === "payment" && (
-          <section className="renta-step is-active">
-            <div className="renta-container renta-container-narrow">
-              <p className="renta-kicker">Paso 2</p>
-              <h2>Pago Seguro</h2>
-              
-              <form className="renta-card renta-payment-form" onSubmit={procesarPago}>
-                
-                {/* Menú de tarjetas guardadas */}
-                {savedCards.length > 0 && (
-                  <label>Selecciona tu método de pago
-                    <select style={{padding: '12px', borderRadius: '12px', border: '1px solid #c8955d', outline:'none'}} value={selectedCardId} onChange={(e) => setSelectedCardId(e.target.value)}>
-                      <option value="new">➕ Usar una nueva tarjeta</option>
-                      {savedCards.map(c => (
-                        <option key={c._id} value={c._id}>💳 {c.marca} terminada en {c.ultimos4} (Exp: {c.expiracion})</option>
-                      ))}
-                    </select>
-                  </label>
-                )}
+  <section className="renta-step is-active" aria-labelledby="payment-title">
+    <div className="renta-container renta-container-narrow">
+      <p className="renta-kicker">Paso 2</p>
+      <h2 id="payment-title" className="rye-font">Pago Seguro</h2>
 
-                {/* Formulario que se oculta si elige una tarjeta guardada */}
-                {selectedCardId === "new" && (
-                  <>
-                    <label>Nombre del titular<input name="holder" required placeholder="Nombre como aparece en tarjeta" value={payment.holder} onChange={onPaymentChange} /></label>
-                    <div className="renta-cols-3" style={{gridTemplateColumns: '1fr 1fr'}}>
-                      <label>Número de Tarjeta<input name="card" required placeholder="0000 0000 0000 0000" maxLength={19} value={payment.card} onChange={onPaymentChange} /></label>
-                      <label>Vencimiento<input name="exp" required placeholder="MM/AA" maxLength={5} value={payment.exp} onChange={onPaymentChange} /></label>
-                    </div>
-                    <label className="renta-check">
-                      <input type="checkbox" checked={guardarTarjeta} onChange={(e) => setGuardarTarjeta(e.target.checked)} />
-                      Guardar esta tarjeta de forma segura para futuros viajes
-                    </label>
-                  </>
-                )}
-
-                {/* El CVV SIEMPRE se pide por seguridad */}
-                <label style={{width: '150px', marginTop: '10px'}}>
-                  Código de Seguridad (CVV)
-                  <input name="cvv" required type="password" inputMode="numeric" maxLength={4} placeholder="***" value={payment.cvv} onChange={onPaymentChange} />
-                </label>
-
-                <label className="renta-check" style={{marginTop: '15px'}}>
-                  <input type="checkbox" name="terms" required checked={payment.terms} onChange={onPaymentChange} />
-                  Acepto los términos y condiciones de renta
-                </label>
-                
-                <button className="renta-btn renta-btn-primary" type="submit">Validar Pago Seguro</button>
-              </form>
-
-              <div className="renta-actions-row">
-                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Regresar al mapa</button>
-              </div>
-            </div>
-          </section>
+      <form className="renta-card renta-payment-form" onSubmit={procesarPago}>
+        
+        {/* SELECTOR DE MODO DE PAGO */}
+        {savedCards.length > 0 && (
+          <label>
+            Selecciona tu método de pago
+            <select 
+              className="mod-input" 
+              style={{ border: '1px solid #b88642' }}
+              value={selectedCardId} 
+              onChange={(e) => setSelectedCardId(e.target.value)}
+            >
+              <option value="new">➕ Agregar otra tarjeta</option>
+              {savedCards.map(c => (
+                <option key={c._id} value={c._id}>💳 {c.marca} **** {c.ultimos4} (Exp: {c.expiracion})</option>
+              ))}
+            </select>
+          </label>
         )}
+
+        {/* CAMPOS PARA TARJETA NUEVA: Solo se ven si elige "new" */}
+        {selectedCardId === "new" && (
+          <>
+            <label>Nombre del titular<input name="holder" required placeholder="Como aparece en el plástico" value={payment.holder} onChange={onPaymentChange} /></label>
+            <div className="renta-cols-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <label>Número de Tarjeta<input name="card" required placeholder="0000 0000 0000 0000" maxLength={19} value={payment.card} onChange={onPaymentChange} /></label>
+              <label>Vencimiento<input name="exp" required placeholder="MM/AA" maxLength={5} value={payment.exp} onChange={onPaymentChange} /></label>
+            </div>
+            <label className="renta-check">
+              <input type="checkbox" checked={guardarTarjeta} onChange={(e) => setGuardarTarjeta(e.target.checked)} />
+              [cite_start]🔒 Guardar esta tarjeta en mi Wallet para futuros viajes [cite: 138]
+            </label>
+          </>
+        )}
+
+        {/* CVV: Siempre se pide, incluso para tarjetas guardadas */}
+        <div style={{ width: '120px' }}>
+          <label>CVV<input name="cvv" required type="password" inputMode="numeric" maxLength={4} placeholder="***" value={payment.cvv} onChange={onPaymentChange} /></label>
+        </div>
+
+        <label className="renta-check" style={{ marginTop: '10px' }}>
+          <input type="checkbox" name="terms" required checked={payment.terms} onChange={onPaymentChange} />
+          [cite_start]Acepto los términos y condiciones de renta [cite: 37]
+        </label>
+        
+        <button className="renta-btn renta-btn-primary" type="submit">Validar Pago y Generar Ticket</button>
+      </form>
+
+      <div className="renta-actions-row">
+        <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Regresar al mapa</button>
+      </div>
+    </div>
+  </section>
+)}
+
 
         {/* PASO 3 Y 4 SE MANTIENEN IGUAL (Tickets y Timer) */}
         {step === "ticket" && paidOrder && (
@@ -382,7 +436,14 @@ function Renta() {
                 <div className="renta-timer">{tripTimeLabel}</div>
               </article>
               <div className="renta-trip-actions">
-                <button className="renta-btn renta-btn-danger" type="button" onClick={onStopTrip}>Parar viaje</button>
+                <button className="renta-btn renta-btn-primary" style={{background: '#3f7069', color: 'white'}} type="button" onClick={() => onStopTrip(false)}>
+                  <i className='bx bx-check-shield'></i> Dejar en Estación
+                </button>
+                <button className="renta-btn renta-btn-danger" type="button" onClick={() => onStopTrip(true)}>
+                  <i className='bx bx-error-circle'></i> Abandonar en la calle
+                </button>
+                <Link className="renta-btn renta-btn-ghost" to="/manual" onClick={saveTripState}>Obtener ayuda</Link>
+                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => showToast("Soporte: 55-1234-5678")}>Soporte</button>
               </div>
             </div>
           </section>

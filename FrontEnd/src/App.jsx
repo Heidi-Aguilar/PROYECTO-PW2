@@ -6,6 +6,7 @@ import Renta from './pages/Renta.jsx'
 import Manual from './pages/Manual.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Admin from './pages/Admin.jsx'
+import Footer from './components/Footer.jsx'
 import "./App.css"
 
 function AppContent() {
@@ -26,6 +27,8 @@ function AppContent() {
         <Route path="/login" element={<Auth />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
+
+      <Footer />
     </>
   );
 }

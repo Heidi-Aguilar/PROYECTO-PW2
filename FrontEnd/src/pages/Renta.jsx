@@ -322,18 +322,20 @@ function Renta() {
 
                     <section className="renta-vehicles-panel renta-vehicles-panel-side renta-summary-catalog">
                       <h2>Catalogo de vehiculos</h2>
-                      {selectedStation ? (
-                        <div className="renta-vehicle-grid">
-                          {selectedStation.vehicles.map((v) => (
-                            <article key={v.id} className={`renta-vehicle-card ${selectedVehicle?.id === v.id ? "selected" : ""}`}>
-                              <h3>{v.type}</h3>
-                              <p><strong>Serie:</strong> {v.serial}</p>
-                              <p><strong>Costo:</strong> {money(v.price30)}</p>
-                              <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(v)}>Elegir</button>
-                            </article>
-                          ))}
-                        </div>
-                      ) : <p>Primero selecciona una estacion en el mapa.</p>}
+                      <div className="renta-catalog-options">
+                        {selectedStation ? (
+                          <div className="renta-vehicle-grid">
+                            {selectedStation.vehicles.map((v) => (
+                              <article key={v.id} className={`renta-vehicle-card ${selectedVehicle?.id === v.id ? "selected" : ""}`}>
+                                <h3>{v.type}</h3>
+                                <p><strong>Serie:</strong> {v.serial}</p>
+                                <p><strong>Costo:</strong> {money(v.price30)}</p>
+                                <button type="button" className="renta-btn renta-btn-primary" onClick={() => onChooseVehicle(v)}>Elegir</button>
+                              </article>
+                            ))}
+                          </div>
+                        ) : <p>Primero selecciona una estacion en el mapa.</p>}
+                      </div>
                     </section>
                   </article>
                 </aside>

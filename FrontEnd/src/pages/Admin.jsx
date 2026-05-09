@@ -135,6 +135,21 @@ function Admin() {
     } catch { showToast("Error de conexión."); }
   };
 
+  const eliminarEstacion = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar esta estación?")) return;
+    try {
+      const res = await fetch(`${API_URL}/estaciones/${id}`, { method: "DELETE", headers: getHeaders() });
+      if (res.ok) {
+        showToast("Estación eliminada correctamente.");
+        cargarDatos();
+      } else {
+        showToast("No se pudo eliminar la estación.");
+      }
+    } catch {
+      showToast("Error de conexión.");
+    }
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-container">
@@ -171,7 +186,7 @@ function Admin() {
                 <option value="Bicicleta">Bicicleta</option>
                 <option value="Electrica">Bici Eléctrica</option>
                 <option value="Scooter electrico">Scooter Eléctrico</option>
-                <option value="Auto">Auto</option>
+                <option value="Patines">Patines</option>
               </select>
             </div>
             <div className="admin-input-group"><label>Precio por minuto ($)</label><input type="number" step="0.1" placeholder="Ej. 1.5" value={vehForm.precioPorMinuto} onChange={(e) => setVehForm({ ...vehForm, precioPorMinuto: e.target.value })}/></div>
@@ -203,6 +218,68 @@ function Admin() {
                         <i className="bx bx-trash"></i> Expulsar
                       </button>
                     )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* GESTIONAR VEHÍCULOS */}
+          <div className="admin-section-box admin-full-width">
+            <h3><i className="bx bxs-car-garage"></i> Gestionar Vehículos</h3>
+            <div className="admin-vehicle-list">
+              {vehiculos.length === 0 ? (
+                <p className="admin-empty">No hay vehículos registrados todavía.</p>
+              ) : (
+                vehiculos.map((v) => (
+                  <div key={v._id} className="admin-item">
+                    <div className="admin-item-info">
+                      <strong>{v.codigoVehiculo} · {v.tipo}</strong>
+                      <span className="admin-item-sub">
+                        Estado: {v.estado} &nbsp;·&nbsp; Batería: {v.bateria ?? 0}% &nbsp;·&nbsp; ${v.precioPorMinuto}/min
+                      </span>
+                      <span className="admin-item-sub">
+                        Estación: {v.estacionActual?.nombre || "Sin estación"}
+                      </span>
+                    </div>
+                    <button
+                      className="admin-btn-delete"
+                      type="button"
+                      onClick={() => eliminarVehiculo(v._id)}
+                    >
+                      <i className="bx bx-trash"></i> Eliminar
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* GESTIONAR ESTACIONES */}
+          <div className="admin-section-box admin-full-width">
+            <h3><i className="bx bxs-map"></i> Gestionar estaciones</h3>
+            <div className="admin-vehicle-list">
+              {estaciones.length === 0 ? (
+                <p className="admin-empty">No hay estaciones registradas todavía.</p>
+              ) : (
+                estaciones.map((e) => (
+                  <div key={e._id} className="admin-item">
+                    <div className="admin-item-info">
+                      <strong>{e.nombre}</strong>
+                      <span className="admin-item-sub">
+                        Capacidad máxima: {e.capacidadMaxima}
+                      </span>
+                      <span className="admin-item-sub">
+                        Coordenadas: ({e.coordenadas?.lat}, {e.coordenadas?.lng})
+                      </span>
+                    </div>
+                    <button
+                      className="admin-btn-delete"
+                      type="button"
+                      onClick={() => eliminarEstacion(e._id)}
+                    >
+                      <i className="bx bx-trash"></i> Eliminar
+                    </button>
                   </div>
                 ))
               )}

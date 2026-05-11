@@ -151,6 +151,10 @@ app.get("/api/usuarios", verificarToken, async (req, res) => {
 
 app.put("/api/usuarios/:id", verificarToken, async (req, res) => {
   try {
+    // Si el usuario manda una contraseña nueva, la encriptamos antes de guardarla
+    if (req.body.password) {
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+    }
     const actualizado = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
     res.json(actualizado);
   } catch (error) {
@@ -171,12 +175,11 @@ app.delete("/api/usuarios/:id", verificarToken, async (req, res) => {
 //        ENDPOINTS DE MÉTODOS DE PAGO
 // ==========================================
 
-// 1. Obtener tarjetas guardadas del usuario activo
+// Obtener tarjetas guardadas del usuario activo (Ya arreglado para no compartir)
 app.get("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
   try {
     const usuario = await User.findById(req.user.id);
     if (!usuario) return res.status(404).json({ message: "Usuario no encontrado" });
-    // Solo enviamos los últimos 4 dígitos y la marca, NUNCA la encriptada al frontend
     const tarjetasSeguras = usuario.metodosPago.map(t => ({
       _id: t._id,
       ultimos4: t.ultimos4,
@@ -189,38 +192,32 @@ app.get("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
   }
 });
 
-
 // Obtener perfil completo del usuario
 app.get("/api/usuarios/:id", verificarToken, async (req, res) => {
   try {
     const usuario = await User.findById(req.params.id).select("-password");
-
     if (!usuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
-
     res.status(200).json(usuario);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error del servidor" });
   }
 });
 
-
-// 2. Guardar nueva tarjeta encriptada
+// Guardar nueva tarjeta encriptada
 app.post("/api/usuarios/metodos-pago", verificarToken, async (req, res) => {
   try {
     const { numeroTarjeta, expiracion } = req.body;
     
-    // Determinamos la marca de forma básica
     let marca = "Desconocida";
     if (numeroTarjeta.startsWith("4")) marca = "Visa";
     else if (numeroTarjeta.startsWith("5")) marca = "MasterCard";
     else if (numeroTarjeta.startsWith("3")) marca = "American Express";
 
     const ultimos4 = numeroTarjeta.slice(-4);
-    const tarjetaEncriptada = await bcrypt.hash(numeroTarjeta, 10); // Encriptación real
+    const tarjetaEncriptada = await bcrypt.hash(numeroTarjeta, 10); 
 
     const usuario = await User.findById(req.user.id);
     usuario.metodosPago.push({ ultimos4, marca, expiracion, tarjetaEncriptada });
@@ -252,7 +249,6 @@ app.post("/api/estaciones", verificarToken, verificarAdmin, async (req, res) => 
     }
     const nuevaEstacion = new Estacion(req.body);
     await nuevaEstacion.save();
-    registrarLog(`Evento Crítico: Nueva estación creada - ${req.body.nombre}`);
     res.status(201).json(nuevaEstacion);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -296,7 +292,6 @@ app.post("/api/vehiculos", verificarToken, verificarAdmin, async (req, res) => {
       return res.status(400).json({ message: "Nivel de batería inválido" });
     }
     await nuevoVehiculo.save();
-    registrarLog(`Evento Crítico: Vehículo ${req.body.codigoVehiculo} creado`);
     res.status(201).json(nuevoVehiculo);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -315,7 +310,7 @@ app.put("/api/vehiculos/:id", verificarToken, verificarAdmin, async (req, res) =
 app.delete("/api/vehiculos/:id", verificarToken, verificarAdmin, async (req, res) => {
   try {
     await Vehiculo.findByIdAndDelete(req.params.id);
-    res.json({ message: "Vehículo borrado correctamente" });
+    res.json({ message: "Vehículo borrado" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -329,13 +324,13 @@ app.post("/api/rentas/iniciar", verificarToken, async (req, res) => {
     const { vehiculoId } = req.body;
     const usuarioId = req.user.id; 
 
-    // ✅ REGLA 1: Verificar si ya tiene un viaje activo
+    //Verificar si ya tiene un viaje activo (Bloquea ventanas de incógnito)
     const viajePendiente = await Renta.findOne({ usuario: usuarioId, estado: 'Activo' });
     if (viajePendiente) {
       return res.status(400).json({ message: "Ya tienes un viaje en curso. Finalízalo antes de rentar otro." });
     }
 
-    [cite_start]// ✅ REGLA 2: Verificar si tiene un adeudo/saldo negativo [cite: 262]
+    //Verificar si tiene un adeudo/saldo negativo
     const usuarioLogueado = await User.findById(usuarioId);
     if (usuarioLogueado.adeudo > 0) {
       return res.status(403).json({ 
@@ -361,7 +356,6 @@ app.post("/api/rentas/iniciar", verificarToken, async (req, res) => {
 
 app.put("/api/rentas/finalizar/:id", verificarToken, async (req, res) => {
   try {
-    [cite_start]// Recibimos si el usuario dejó la bici tirada en la calle [cite: 264, 265]
     const { fueraDeEstacion } = req.body; 
     const rentaId = req.params.id;
     const renta = await Renta.findById(rentaId).populate('vehiculo');
@@ -375,16 +369,11 @@ app.put("/api/rentas/finalizar/:id", verificarToken, async (req, res) => {
     let costoTotal = minutos * renta.vehiculo.precioPorMinuto;
     let mensajeExtra = "";
 
-    [cite_start]// ✅ REGLA 3: Aplicar multa si la dejó fuera de la estación [cite: 264, 265]
     if (fueraDeEstacion) {
-      const MULTA = 50; // $50 pesos de multa
+      const MULTA = 50; 
       costoTotal += MULTA;
       mensajeExtra = ` (Incluye multa de $${MULTA} por abandono fuera de estación)`;
-      
-      // Le cargamos la deuda al usuario
       await User.findByIdAndUpdate(req.user.id, { $inc: { adeudo: costoTotal } });
-      
-      // Registramos el incidente
       const nuevaTransaccion = new Transaccion({ usuarioID: req.user.id, tipo: 'Multa', monto: costoTotal });
       await nuevaTransaccion.save();
     }
@@ -395,7 +384,6 @@ app.put("/api/rentas/finalizar/:id", verificarToken, async (req, res) => {
     await renta.save();
     await Vehiculo.findByIdAndUpdate(renta.vehiculo._id, { estado: 'Disponible' });
 
-    registrarLog(`Evento Crítico: Renta finalizada ID: ${rentaId} - Total: $${costoTotal}`);
     res.json({ message: "Renta finalizada", tiempo: `${minutos} min`, total: costoTotal, nota: mensajeExtra });
   } catch (error) {
     res.status(500).json({ error: "Error al finalizar la renta" });
@@ -425,7 +413,6 @@ app.post("/api/incidentes", verificarToken, async (req, res) => {
 
     const nuevoIncidente = new Incidente({ vehiculo: vehiculoId, reportadoPor: usuarioId, descripcion: descripcion });
     await nuevoIncidente.save();
-    registrarLog(`Evento Crítico: Incidente reportado en vehículo ${vehiculoId}`);
     res.status(201).json(nuevoIncidente);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -444,7 +431,7 @@ app.put("/api/incidentes/:id", verificarToken, async (req, res) => {
 app.delete("/api/incidentes/:id", verificarToken, verificarAdmin, async (req, res) => {
   try {
     await Incidente.findByIdAndDelete(req.params.id);
-    res.json({ message: "Incidente eliminado correctamente" });
+    res.json({ message: "Incidente eliminado" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -468,13 +455,11 @@ app.post("/api/transacciones", verificarToken, async (req, res) => {
     const usuarioId = req.user.id;
 
     if (monto < 0) return res.status(400).json({ message: "El monto no puede ser negativo" });
-    
     const tiposValidos = ['Recarga', 'Cobro_Renta', 'Multa'];
     if (!tiposValidos.includes(tipo)) return res.status(400).json({ message: "Tipo de transacción inválido" });
 
     const nuevaTransaccion = new Transaccion({ usuarioID: usuarioId, tipo, monto });
     await nuevaTransaccion.save();
-    registrarLog(`Evento Crítico: Transacción tipo ${tipo} por $${monto}`);
     res.status(201).json(nuevaTransaccion);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -493,7 +478,7 @@ app.put("/api/transacciones/:id", verificarToken, verificarAdmin, async (req, re
 app.delete("/api/transacciones/:id", verificarToken, verificarAdmin, async (req, res) => {
   try {
     await Transaccion.findByIdAndDelete(req.params.id);
-    res.json({ message: "Transacción eliminada correctamente" });
+    res.json({ message: "Transacción eliminada" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

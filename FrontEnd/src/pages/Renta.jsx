@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Renta.css";
 
 const RENTA_TRIP_STORAGE_KEY = "renta-active-trip";
-const PERFIL_WALLET_STORAGE_KEY = "perfil-wallet-methods";
 const money = (value) => `$${value.toFixed(2)} MXN`;
 
 const getAuthHeaders = (withContent = false) => {
@@ -12,7 +11,6 @@ const getAuthHeaders = (withContent = false) => {
     ...(withContent && { "Content-Type": "application/json" }),
     "Authorization": `Bearer ${token}`
   };
-  
 };
 
 function Renta() {
@@ -29,52 +27,35 @@ function Renta() {
   const [tripElapsed, setTripElapsed] = useState(0);
   const [toast, setToast] = useState("");
 
-  // --- Wallet ---
-
+  // --- ESTADOS PARA PAGOS Y WALLET ---
   const [savedCards, setSavedCards] = useState([]);
   const [selectedCardId, setSelectedCardId] = useState("new"); // "new" por defecto para agregar otra
   const [guardarTarjeta, setGuardarTarjeta] = useState(false);
-  
-  // --- ESTADOS NUEVOS PARA PAGOS ---
   const [payment, setPayment] = useState({ holder: "", card: "", exp: "", cvv: "", terms: false });
 
   const showToast = (msg) => { setToast(msg); window.setTimeout(() => setToast(""), 3000); };
   const goTo = (nextStep) => { setStep(nextStep); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const cargarDatos = useCallback(async () => {
-  setLoadingMap(true);
-  try {
-    const localWalletRaw = localStorage.getItem(PERFIL_WALLET_STORAGE_KEY);
-    if (localWalletRaw) {
-      try {
-        const localWallet = JSON.parse(localWalletRaw);
-        const normalizedCards = Array.isArray(localWallet)
-          ? localWallet.map((card, index) => ({
-              _id: String(card.id ?? index),
-              marca: card.brand || "Tarjeta",
-              ultimos4: card.last4 || "0000",
-              expiracion: card.expiracion || "--/--"
-            }))
-          : [];
-        setSavedCards(normalizedCards);
-      } catch {
-        setSavedCards([]);
+    setLoadingMap(true);
+    try {
+      const headers = getAuthHeaders();
+      // Encriptar tarjeta en BD de forma segura
+      const [resEstaciones, resVehiculos, resTarjetas] = await Promise.all([
+        fetch("http://localhost:5000/api/estaciones", { headers }),
+        fetch("http://localhost:5000/api/vehiculos", { headers }),
+        fetch("http://localhost:5000/api/usuarios/metodos-pago", { headers })
+      ]);
+
+      if (resEstaciones.status === 401) return navigate("/login");
+
+      const estacionesData = await resEstaciones.json();
+      const vehiculosData = await resVehiculos.json();
+      
+      // Guardamos las tarjetas encriptadas que vienen del servidor
+      if (resTarjetas.ok) {
+        setSavedCards(await resTarjetas.json());
       }
-    } else {
-      setSavedCards([]);
-    }
-
-    const headers = getAuthHeaders();
-    const [resEstaciones, resVehiculos] = await Promise.all([
-      fetch("http://localhost:5000/api/estaciones", { headers }),
-      fetch("http://localhost:5000/api/vehiculos", { headers })
-    ]);
-
-    if (resEstaciones.status === 401) return navigate("/login");
-
-    const estacionesData = await resEstaciones.json();
-    const vehiculosData = await resVehiculos.json();
-
 
       const lats = estacionesData.map(e => e.coordenadas.lat);
       const lngs = estacionesData.map(e => e.coordenadas.lng);
@@ -92,15 +73,15 @@ function Renta() {
 
       setStations(stationsMapped);
     } catch (error) {
-    showToast("Error al conectar con el servidor.");
-  } finally {
-    setLoadingMap(false);
-  }
-}, [navigate]);
+      showToast("Error al conectar con el servidor.");
+    } finally {
+      setLoadingMap(false);
+    }
+  }, [navigate]);
 
   useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
-  // TIMER Y PERSISTENCIA
+  // TIMER Y PERSISTENCIA (El timer se restaura si se refresca la página)
   useEffect(() => {
     if (!tripStartedAt) return undefined;
     const tick = () => setTripElapsed(Math.floor((Date.now() - tripStartedAt) / 1000));
@@ -128,7 +109,6 @@ function Renta() {
     if (params.get("resumeTrip") === "1") {
       const raw = window.sessionStorage.getItem(RENTA_TRIP_STORAGE_KEY);
       if (!raw) return;
-
       try {
         const saved = JSON.parse(raw);
         if (!saved?.tripStartedAt || !saved?.paidOrder) return;
@@ -137,29 +117,22 @@ function Renta() {
         setPaidOrder(saved.paidOrder || null);
         setTripStartedAt(saved.tripStartedAt);
         goTo("trip");
-      } catch {
-        window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY);
-      }
+      } catch { window.sessionStorage.removeItem(RENTA_TRIP_STORAGE_KEY); }
       return;
     }
 
-    // Permite abrir vistas especificas desde Perfil.
     if (params.get("from") !== "perfil") return;
-
     const focus = params.get("focus");
     if (focus === "pago") {
       setStep("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      setToast("Completa tus datos para continuar con el pago.");
-      window.setTimeout(() => setToast(""), 2200);
+      showToast("Completa tus datos para continuar con el pago.");
       return;
     }
-
     if (focus === "estaciones") {
       setStep("map");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      setToast("Selecciona una estacion y un vehiculo para continuar.");
-      window.setTimeout(() => setToast(""), 2200);
+      showToast("Selecciona una estacion y un vehiculo para continuar.");
     }
   }, [location.search]);
 
@@ -193,7 +166,7 @@ function Renta() {
     );
   };
 
-  //VALIDACIONES DE TARJETA
+  // --- VALIDACIONES MATEMÁTICAS DE TARJETA ---
   const validarLuhn = (num) => {
     let arr = (num + '').split('').reverse().map(x => parseInt(x, 10));
     let sum = arr.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
@@ -215,36 +188,32 @@ function Renta() {
   const procesarPago = async (event) => {
     event.preventDefault();
 
-    // 1. Validar el CVV (Siempre es requerido, ya sea tarjeta nueva o guardada)
-    if (payment.cvv.length < 3 || isNaN(payment.cvv)) {
-      return showToast("CVV inválido (deben ser 3 o 4 números).");
+    //Bloquear CVV 000 (Seguridad real)
+    if (payment.cvv === "000" || payment.cvv.length < 3 || isNaN(payment.cvv)) {
+      return showToast("⚠️ CVV inválido o inseguro.");
     }
 
-    // 2. Si es una tarjeta nueva, validamos todo a fondo
     if (selectedCardId === "new") {
       const cardClean = payment.card.replace(/\s/g, '');
       if (cardClean.length < 15 || isNaN(cardClean) || !validarLuhn(cardClean)) {
-        return showToast("Número de tarjeta inválido. Revisa los dígitos.");
+        return showToast("⚠️ Número de tarjeta inválido. Revisa los dígitos.");
       }
       if (!validarExpiracion(payment.exp)) {
-        return showToast("Fecha de expiración inválida o tarjeta vencida (Usa MM/AA).");
+        return showToast("⚠️ Fecha de expiración inválida o tarjeta vencida.");
       }
 
-      // Si el usuario marcó "Guardar Tarjeta", mandamos petición al BackEnd
+      //Encriptar tarjeta en BD de forma segura
       if (guardarTarjeta) {
         try {
           await fetch("http://localhost:5000/api/usuarios/metodos-pago", {
             method: "POST", headers: getAuthHeaders(true),
             body: JSON.stringify({ numeroTarjeta: cardClean, expiracion: payment.exp })
           });
-          showToast("Tarjeta encriptada y guardada con éxito.");
-        } catch (error) {
-          console.error("Error guardando tarjeta:", error);
-        }
+          showToast("💳 Tarjeta encriptada y guardada con éxito.");
+        } catch (error) { console.error("Error guardando tarjeta:", error); }
       }
     }
 
-    // Proceso de generar la orden de renta
     const now = new Date();
     const orderId = `RV-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${Math.floor(1000 + Math.random() * 9000)}`;
     setPaidOrder({
@@ -269,15 +238,14 @@ function Renta() {
         goTo("trip");
         showToast("Viaje iniciado. Vehículo desbloqueado.");
       } else {
-        // ✅ AQUÍ DETECTAMOS LA DEUDA O EL VIAJE ACTIVO Y LO MOSTRAMOS
-        alert(`🚨 ATENCIÓN: ${data.message}`);
-        if (res.status === 403) navigate("/perfil"); // Lo mandamos a pagar
+        // Muestra mensaje de Deuda o Viaje activo
+        alert(`ATENCIÓN: ${data.message}`);
+        if (res.status === 403) navigate("/perfil"); 
       }
     } catch (error) { showToast("Error al comunicarse con el servidor."); }
   };
 
   // --- PARAR VIAJE ---
-  // Recibe un parámetro para saber si la dejó en la calle o en la estación
   const onStopTrip = async (fueraDeEstacion = false) => {
     const rentaId = localStorage.getItem("rentaActivaId");
     if (rentaId) {
@@ -285,7 +253,7 @@ function Renta() {
         const res = await fetch(`http://localhost:5000/api/rentas/finalizar/${rentaId}`, { 
           method: "PUT", 
           headers: getAuthHeaders(true),
-          body: JSON.stringify({ fueraDeEstacion }) // Mandamos el dato al servidor
+          body: JSON.stringify({ fueraDeEstacion }) 
         });
         const data = await res.json();
         if (res.ok) {
@@ -356,68 +324,66 @@ function Renta() {
         )}
 
         {step === "payment" && (
-  <section className="renta-step is-active" aria-labelledby="payment-title">
-    <div className="renta-container renta-container-narrow">
-      <p className="renta-kicker">Paso 2</p>
-      <h2 id="payment-title" className="rye-font">Pago Seguro</h2>
+          <section className="renta-step is-active" aria-labelledby="payment-title">
+            <div className="renta-container renta-container-narrow">
+              <p className="renta-kicker">Paso 2</p>
+              <h2 id="payment-title" className="rye-font">Pago Seguro</h2>
 
-      <form className="renta-card renta-payment-form" onSubmit={procesarPago}>
-        
-        {/* SELECTOR DE MODO DE PAGO */}
-        {savedCards.length > 0 && (
-          <label>
-            Selecciona tu método de pago
-            <select 
-              className="mod-input" 
-              style={{ border: '1px solid #b88642' }}
-              value={selectedCardId} 
-              onChange={(e) => setSelectedCardId(e.target.value)}
-            >
-              <option value="new">➕ Agregar otra tarjeta</option>
-              {savedCards.map(c => (
-                <option key={c._id} value={c._id}>💳 {c.marca} **** {c.ultimos4} (Exp: {c.expiracion})</option>
-              ))}
-            </select>
-          </label>
-        )}
+              <form className="renta-card renta-payment-form" onSubmit={procesarPago}>
+                
+                {/* SELECTOR DE WALLET (TARJETAS GUARDADAS) */}
+                {savedCards.length > 0 && (
+                  <label>
+                    Selecciona tu método de pago
+                    <select 
+                      className="mod-input" 
+                      style={{ border: '1px solid #b88642' }}
+                      value={selectedCardId} 
+                      onChange={(e) => setSelectedCardId(e.target.value)}
+                    >
+                      <option value="new">➕ Agregar otra tarjeta</option>
+                      {savedCards.map(c => (
+                        <option key={c._id} value={c._id}>💳 {c.marca} **** {c.ultimos4} (Exp: {c.expiracion})</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
 
-        {/* CAMPOS PARA TARJETA NUEVA: Solo se ven si elige "new" */}
-        {selectedCardId === "new" && (
-          <>
-            <label>Nombre del titular<input name="holder" required placeholder="Como aparece en el plástico" value={payment.holder} onChange={onPaymentChange} /></label>
-            <div className="renta-cols-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
-              <label>Número de Tarjeta<input name="card" required placeholder="0000 0000 0000 0000" maxLength={19} value={payment.card} onChange={onPaymentChange} /></label>
-              <label>Vencimiento<input name="exp" required placeholder="MM/AA" maxLength={5} value={payment.exp} onChange={onPaymentChange} /></label>
+                {/* FORMULARIO TARJETA NUEVA */}
+                {selectedCardId === "new" && (
+                  <>
+                    <label>Nombre del titular<input name="holder" required placeholder="Como aparece en el plástico" value={payment.holder} onChange={onPaymentChange} /></label>
+                    <div className="renta-cols-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                      <label>Número de Tarjeta<input name="card" required placeholder="0000 0000 0000 0000" maxLength={19} value={payment.card} onChange={onPaymentChange} /></label>
+                      <label>Vencimiento<input name="exp" required placeholder="MM/AA" maxLength={5} value={payment.exp} onChange={onPaymentChange} /></label>
+                    </div>
+                    <label className="renta-check">
+                      <input type="checkbox" checked={guardarTarjeta} onChange={(e) => setGuardarTarjeta(e.target.checked)} />
+                      🔒 Guardar esta tarjeta en mi Wallet de forma encriptada
+                    </label>
+                  </>
+                )}
+
+                {/* CVV SIEMPRE OBLIGATORIO */}
+                <div style={{ width: '120px' }}>
+                  <label>CVV<input name="cvv" required type="password" inputMode="numeric" maxLength={4} placeholder="***" value={payment.cvv} onChange={onPaymentChange} /></label>
+                </div>
+
+                <label className="renta-check" style={{ marginTop: '10px' }}>
+                  <input type="checkbox" name="terms" required checked={payment.terms} onChange={onPaymentChange} />
+                  Acepto los términos y condiciones de renta
+                </label>
+                
+                <button className="renta-btn renta-btn-primary" type="submit">Validar Pago y Generar Ticket</button>
+              </form>
+
+              <div className="renta-actions-row">
+                <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Regresar al mapa</button>
+              </div>
             </div>
-            <label className="renta-check">
-              <input type="checkbox" checked={guardarTarjeta} onChange={(e) => setGuardarTarjeta(e.target.checked)} />
-              🔒 Guardar esta tarjeta en mi Wallet para futuros viajes
-            </label>
-          </>
+          </section>
         )}
 
-        {/* CVV: Siempre se pide, incluso para tarjetas guardadas */}
-        <div style={{ width: '120px' }}>
-          <label>CVV<input name="cvv" required type="password" inputMode="numeric" maxLength={4} placeholder="***" value={payment.cvv} onChange={onPaymentChange} /></label>
-        </div>
-
-        <label className="renta-check" style={{ marginTop: '10px' }}>
-          <input type="checkbox" name="terms" required checked={payment.terms} onChange={onPaymentChange} />
-          Acepto los términos y condiciones de renta
-        </label>
-        
-        <button className="renta-btn renta-btn-primary" type="submit">Validar Pago y Generar Ticket</button>
-      </form>
-
-      <div className="renta-actions-row">
-        <button className="renta-btn renta-btn-ghost" type="button" onClick={() => goTo("map")}>Regresar al mapa</button>
-      </div>
-    </div>
-  </section>
-)}
-
-
-        {/* PASO 3 Y 4 SE MANTIENEN IGUAL (Tickets y Timer) */}
         {step === "ticket" && paidOrder && (
           <section className="renta-step is-active">
             <div className="renta-container renta-container-narrow">

@@ -1,7 +1,6 @@
 const mongoose = require ('mongoose');
 
 const UsuarioSchema = new mongoose.Schema({
-
     nombre: {
         type: String,
         required: true
@@ -34,26 +33,31 @@ const UsuarioSchema = new mongoose.Schema({
     adeudo: { 
         type: Number, 
         default: 0 
-    }, // <--- NUEVO: Para guardar multas o saldos negativos
+    },
 
-    metodosPago: {
+    // 👉 ¡AQUÍ ESTÁ EL CAJÓN DE LA FOTO QUE FALTABA!
+    fotoPerfil: { 
+        type: String, 
+        default: "" 
+    },
+
+    metodosPago: [{
         ultimos4: String,
         marca: String,
         expiracion: String,
-        tarjetaEncriptada: String,
-        default: []
-    },
+        tarjetaEncriptada: String
+    }],
+
     billetera: {
         saldo: { 
-        type: Number, 
-        default: 0 
-    },
-    tieneAdeudo: { 
-        type: Boolean, 
-        default: false 
+            type: Number, 
+            default: 0 
+        },
+        tieneAdeudo: { 
+            type: Boolean, 
+            default: false 
+        }
     }
-  }
-
 });
 
 module.exports = mongoose.model('Usuario', UsuarioSchema);

@@ -13,6 +13,8 @@ function Perfil() {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
+  // (Nota de seguridad: Recuerda migrar esto a la BD pronto como hicimos en Renta)
   const [walletMethods, setWalletMethods] = useState(() => {
     const raw = localStorage.getItem("perfil-wallet-methods");
     if (raw) {
@@ -27,12 +29,14 @@ function Perfil() {
       { id: 2, brand: "Mastercard", alias: "Respaldo", last4: "7821", preferred: false }
     ];
   });
-  const [newWalletMethod, setNewWalletMethod] = useState({
-    brand: "Visa",
-    alias: "",
-    cardNumber: ""
-  });
+  
+  const [newWalletMethod, setNewWalletMethod] = useState({ brand: "Visa", alias: "", cardNumber: "" });
   const fileInputRef = useRef(null);
+
+  const showToast = (message) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2000);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,76 +50,115 @@ function Perfil() {
 
     // Traer perfil completo desde el backend
     fetch(`http://localhost:5000/api/usuarios/${datosBasicos.id}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+      headers: { "Authorization": `Bearer ${token}` }
     })
       .then(res => res.json())
-      .then(data => setUsuario(data))
+      .then(data => {
+        setUsuario(data);
+        // ✅ Cargar la foto guardada en la BD si existe
+        if (data.fotoPerfil) {
+          setPhoto(data.fotoPerfil);
+        }
+      })
       .catch(err => console.error("Error al cargar perfil:", err));
-
   }, [navigate]);
 
-  const showToast = (message) => {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2000);
-  };
-  
   useEffect(() => {
     localStorage.setItem("perfil-wallet-methods", JSON.stringify(walletMethods));
   }, [walletMethods]);
 
-  // --- CAMBIAR FOTO ---
+  // --- CAMBIAR FOTO (PASO 5: Límite de peso y guardar en BD) ---
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // ✅ VALIDACIÓN: Peso máximo de 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("⚠️ La imagen pesa demasiado. El límite es de 2MB.");
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = (ev) => setPhoto(ev.target.result);
+    reader.onload = async (ev) => {
+      const base64Image = ev.target.result;
+      setPhoto(base64Image);
+
+      // ✅ GUARDAR en la base de datos
+      try {
+        await fetch(`http://localhost:5000/api/usuarios/${usuario._id}`, {
+          method: "PUT",
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": `Bearer ${localStorage.getItem("token")}` 
+          },
+          body: JSON.stringify({ fotoPerfil: base64Image })
+        });
+        showToast("📸 Foto de perfil guardada con éxito.");
+      } catch (error) {
+        showToast("Error al guardar la foto en el servidor.");
+      }
+    };
     reader.readAsDataURL(file);
+  };
+
+  // --- EDITAR INFORMACIÓN (PASO 5: Modificar datos) ---
+  const editarInformacion = async () => {
+    const nuevoNombre = prompt("Nuevo nombre:", usuario.nombre);
+    const nuevoApellido = prompt("Nuevo apellido:", usuario.apellido);
+    const nuevoPais = prompt("Nuevo país:", usuario.pais);
+
+    // Si le da cancelar o deja vacíos los datos, no hacemos nada
+    if (!nuevoNombre?.trim() || !nuevoApellido?.trim() || !nuevoPais?.trim()) {
+      return showToast("⚠️ Operación cancelada o campos vacíos.");
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/usuarios/${usuario._id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${localStorage.getItem("token")}` 
+        },
+        body: JSON.stringify({ nombre: nuevoNombre, apellido: nuevoApellido, pais: nuevoPais })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setUsuario(data); // Actualizamos la vista instantáneamente
+        showToast("✨ ¡Información actualizada!");
+      }
+    } catch (error) {
+      showToast("Error al actualizar la información.");
+    }
   };
 
   // --- CAMBIAR CONTRASEÑA ---
   const handleSavePassword = async () => {
-    if (newPassword.trim() === "") {
-      showToast("La contraseña no puede estar vacía.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      showToast("Las contraseñas no coinciden.");
-      return;
-    }
+    if (newPassword.trim() === "") return showToast("La contraseña no puede estar vacía.");
+    if (newPassword !== confirmPassword) return showToast("Las contraseñas no coinciden.");
 
-    //VALIDACIÓN DE CONTRASEÑA SEGURA
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
-      showToast("Debe tener al menos 8 caracteres, una mayúscula, minúscula y un número.");
-      return;
+      return showToast("Debe tener al menos 8 caracteres, una mayúscula, minúscula y un número.");
     }
 
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5000/api/usuarios/${usuario.id}`, {
+      const res = await fetch(`http://localhost:5000/api/usuarios/${usuario._id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ password: newPassword })
       });
 
       if (res.ok) {
         showToast("¡Contraseña actualizada con éxito!");
-        setNewPassword("");
-        setConfirmPassword("");
-        setShowModal(false);
+        setNewPassword(""); setConfirmPassword(""); setShowModal(false);
       } else {
         showToast("Error al actualizar la contraseña en el servidor.");
       }
-    } catch (error) {
-      console.error("Error:", error);
-      showToast("Error de conexión con el servidor.");
-    }
+    } catch (error) { showToast("Error de conexión con el servidor."); }
   };
+
   // --- CERRAR SESIÓN ---
   const logout = () => {
     window.sessionStorage.removeItem("renta-active-trip");
@@ -124,20 +167,15 @@ function Perfil() {
     navigate("/login");
   };
 
-  const goToPayment = () => {
-    setShowWalletModal(true);
-  };
-
+  const goToPayment = () => setShowWalletModal(true);
   const goToStations = () => {
     showToast("Te llevamos a Renta para ver estaciones.");
     window.setTimeout(() => navigate("/renta?from=perfil&focus=estaciones"), 300);
   };
 
   const setPreferredMethod = (methodId) => {
-    setWalletMethods((prev) =>
-      prev.map((method) => ({ ...method, preferred: method.id === methodId }))
-    );
-    showToast("Metodo predeterminado actualizado.");
+    setWalletMethods((prev) => prev.map((method) => ({ ...method, preferred: method.id === methodId })));
+    showToast("Método predeterminado actualizado.");
   };
 
   const removeWalletMethod = (methodId) => {
@@ -145,45 +183,23 @@ function Perfil() {
       const filtered = prev.filter((method) => method.id !== methodId);
       if (filtered.length === 0) return filtered;
       if (filtered.some((method) => method.preferred)) return filtered;
-      return filtered.map((method, index) => ({
-        ...method,
-        preferred: index === 0
-      }));
+      return filtered.map((method, index) => ({ ...method, preferred: index === 0 }));
     });
-    showToast("Metodo eliminado de la cartera.");
+    showToast("Método eliminado de la cartera.");
   };
 
   const addWalletMethod = (event) => {
     event.preventDefault();
     const cleanAlias = newWalletMethod.alias.trim();
     const digitsOnly = newWalletMethod.cardNumber.replace(/\D/g, "");
-    if (cleanAlias.length < 2) {
-      showToast("Agrega un alias valido para la tarjeta.");
-      return;
-    }
-    if (digitsOnly.length < 12) {
-      showToast("Numero de tarjeta invalido.");
-      return;
-    }
+    if (cleanAlias.length < 2) return showToast("Agrega un alias válido para la tarjeta.");
+    if (digitsOnly.length < 12) return showToast("Número de tarjeta inválido.");
 
-    const newItem = {
-      id: Date.now(),
-      brand: newWalletMethod.brand,
-      alias: cleanAlias,
-      last4: digitsOnly.slice(-4),
-      preferred: walletMethods.length === 0
-    };
-
+    const newItem = { id: Date.now(), brand: newWalletMethod.brand, alias: cleanAlias, last4: digitsOnly.slice(-4), preferred: walletMethods.length === 0 };
     setWalletMethods((prev) => [...prev, newItem]);
     setNewWalletMethod({ brand: "Visa", alias: "", cardNumber: "" });
-    showToast("Metodo agregado a tu cartera virtual.");
+    showToast("Método agregado a tu cartera virtual.");
   };
-
-  const stats = [
-    { label: "Rutas", value: "24", icon: "bx-map-alt" },
-    { label: "Kms", value: "158", icon: "bx-run" },
-    { label: "Rango", value: "Sheriff", icon: "bx-star" }
-  ];
 
   if (!usuario) return null;
 
@@ -194,77 +210,44 @@ function Perfil() {
 
           {/* SIDEBAR IZQUIERDO */}
           <div className="profile-sidebar">
-
-            {/* Foto de perfil con botón de edición */}
-            <div
-              className="avatar-frame"
-              style={{ position: "relative", cursor: "pointer" }}
-              onClick={() => fileInputRef.current.click()}
-            >
-              <img
-                src={photo || avatarVaquero}
-                alt="Avatar"
-                className="user-photo"
-                style={{ transition: "transform 0.3s" }}
-              />
+            <div className="avatar-frame" style={{ position: "relative", cursor: "pointer" }} onClick={() => fileInputRef.current.click()}>
+              <img src={photo || avatarVaquero} alt="Avatar" className="user-photo" style={{ transition: "transform 0.3s" }} />
               <div className="badge-rank icon-sway" style={{ position: "absolute", bottom: 0, right: 0 }}>
                 <i className="bx bxs-camera"></i>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handlePhotoChange}
-              />
+              <input type="file" accept="image/*" ref={fileInputRef} style={{ display: "none" }} onChange={handlePhotoChange} />
             </div>
 
-            <h2 className="rye-font user-name">
-              {usuario.nombre} {usuario.apellido}
-            </h2>
+            <h2 className="rye-font user-name">{usuario.nombre} {usuario.apellido}</h2>
             <p className="since-text">{usuario.correo}</p>
 
             <div className="status-pill">
               <span className="dot pulse-green"></span> EN RUTA
             </div>
 
-            {/* Cambiar contraseña */}
-            <button
-              className="leather-btn"
-              type="button"
-              style={{ marginTop: "16px" }}
-              onClick={() => setShowModal(true)}
-            >
+            <button className="leather-btn" type="button" style={{ marginTop: "16px" }} onClick={() => setShowModal(true)}>
               <i className="bx bxs-lock-alt"></i> CAMBIAR CONTRASEÑA
             </button>
 
-            {/* Panel admin — solo si el rol es admin */}
             {usuario.rol === "admin" && (
-              <button
-                className="leather-btn"
-                type="button"
-                style={{ marginTop: "10px" }}
-                onClick={() => navigate("/admin")}
-              >
+              <button className="leather-btn" type="button" style={{ marginTop: "10px" }} onClick={() => navigate("/admin")}>
                 <i className="bx bxs-cog"></i> PANEL DE CONTROL
               </button>
             )}
 
-            {/* Cerrar sesión */}
-            <button
-              className="leather-btn danger"
-              type="button"
-              style={{ marginTop: "10px" }}
-              onClick={logout}
-            >
+            <button className="leather-btn danger" type="button" style={{ marginTop: "10px" }} onClick={logout}>
               <i className="bx bx-log-out"></i> CERRAR SESIÓN
             </button>
           </div>
 
           {/* PANEL DERECHO */}
           <div className="profile-main">
-            <header className="profile-header">
-              <img src={logo} alt="Logo" className="mini-logo anim-float" />
+            {/* ✅ PASO 5: Botón integrado en la cabecera */}
+            <header className="profile-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <img src={logo} alt="Logo" className="mini-logo anim-float" style={{ margin: 0 }} />
+              <button className="leather-btn" type="button" onClick={editarInformacion} style={{ width: "auto", padding: "8px 15px", fontSize: "0.85rem", margin: 0 }}>
+                <i className="bx bxs-edit"></i> EDITAR DATOS
+              </button>
             </header>
 
             <div className="info-grid">
@@ -296,27 +279,11 @@ function Perfil() {
 
       {/* MODAL CAMBIAR CONTRASEÑA */}
       {showModal && (
-        <div
-          className="modal active"
-          style={{ display: "grid" }}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
-        >
+        <div className="modal active" style={{ display: "grid" }} onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}>
           <div className="modal-box">
             <h3>Actualizar Seguridad</h3>
-            <input
-              type="password"
-              className="mod-input"
-              placeholder="Nueva contraseña"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <input
-              type="password"
-              className="mod-input"
-              placeholder="Confirmar contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <input type="password" className="mod-input" placeholder="Nueva contraseña" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <input type="password" className="mod-input" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
             <div className="mod-btns">
               <button className="btn-save" type="button" onClick={handleSavePassword}>Guardar</button>
               <button className="btn-close" type="button" onClick={() => setShowModal(false)}>Cancelar</button>
@@ -325,12 +292,9 @@ function Perfil() {
         </div>
       )}
 
+      {/* MODAL CARTERA VIRTUAL */}
       {showWalletModal && (
-        <div
-          className="modal active"
-          style={{ display: "grid" }}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowWalletModal(false); }}
-        >
+        <div className="modal active" style={{ display: "grid" }} onClick={(e) => { if (e.target === e.currentTarget) setShowWalletModal(false); }}>
           <div className="modal-box wallet-modal-box">
             <h3>Cartera virtual</h3>
             <p className="wallet-subtitle">Administra tus metodos de pago guardados.</p>
@@ -346,21 +310,10 @@ function Perfil() {
                       <p className="wallet-alias">{method.alias}</p>
                     </div>
                     <div className="wallet-item-actions">
-                      <button
-                        className="wallet-action"
-                        type="button"
-                        disabled={method.preferred}
-                        onClick={() => setPreferredMethod(method.id)}
-                      >
+                      <button className="wallet-action" type="button" disabled={method.preferred} onClick={() => setPreferredMethod(method.id)}>
                         {method.preferred ? "Predeterminada" : "Marcar principal"}
                       </button>
-                      <button
-                        className="wallet-action danger"
-                        type="button"
-                        onClick={() => removeWalletMethod(method.id)}
-                      >
-                        Eliminar
-                      </button>
+                      <button className="wallet-action danger" type="button" onClick={() => removeWalletMethod(method.id)}>Eliminar</button>
                     </div>
                   </article>
                 ))
@@ -370,10 +323,7 @@ function Perfil() {
             <form className="wallet-form" onSubmit={addWalletMethod}>
               <label>
                 Marca
-                <select
-                  value={newWalletMethod.brand}
-                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, brand: e.target.value }))}
-                >
+                <select value={newWalletMethod.brand} onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, brand: e.target.value }))}>
                   <option value="Visa">Visa</option>
                   <option value="Mastercard">Mastercard</option>
                   <option value="Amex">Amex</option>
@@ -381,22 +331,11 @@ function Perfil() {
               </label>
               <label>
                 Alias
-                <input
-                  type="text"
-                  placeholder="Ejemplo: Nomina"
-                  value={newWalletMethod.alias}
-                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, alias: e.target.value }))}
-                />
+                <input type="text" placeholder="Ejemplo: Nomina" value={newWalletMethod.alias} onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, alias: e.target.value }))} />
               </label>
               <label>
                 Tarjeta
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="1234 5678 9012 3456"
-                  value={newWalletMethod.cardNumber}
-                  onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, cardNumber: e.target.value }))}
-                />
+                <input type="text" inputMode="numeric" placeholder="1234 5678 9012 3456" value={newWalletMethod.cardNumber} onChange={(e) => setNewWalletMethod((prev) => ({ ...prev, cardNumber: e.target.value }))} />
               </label>
               <button className="btn-save" type="submit">Agregar metodo</button>
             </form>

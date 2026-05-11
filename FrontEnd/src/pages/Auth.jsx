@@ -17,8 +17,18 @@ function Auth() {
 
 const handleRegister = async (e) => {
     e.preventDefault();
-
     const { nombre, apellido, pais, fechaNacimiento, correo, password } = registerData;
+
+    //Evitar puros espacios vacíos
+    if (nombre.trim() === "" || apellido.trim() === "" || pais.trim() === "") {
+      return alert("⚠️ Los campos no pueden estar vacíos o tener solo espacios.");
+    }
+
+    //VAlidación estricta de dominio de correo
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(correo)) {
+      return alert("⚠️ Ingresa un correo con un dominio válido (ej. usuario@gmail.com).");
+    }
 
     // 1. VALIDACIÓN: No casillas vacías
     if (!nombre || !apellido || !pais || !fechaNacimiento || !correo || !password) {

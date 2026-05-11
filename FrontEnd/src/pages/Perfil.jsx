@@ -45,7 +45,7 @@ function Perfil() {
     if (!datosBasicos?.id) return;
 
     // Traer perfil completo desde el backend
-    fetch(`https://oyevaquero.onrender.com/api/usuarios/${datosBasicos.id}`, {
+    fetch(`http://localhost:5000/api/usuarios/${datosBasicos.id}`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
@@ -94,7 +94,7 @@ function Perfil() {
 
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`https://oyevaquero.onrender.com/api/usuarios/${usuario.id}`, {
+      const res = await fetch(`http://localhost:5000/api/usuarios/${usuario.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

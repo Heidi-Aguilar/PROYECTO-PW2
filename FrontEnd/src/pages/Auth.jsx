@@ -56,7 +56,7 @@ const handleRegister = async (e) => {
 
     // 5. PROCESO DE REGISTRO
     try {
-      const response = await fetch("https://oyevaquero.onrender.com/api/register", {
+      const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registerData)
@@ -84,7 +84,7 @@ const handleRegister = async (e) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://oyevaquero.onrender.com/api/login", {
+      const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData)

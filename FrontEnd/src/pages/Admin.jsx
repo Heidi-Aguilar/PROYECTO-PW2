@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Admin.css";
 
-const API_URL = "https://oyevaquero.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 function Admin() {
   const navigate = useNavigate();

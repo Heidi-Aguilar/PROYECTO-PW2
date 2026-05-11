@@ -66,8 +66,8 @@ function Renta() {
 
     const headers = getAuthHeaders();
     const [resEstaciones, resVehiculos] = await Promise.all([
-      fetch("http://localhost:5000/api/estaciones", { headers }),
-      fetch("http://localhost:5000/api/vehiculos", { headers })
+      fetch("https://oyevaquero.onrender.com/api/estaciones", { headers }),
+      fetch("https://oyevaquero.onrender.com/api/vehiculos", { headers })
     ]);
 
     if (resEstaciones.status === 401) return navigate("/login");
@@ -233,7 +233,7 @@ function Renta() {
       // Si el usuario marcó "Guardar Tarjeta", mandamos petición al BackEnd
       if (guardarTarjeta) {
         try {
-          await fetch("http://localhost:5000/api/usuarios/metodos-pago", {
+          await fetch("https://oyevaquero.onrender.com/api/usuarios/metodos-pago", {
             method: "POST", headers: getAuthHeaders(true),
             body: JSON.stringify({ numeroTarjeta: cardClean, expiracion: payment.exp })
           });
@@ -256,7 +256,7 @@ function Renta() {
   // --- INICIAR VIAJE ---
   const onStartTrip = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/rentas/iniciar", {
+      const res = await fetch("https://oyevaquero.onrender.com/api/rentas/iniciar", {
         method: "POST", headers: getAuthHeaders(true), body: JSON.stringify({ vehiculoId: selectedVehicle.id })
       });
       const data = await res.json();
@@ -282,7 +282,7 @@ function Renta() {
     const rentaId = localStorage.getItem("rentaActivaId");
     if (rentaId) {
       try {
-        const res = await fetch(`http://localhost:5000/api/rentas/finalizar/${rentaId}`, { 
+        const res = await fetch(`https://oyevaquero.onrender.com/api/rentas/finalizar/${rentaId}`, { 
           method: "PUT", 
           headers: getAuthHeaders(true),
           body: JSON.stringify({ fueraDeEstacion }) // Mandamos el dato al servidor
